@@ -57,6 +57,9 @@ type TryOnReply = { image: string | null; charged: number; cached: boolean; noti
 
 // What each avatar wears, kept in the browser while moving between the studio pages: a page shown
 // again from the short browser cache may carry slightly older account data than this.
+// Whether this avatar has a saved look to put back when the page opens.
+const worn0 = (worn: Record<string, string[]>, id: string) => (worn[id]?.length ?? 0) > 0;
+
 const memory = new Map<string, { worn: Record<string, string[]>; avatar: string | null }>();
 
 export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t: Text; data: StudioData }) {
@@ -69,6 +72,8 @@ export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t:
   const [layers, setLayers] = useState<WardrobeItem[]>([]);
   const [look, setLook] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // True while a saved look is being fetched, so the plain avatar is never mistaken for it.
+  const [restoring, setRestoring] = useState(() => (worn0(kept?.worn ?? data.worn, known(data.start?.avatar) ?? known(kept?.avatar) ?? known(data.wornAvatar) ?? "f1")));
   const [preview, setPreview] = useState<WardrobeItem | null>(null);
   const worn = useRef(kept?.worn ?? data.worn);
   const viewToken = useRef(0);
@@ -105,7 +110,11 @@ export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t:
   const restore = useCallback(
     async (id: string, items: WardrobeItem[]) => {
       const token = ++viewToken.current;
-      if (items.length === 0 || data.preview) return false;
+      if (items.length === 0 || data.preview) {
+        setRestoring(false);
+        return false;
+      }
+      setRestoring(true);
       try {
         const res = await callApi<TryOnReply>("/api/tryon", json("POST", { avatar: id, items: items.map((i) => i.ref), cacheOnly: true }));
         // A newer choice (another avatar, or dressing) wins over this slower answer.
@@ -116,6 +125,8 @@ export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t:
         }
       } catch {
         /* the plain avatar stays on screen */
+      } finally {
+        if (token === viewToken.current) setRestoring(false);
       }
       return false;
     },
@@ -125,6 +136,7 @@ export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t:
   const dress = useCallback(
     async (next: WardrobeItem[], added: WardrobeItem | null, on = avatar) => {
       viewToken.current += 1;
+      setRestoring(false);
       setBusy(true);
       setPreview(added);
       try {
@@ -276,6 +288,7 @@ export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t:
           look={look}
           layers={layers}
           busy={busy}
+          restoring={restoring}
           preview={preview}
           canSave={!data.preview}
           onSave={(name, occasion) => saveLook(layers.map((l) => l.ref), name, occasion)}

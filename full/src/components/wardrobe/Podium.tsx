@@ -20,7 +20,7 @@ const ZONE: Partial<Record<Category, { top: string; height: string; left?: strin
 const LOWER_PREVIEW = { top: "calc(50% + 62px)", height: "calc(47% - 62px)" };
 
 export default function Podium({
-  t, avatars, current, avatarHref, onAvatar, look, layers, busy, preview, canSave, onSave, onRemove, onReset,
+  t, avatars, current, avatarHref, onAvatar, look, layers, busy, restoring = false, preview, canSave, onSave, onRemove, onReset,
 }: {
   t: Text;
   avatars: AvatarCard[];
@@ -30,6 +30,7 @@ export default function Podium({
   look: string | null;
   layers: WardrobeItem[];
   busy: boolean;
+  restoring?: boolean; // the saved look is on its way: the plain avatar is not shown as if it were the look
   preview: WardrobeItem | null;
   canSave: boolean;
   onSave: (name: string, occasion: Occasion | null) => Promise<boolean>;
@@ -70,7 +71,7 @@ export default function Podium({
     <>
       <div className="wc-floor" aria-hidden="true" />
       <div className={`wc-stage ${loupe ? "is-loupe" : ""}`} onPointerMove={moveLens} onPointerLeave={() => setLens(null)}>
-        <div className={`wc-figure ${busy ? "is-busy" : ""}`}>
+        <div className={`wc-figure ${busy ? "is-busy" : restoring ? "is-restoring" : ""}`}>
           <img ref={figure} src={look ?? current.image} alt="" draggable={false} />
         </div>
 

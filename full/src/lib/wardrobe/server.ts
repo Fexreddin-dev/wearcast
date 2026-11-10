@@ -10,7 +10,8 @@ import type { StudioError } from "./catalog";
 export const FAL_TRYON = "fal-ai/fashn/tryon/v1.6";
 export const FAL_CUTOUT = "fal-ai/birefnet/v2";
 export const FAL_EDIT = "fal-ai/flux-pro/kontext";
-const COST: Record<string, number> = { [FAL_TRYON]: 0.075, [FAL_CUTOUT]: 0.01, [FAL_EDIT]: 0.04 };
+export const FAL_SEGMENT = "fal-ai/evf-sam"; // headscarf masks for hijab avatars, once per avatar
+const COST: Record<string, number> = { [FAL_TRYON]: 0.075, [FAL_CUTOUT]: 0.01, [FAL_EDIT]: 0.04, [FAL_SEGMENT]: 0.005 };
 
 export class StudioFailure extends Error {
   constructor(public code: StudioError, public status = 400) {
@@ -92,6 +93,30 @@ export async function uploadOpaque(input: Buffer, background = "#F4F3EF") {
     .toBuffer();
   fal.config({ credentials: process.env.FAL_KEY });
   return fal.storage.upload(new Blob([new Uint8Array(jpeg)], { type: "image/jpeg" }));
+}
+
+// Photos people upload: a clearly blurry or tiny picture is refused at once, before anything is paid,
+// with a message saying how to take a better one. Sharpness is the mean of the strongest 2% of edge
+// responses on a 768 px copy. Calibrated Nov 2026 on sample photos blurred step by step: people score
+// 53-98 sharp, 26-38 slightly soft, 6-7 very blurry; garments depend on the fabric (a plain satin blouse
+// scores only 16 when sharp), so they get a lower bar, and their tidy catalogue picture fixes mild blur.
+const MIN_SHARPNESS = { person: 8, garment: 4 };
+export async function assertClearPhoto(input: Buffer, kind: keyof typeof MIN_SHARPNESS) {
+  const meta = await sharp(input).metadata(); // the shorter side is the same whatever the rotation
+  if (Math.min(meta.width ?? 0, meta.height ?? 0) < 400) throw new StudioFailure("photo_small", 422);
+  const { data, info } = await sharp(input).rotate().flatten({ background: "#ffffff" }).greyscale().resize(768, 768, { fit: "inside" }).raw().toBuffer({ resolveWithObject: true });
+  const edges = await sharp(data, { raw: info }).convolve({ width: 3, height: 3, kernel: [0, 1, 0, 1, -4, 1, 0, 1, 0] }).raw().toBuffer();
+  const histogram = new Array<number>(256).fill(0);
+  for (const v of edges) histogram[v]++;
+  let wanted = Math.max(1, Math.floor(edges.length * 0.02));
+  let sum = 0;
+  const count = wanted;
+  for (let v = 255; v >= 0 && wanted > 0; v--) {
+    const take = Math.min(histogram[v], wanted);
+    sum += take * v;
+    wanted -= take;
+  }
+  if (sum / count < MIN_SHARPNESS[kind]) throw new StudioFailure("photo_blurry", 422);
 }
 
 // Shipped avatars and sample garments never change, so each is uploaded once per hour at most.

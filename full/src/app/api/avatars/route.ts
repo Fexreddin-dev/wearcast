@@ -27,7 +27,7 @@ import {
   publicFile,
   purgeAvatar,
 } from "@/lib/wardrobe/avatars";
-import { assertPlanActive, type Caller, describeError, fail, requireUser, startOfToday, StudioFailure } from "@/lib/wardrobe/server";
+import { assertClearPhoto, assertPlanActive, type Caller, describeError, fail, requireUser, startOfToday, StudioFailure } from "@/lib/wardrobe/server";
 
 type Admin = ReturnType<typeof createAdminClient>;
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -155,6 +155,8 @@ export async function POST(request: Request) {
 
     const front = mode === "photo" ? photo(form.get("front")) : null;
     if (mode === "photo" && !front) throw new StudioFailure("invalid");
+    // A clearly blurry or tiny photo is refused before anything is made or paid.
+    if (front) await assertClearPhoto(Buffer.from(await front.arrayBuffer()), "person");
 
     const { data: made, error } = await admin
       .from("avatars")
@@ -215,7 +217,7 @@ export async function POST(request: Request) {
         await pay.spend();
         let dressed: string | null = null;
         try {
-          dressed = await dressInStudioOutfit(source, { modest: p.modest }, caller);
+          dressed = await dressInStudioOutfit(source, upload, { modest: p.modest }, caller);
         } catch (e) {
           if (e instanceof StudioFailure && e.code === "budget") throw e;
           console.error("[avatars] studio outfit failed", describeError(e));

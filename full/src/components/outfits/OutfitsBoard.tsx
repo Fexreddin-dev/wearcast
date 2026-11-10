@@ -95,7 +95,8 @@ export default function OutfitsBoard({ locale, t, w, outfits: initial, preview }
 
       {shown.length === 0 && (
         <div className="glass of-empty">
-          <p className="text-sm text-text-2">{t.empty}</p>
+          {/* Saved looks exist, just none for this occasion: say so instead of "no saved looks yet". */}
+          <p className="text-sm text-text-2">{outfits.length ? t.emptyFilter : t.empty}</p>
           <Link href={`/${locale}/wardrobe`} className="btn btn-primary mt-4">{t.openStudio}</Link>
         </div>
       )}

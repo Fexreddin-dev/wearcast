@@ -1,22 +1,11 @@
 import { fal } from "@fal-ai/client";
 import sharp from "sharp";
 import { z } from "zod";
-import { CATEGORIES, DAILY_UPLOADS, FITS, MATERIALS, SIZES, WARDROBE_LIMITS, type Category, type WardrobeItem } from "@/lib/wardrobe/catalog";
-import {
-  assertPlanActive,
-  type Caller,
-  cutout,
-  describeError,
-  FAL_EDIT,
-  fail,
-  planOf,
-  requireUser,
-  runFal,
-  startOfToday,
-  StudioFailure,
-} from "@/lib/wardrobe/server";
+import { CATEGORIES, DAILY_UPLOADS, FITS, MATERIALS, SIZES, WARDROBE_LIMITS, type WardrobeItem } from "@/lib/wardrobe/catalog";
+import { assertClearPhoto, assertPlanActive, type Caller, cutout, fail, planOf, requireUser, startOfToday, StudioFailure } from "@/lib/wardrobe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { measureCoverage } from "@/lib/wardrobe/avatars";
+import { tidyPhoto } from "@/lib/wardrobe/tidy";
 
 const MAX_BYTES = 10 * 1024 * 1024;
 const TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -28,38 +17,6 @@ const fields = z.object({
   size: z.enum(SIZES),
   fit: z.enum(FITS),
 });
-
-const GARMENT_LOOK =
-  "Turn this into a clean professional catalogue photograph of this exact same garment alone, floating as if worn by a fully invisible ghost mannequin with nothing visible inside the neck or sleeves, " +
-  "symmetrical, front view, fully visible, neatly pressed with smooth natural folds.";
-const OBJECT_LOOK =
-  "Turn this into a clean professional catalogue product photograph of this exact same item alone, neatly presented, three-quarter view, fully visible.";
-const KEEP =
-  " Keep the exact same color, pattern, fabric texture, buttons, collar, stitching and details. Do not add or remove any design element. " +
-  "Show only the garment: remove the person, body, head, neck, hands, legs, any mannequin, hanger, floor, furniture and shadows. Plain light studio background, soft even studio lighting, photorealistic, sharp fabric detail, no text.";
-
-// Rebuilds a casual photo as a tidy studio shot. If that step fails the original photo is used.
-async function tidyPhoto(imageUrl: string, category: Category, caller: Caller) {
-  const worn = category !== "shoes" && category !== "accessories";
-  try {
-    const data = await runFal(
-      FAL_EDIT,
-      {
-        prompt: (worn ? GARMENT_LOOK : OBJECT_LOOK) + KEEP,
-        image_url: imageUrl,
-        aspect_ratio: worn ? "3:4" : "1:1",
-        output_format: "png",
-        safety_tolerance: "2",
-      },
-      caller,
-    );
-    return data.images![0].url;
-  } catch (e) {
-    if (e instanceof StudioFailure) throw e;
-    console.error("[wardrobe] tidy step failed", describeError(e));
-    return imageUrl;
-  }
-}
 
 const photo = (v: FormDataEntryValue | null) => {
   if (!(v instanceof File) || v.size === 0) return null;
@@ -119,6 +76,7 @@ export async function POST(request: Request) {
     if (!parsed.success || !front) throw new StudioFailure("invalid");
     const side = photo(form.get("side"));
     const back = photo(form.get("back"));
+    await assertClearPhoto(Buffer.from(await front.arrayBuffer()), "garment");
 
     const admin = createAdminClient();
     const id = await reserveSlot(admin, caller, parsed.data);

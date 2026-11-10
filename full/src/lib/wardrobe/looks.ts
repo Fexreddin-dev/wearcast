@@ -93,10 +93,24 @@ const trendReply = z.object({
   why,
 });
 
-const WRITING =
+export const WRITING =
   'Write "note" as one warm sentence. In "why": "weather" says why it suits today (mention the temperatures, wind or rain), ' +
   '"harmony" how the colours and fabrics go together, "layers" what is worn underneath and on top and what to take off when it warms up. ' +
-  "Each at most two short sentences. Every text has en, az and tr: az in natural, correctly spelled Azerbaijani (Latin script), tr in natural Turkish. Never mention technology.";
+  "Each at most two short sentences. Every text has en, az and tr: az in natural, correctly spelled Azerbaijani (Latin script), tr in natural Turkish. Never mention technology. " +
+  // A literal translation once named a herringbone sweater "balıqqulağı" (a seashell), and the tone
+  // switched between "sən" and "siz" (Nov 2026).
+  'Address the reader as "sən" in az and "sen" in tr, never "siz". Use the everyday words a clothes shop in Baku uses, never word-for-word translations. ' +
+  "Azerbaijani names: herringbone = balıq sümüyü naxışlı, turtleneck = boğazlı, trench coat = trençkot, hoodie = kapüşonlu, cardigan = kardiqan, blazer = pencək, " +
+  "sneakers = idman ayaqqabısı, loafers = loafer, Chelsea boots = çelsi çəkmə, merino wool = merinos yunu, pleated = büzməli, wide-leg trousers = enli şalvar, " +
+  "rain = yağış, rainy = yağışlı (yağmur is Turkish, never in az), waterproof = suya davamlı. Write az only with the Azerbaijani Latin alphabet, never a Cyrillic letter.";
+
+// A reply with Cyrillic letters in the Azerbaijani text (once "isынsa", Nov 2026) is asked again, starting
+// with another model.
+async function askWriting(prompt: string) {
+  const answer = await askGemini([prompt], 45_000, GEMINI_WRITING);
+  if (!/[Ѐ-ӿ]/.test(JSON.stringify(answer))) return answer;
+  return askGemini([prompt], 45_000, [...GEMINI_WRITING.slice(1), GEMINI_WRITING[0]]);
+}
 
 function season(date = new Date()) {
   const m = date.getUTCMonth();
@@ -183,7 +197,7 @@ export async function dailyLook(opts: {
       'Reply as JSON: {"refs": string[], "note": {"en","az","tr"}, "why": {"weather": {...}, "harmony": {...}, "layers": {...}}}.',
       WRITING,
     ].filter(Boolean).join("\n");
-    const answer = wardrobeReply.parse(await askGemini([prompt], 45_000, GEMINI_WRITING));
+    const answer = wardrobeReply.parse(await askWriting(prompt));
     // Only pieces that really exist, one per category.
     const seen = new Set<Category>();
     const refs = answer.refs.filter((ref) => {
@@ -207,7 +221,7 @@ export async function dailyLook(opts: {
       'Reply as JSON: {"pieces": [{"category": string, "color": string, "name": {"en","az","tr"}, "ref": string|null}], "note": {"en","az","tr"}, "why": {"weather": {...}, "harmony": {...}, "layers": {...}}}.',
       WRITING,
     ].filter(Boolean).join("\n");
-    const answer = trendReply.parse(await askGemini([prompt], 45_000, GEMINI_WRITING));
+    const answer = trendReply.parse(await askWriting(prompt));
     const used = new Set<string>();
     const pieces = answer.pieces
       .filter((p) => (CATEGORIES as readonly string[]).includes(p.category))

@@ -200,7 +200,10 @@ export type StudioError =
   | "not_for_age"
   | "photo_unusable"
   | "avatar_limit"
-  | "consent";
+  | "consent"
+  | "look_failed"
+  | "photo_blurry"
+  | "photo_small";
 
 export const GARMENT_PROMPT =
   "Identify the main clothing item in this photo. Reply as JSON {\"category\": string} using exactly one of: " +

@@ -1,10 +1,11 @@
 import "server-only";
-import { createHash, randomUUID } from "node:crypto";
+import { createHash, randomInt, randomUUID } from "node:crypto";
 import sharp from "sharp";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CATEGORIES, coverageRule, DAILY_TRYONS, DEMO_ITEMS, FASHN_CATEGORY, layerRank, type Category } from "./catalog";
 import { type AvatarProfile, coverageFor, loadAvatar, publicFile } from "./avatars";
+import { keepHeadscarf } from "./hijab";
 import {
   askGemini,
   assertPlanActive,
@@ -180,6 +181,60 @@ async function pieceIsClean(image: Buffer) {
   }
 }
 
+// What stays the same when this kind of garment is dressed.
+const UNCHANGED: Record<string, string> = {
+  tops: "the trousers or skirt and the shoes",
+  bottoms: "the top and the shoes",
+  "one-pieces": "the shoes",
+};
+
+export const LOOK_CHECK = (modest: boolean, kind: string) =>
+  "You check a virtual fitting result before a customer sees it. You get the garment picture, the person before, and the result photo of the same person who should now wear that garment. " +
+  "Report only clear, visible defects; small wrinkles, lighting and slight colour shifts are normal, and hands in pockets or behind the body are not missing. " +
+  'Reply as JSON {"ok": boolean, "problem": string}. ok is false if any of these is true: ' +
+  "(1) the garment of the garment picture is not worn, or its type, main colour or length clearly changed (for example a hip-length blouse became a knee-length tunic or dress); " +
+  "(2) a piece of fabric hangs loose, floats, or sticks out as a separate panel (for example behind or between the legs, below a hem, or a shirt front hanging lower on one side), or a garment is cut, melted or merged into the body; " +
+  "(3) a button placket, collar or hem is crooked, broken or doubled; " +
+  "(4) a hand, arm, leg, foot or sleeve is missing, duplicated or deformed; " +
+  `(5) ${UNCHANGED[kind] ?? "the other clothes"} clearly changed compared with the person before (another colour, shape or kind); ` +
+  "(6) there is a stray smudge, blob or piece of fabric in the background beside the person" +
+  (modest
+    ? "; (7) the headscarf does not cover all of the hair, the ears and the whole neck, or it does not fall down over the shoulders or chest (for example it became a small cap or turban and the neck is bare)."
+    : ".");
+
+const asCheckPart = (image: Buffer, size: number) =>
+  sharp(image)
+    .flatten({ background: "#FFFFFF" })
+    .resize(size, size, { fit: "inside" })
+    .jpeg({ quality: 85 })
+    .toBuffer()
+    .then((b) => ({ inlineData: { mimeType: "image/jpeg", data: b.toString("base64") } }));
+
+// Every new look is checked before it is saved or shown: a broken one is made once more, and if that
+// fails too the credit is returned. Three answers are needed and a look fails when two see a defect
+// (a single look was unreliable, Nov 2026). Unanswered questions are asked again; a look that could not
+// be checked by at least two answers is never shown (two broken looks once passed that way).
+// Calibrated on stored results, see PROGRESS.md (Phase 4B).
+export async function lookIsSound(result: Buffer, garment: Buffer, before: Buffer, modest: boolean, kind: string) {
+  const [g, b, r] = await Promise.all([asJpegPart(garment), asCheckPart(before, 640), asCheckPart(result, 768)]);
+  const parts = [LOOK_CHECK(modest, kind), "Garment picture:", g, "Person before:", b, "Result photo:", r];
+  const ask = () => askGemini(parts, 20_000).then((a) => a as { ok?: boolean; problem?: string }, () => null);
+  const answers = (await Promise.all([ask(), ask(), ask()])).filter((a) => a && typeof a.ok === "boolean") as { ok: boolean; problem?: string }[];
+  // Busy models (rate limits) leave questions unanswered: ask again, one at a time, a few times.
+  for (let tries = 0; answers.length < 3 && tries < 4; tries++) {
+    await new Promise((done) => setTimeout(done, 1500));
+    const a = await ask();
+    if (a && typeof a.ok === "boolean") answers.push(a as { ok: boolean; problem?: string });
+  }
+  const bad = answers.filter((a) => !a.ok);
+  const note = `[tryon] check: ${bad.length} of ${answers.length} answers saw a defect: ${bad.map((a) => a.problem).join(" | ").slice(0, 400)}`;
+  if (bad.length || answers.length < 3) console.info(note);
+  if (answers.length < 2) return false; // not checked, so not shown
+  // Two answers that disagree are not enough: the look passes only when no more than one of three sees a defect.
+  if (answers.length === 2) return bad.length === 0;
+  return bad.length < 2;
+}
+
 const piecePrompt = (inner: string) =>
   `Show this exact same jacket worn open over ${inner}, clearly filling the opening. Keep the jacket exactly as it is: same shape, symmetric, both lapels, both sleeves. ` +
   "Change nothing except filling the empty opening. No person, no neck, no mannequin." +
@@ -233,12 +288,17 @@ async function assertDailyLimit(admin: Admin, userId: string, steps: number) {
 }
 
 // One cache key per dressing step, so every partial look on the way is reusable.
-function stepKeys(prefix: string, layers: Layer[]) {
+function stepKeys(avatar: AvatarProfile, layers: Layer[]) {
+  // v7 (10 Nov 2026): "quality" mode; the old piece is removed except under jackets. Looks made before
+  // (v4, v5: short, shiny trousers and open shirts; v6: jackets with a stray panel) are never reused.
+  // v10, hijab avatars only: v7 tops erased the headscarf's drape and bared the neck (v8: a failed test of
+  // keeping the old top; v9: first headscarf overlay, which left a patch beside a long drape), so those are
+  // never reused. From v10 the avatar's own head and headscarf are laid back on every result; v11: two
+  // broken v10 looks passed a check that had too few answers, so v10 is dropped too.
+  const version = avatar.modest ? "v11" : "v7";
   return layers.map((_, i) => {
     const stack = layers.slice(0, i + 1);
-    // v7 (10 Nov 2026): "quality" mode; the old piece is removed except under jackets. Looks made before
-    // (v4, v5: short, shiny trousers and open shirts; v6: jackets with a stray panel) are never reused.
-    return createHash("sha256").update(`v7|${prefix}|front|${stack.map((l) => l.ref).join(",")}`).digest("hex");
+    return createHash("sha256").update(`${version}|${avatar.cachePrefix}|front|${stack.map((l) => l.ref).join(",")}`).digest("hex");
   });
 }
 
@@ -246,7 +306,7 @@ function stepKeys(prefix: string, layers: Layer[]) {
 export async function findLook(callerId: string, avatarKey: string, refs: string[]) {
   const admin = createAdminClient();
   const [avatar, layers] = await Promise.all([loadAvatar(admin, callerId, avatarKey), resolveLayers(admin, callerId, refs)]);
-  const key = stepKeys(avatar.cachePrefix, layers).at(-1)!;
+  const key = stepKeys(avatar, layers).at(-1)!;
   const { data } = await admin
     .from("generations")
     .select("id, result_paths")
@@ -284,11 +344,11 @@ export async function runTryOn(caller: Caller, avatarKey: string, refs: string[]
     resolveLayers(admin, caller.id, refs),
     caller.unlimited ? null : assertPlanActive(caller.id),
   ]);
-  const keys = stepKeys(avatar.cachePrefix, layers);
+  const keys = stepKeys(avatar, layers);
   const charges = !caller.unlimited;
   // Looks without one of the trousers or skirts, for the one-step shortcut below.
   const bottoms = layers.some((l) => l.category === "dresses") ? [] : layers.filter((l) => l.category === "pants-skirts" && layers.length > 1);
-  const restKeys = bottoms.map((b) => stepKeys(avatar.cachePrefix, layers.filter((l) => l !== b)).at(-1)!);
+  const restKeys = bottoms.map((b) => stepKeys(avatar, layers.filter((l) => l !== b)).at(-1)!);
 
   const { data: cached, error } = await admin
     .from("generations")
@@ -352,37 +412,69 @@ export async function runTryOn(caller: Caller, avatarKey: string, refs: string[]
         garmentFor(admin, caller, avatar, layers, i),
       ]);
       lap("pictures uploaded");
-      const data = await runFal(
-        FAL_TRYON,
-        {
-          model_image: modelImage,
-          garment_image: garmentImage,
-          category: FASHN_CATEGORY[layer.category],
-          garment_photo_type: "flat-lay",
-          // Tested side by side (Nov 2026): "balanced" over the model's own clothes kept their shape
-          // (cropped, wide, shiny trousers; shirts left open over the t-shirt). Removing the old piece and
-          // "quality" gave full-length, matte trousers and buttoned shirts, at about 17 s instead of 11 s.
-          // A jacket is different: it is drawn over what is already worn, and removing first left a stray
-          // panel behind the legs and changed the shoes, so jackets keep the silhouette.
-          mode: "quality",
-          segmentation_free: layer.category === "jackets-coats",
-          moderation_level: "conservative",
-          num_samples: 1,
-          output_format: "png",
-        },
-        caller,
-      );
+      const garmentPng = fetchBuffer(garmentImage);
+      const beforePng = fetchBuffer(modelImage);
+      garmentPng.catch(() => null); // both awaited below; never left as unhandled rejections
+      beforePng.catch(() => null);
+      let url = "";
+      let rawPng: Buffer | null = null;
+      let cutPng: Promise<Buffer> | null = null;
+      let attempts = 0;
+      for (let attempt = 0; attempt < 2 && !rawPng; attempt++) {
+        attempts = attempt + 1;
+        const data = await runFal(
+          FAL_TRYON,
+          {
+            model_image: modelImage,
+            garment_image: garmentImage,
+            category: FASHN_CATEGORY[layer.category],
+            garment_photo_type: "flat-lay",
+            // Tested side by side (Nov 2026): "balanced" over the model's own clothes kept their shape
+            // (cropped, wide, shiny trousers; shirts left open over the t-shirt). Removing the old piece and
+            // "quality" gave full-length, matte trousers and buttoned shirts, at about 17 s instead of 11 s.
+            // A jacket is different: it is drawn over what is already worn, and removing first left a stray
+            // panel behind the legs and changed the shoes, so jackets keep the silhouette.
+            // Hijab avatars: removing the old top also removed the headscarf's drape (turban, bare neck), and
+            // keeping the old top left shirts open or twisted (Nov 2026 tests). So tops are replaced as for
+            // everyone and the avatar's own headscarf is laid back on afterwards (hijab.ts).
+            mode: "quality",
+            segmentation_free: layer.category === "jackets-coats",
+            moderation_level: "conservative",
+            num_samples: 1,
+            output_format: "png",
+            seed: randomInt(1, 2_000_000_000), // a fresh draw each time, so a second attempt is not a copy of the first
+          },
+          caller,
+        );
+        url = data.images![0].url;
+        lap(`dressed, attempt ${attempt + 1}`);
+        let png = await fetchBuffer(url);
+        if (avatar.modest) {
+          // The avatar's own headscarf goes back over the result (see hijab.ts), then this is the picture used.
+          png = await keepHeadscarf(caller, avatar, png);
+          url = await uploadOpaque(png);
+          lap("headscarf kept");
+        }
+        // The background is removed while the check runs (BiRefNet costs nothing), so checking adds little time.
+        const cut = cutout(url, caller);
+        cut.catch(() => null);
+        if (await lookIsSound(png, await garmentPng, await beforePng, avatar.modest, FASHN_CATEGORY[layer.category]!)) {
+          rawPng = png;
+          cutPng = cut;
+        }
+        lap("checked");
+      }
+      // Two broken results in a row: nothing is shown and the credit goes back (catch below).
+      if (!rawPng || !cutPng) throw new StudioFailure("look_failed", 422);
 
-      const url = data.images![0].url;
       const rawPath = `${caller.id}/${genId}/raw.jpg`;
       const cutPath = `${caller.id}/${genId}/look.webp`;
-      lap("dressed");
-      const [rawPng, cutPng] = await Promise.all([fetchBuffer(url), cutout(url, caller)]);
+      const cutBuf = await cutPng;
       lap("background removed");
       // Compact formats: the full-size PNGs took about 5 seconds to store.
       const [raw, cut] = await Promise.all([
         sharp(rawPng).flatten({ background: "#F4F3EF" }).jpeg({ quality: 93 }).toBuffer(),
-        sharp(cutPng).webp({ quality: 92, alphaQuality: 95 }).toBuffer(),
+        sharp(cutBuf).webp({ quality: 92, alphaQuality: 95 }).toBuffer(),
       ]);
       const stored = await Promise.all([
         results(admin).upload(rawPath, raw, { contentType: "image/jpeg", upsert: true }),
@@ -392,7 +484,7 @@ export async function runTryOn(caller: Caller, avatarKey: string, refs: string[]
       lastPaths = [cutPath, rawPath];
       previous = url;
       lap("stored");
-      const { error: e } = await admin.from("generations").update({ status: "done", result_paths: lastPaths, cost_usd: 0.075 }).eq("id", genId);
+      const { error: e } = await admin.from("generations").update({ status: "done", result_paths: lastPaths, cost_usd: 0.075 * attempts }).eq("id", genId);
       if (e) throw e;
       if (charges) charged += 1;
     } catch (err) {

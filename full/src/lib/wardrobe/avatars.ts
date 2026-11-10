@@ -18,6 +18,7 @@ import {
   type Measurements,
 } from "./catalog";
 import { askGemini, type Caller, cutout, FAL_EDIT, FAL_TRYON, fetchBuffer, runFal, StudioFailure, uploadOpaque, uploadStatic } from "./server";
+import { findHeadscarf, layHeadBack } from "./hijab";
 
 type Admin = ReturnType<typeof createAdminClient>;
 export const photos = (admin: Admin) => admin.storage.from("user-photos");
@@ -33,6 +34,7 @@ export type AvatarProfile = {
   measurements: Measurements;
   cachePrefix: string;
   modelImage: () => Promise<string>;
+  source: () => Promise<Buffer>; // the avatar's own front picture, before anything is dressed
 };
 
 export async function loadAvatar(admin: Admin, userId: string, key: string): Promise<AvatarProfile> {
@@ -45,6 +47,7 @@ export async function loadAvatar(admin: Admin, userId: string, key: string): Pro
       measurements: defaultMeasurements(info.gender, info.age),
       cachePrefix: `base:${key}`,
       modelImage: () => uploadStatic(`avatar:${key}:front`, () => publicFile("avatars", `${key}-front.png`)),
+      source: () => publicFile("avatars", `${key}-front.png`),
     };
   }
   if (!isUuid(key)) throw new StudioFailure("invalid");
@@ -60,6 +63,11 @@ export async function loadAvatar(admin: Admin, userId: string, key: string): Pro
   if (!row?.image_path) throw new StudioFailure("invalid", 404);
   const gender = (row.gender ?? "female") as Gender;
   const age = (row.age_group === "adult" ? "adult" : "teen") as AgeGroup;
+  const source = async () => {
+    const { data, error: e } = await photos(admin).download(row.image_path!);
+    if (e) throw e;
+    return Buffer.from(await data.arrayBuffer());
+  };
   return {
     key,
     rowId: row.id,
@@ -68,12 +76,8 @@ export async function loadAvatar(admin: Admin, userId: string, key: string): Pro
     modest: row.modest,
     measurements: readMeasurements(row.measurements, gender, age),
     cachePrefix: `avatar:${row.id}:${row.version}`,
-    modelImage: () =>
-      uploadStatic(`own:${row.id}:${row.version}`, async () => {
-        const { data, error: e } = await photos(admin).download(row.image_path!);
-        if (e) throw e;
-        return Buffer.from(await data.arrayBuffer());
-      }),
+    modelImage: () => uploadStatic(`own:${row.id}:${row.version}`, source),
+    source,
   };
 }
 
@@ -156,7 +160,8 @@ export async function checkPersonPhoto(image: Buffer): Promise<PhotoVerdict> {
 // - a short-sleeve t-shirt left the photo's own long sleeves showing underneath;
 // - a garment-only flat lay with long sleeves worked: modest outfit on the hijab photo, neutral one on the man.
 //   On a woman in a wide dress the dress still showed beside the trousers, and removing the old clothes
-//   first (second attempt below) fixed that.
+//   first fixed that. A long cardigan left a panel beside one trouser leg the same way, and the checks
+//   did not see it reliably, so removing the old clothes now comes first (Nov 2026).
 function studioOutfit(modest: boolean) {
   return modest
     ? {
@@ -171,13 +176,14 @@ function studioOutfit(modest: boolean) {
 
 const outfitCheck = (expected: string) =>
   `This photo should show one real person wearing ${expected}. Reply as JSON {"ok": boolean, "problem": string}. ` +
-  "ok is false only if: sleeves, cuffs, a hood or fabric of a different garment (for example a dress, skirt or jacket) stick out under, beside or over the new clothes; " +
+  "ok is false only if: sleeves, cuffs, a hood or fabric of a different garment (for example a dress, skirt, coat or cardigan) stick out under, beside or over the new clothes; " +
+  "a long panel or flap of fabric hangs beside or over the trousers, or one trouser leg has an extra layer the other does not; " +
   "hands or arms look like a white mannequin; the person has extra or missing limbs; the face or headscarf looks damaged or replaced; the person still wears different clothes. " +
   "Small wrinkles are normal.";
 
 // Three looks, majority wins: a single look was sometimes too strict on a clean picture (1 in 3), and
 // caught a leftover dress every time. When the checker cannot be reached the picture is not trusted.
-async function outfitIsClean(url: string, expected: string) {
+export async function outfitIsClean(url: string, expected: string) {
   try {
     const part = await jpegPart(await fetchBuffer(url));
     const prompt = outfitCheck(expected);
@@ -189,10 +195,13 @@ async function outfitIsClean(url: string, expected: string) {
 }
 
 // The dressed picture, or null when neither attempt is clean (the person's own clothes are kept then).
-export async function dressInStudioOutfit(photoUrl: string, profile: { modest: boolean }, caller: Caller) {
+// `photo` is the uploaded picture itself: on a hijab photo the try-on model redrew the headscarf (its
+// drape became a huge collar, Nov 2026), so the person's own head and headscarf are laid back on.
+export async function dressInStudioOutfit(photoUrl: string, photo: Buffer, profile: { modest: boolean }, caller: Caller) {
   const s = studioOutfit(profile.modest);
-  const garment = await s.garment();
-  for (const keepShape of [true, false]) {
+  const [garment, scarf] = await Promise.all([s.garment(), profile.modest ? findHeadscarf(caller, photo) : null]);
+  if (profile.modest && !scarf) return null; // the headscarf could not be protected: keep the own clothes
+  for (const keepShape of [false, true]) {
     const data = await runFal(
       FAL_TRYON,
       {
@@ -201,7 +210,7 @@ export async function dressInStudioOutfit(photoUrl: string, profile: { modest: b
         category: "one-pieces",
         garment_photo_type: "flat-lay",
         mode: "balanced",
-        // First attempt keeps the person's silhouette; the second removes the old clothes first.
+        // First attempt removes the old clothes; the second keeps the silhouette.
         segmentation_free: keepShape,
         moderation_level: "conservative",
         num_samples: 1,
@@ -209,7 +218,8 @@ export async function dressInStudioOutfit(photoUrl: string, profile: { modest: b
       },
       caller,
     );
-    const url = data.images![0].url;
+    let url = data.images![0].url;
+    if (scarf) url = await uploadOpaque(await layHeadBack(photo, scarf, await fetchBuffer(url)), "#FFFFFF");
     if (await outfitIsClean(url, s.expected)) return url;
   }
   return null;

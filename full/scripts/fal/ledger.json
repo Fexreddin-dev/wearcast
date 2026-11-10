@@ -1210,5 +1210,17 @@
     "cost_usd": 0.04,
     "note": "p4 custom f1",
     "at": "2026-11-10T14:29:57.243Z"
+  },
+  {
+    "model": "fal-ai/evf-sam",
+    "cost_usd": 0.005,
+    "note": "qa mask h1-scarf: headscarf",
+    "at": "2026-11-10T18:56:15.134Z"
+  },
+  {
+    "model": "fal-ai/evf-sam",
+    "cost_usd": 0.005,
+    "note": "qa mask h1-head: head with headscarf and face",
+    "at": "2026-11-10T18:56:20.545Z"
   }
 ]

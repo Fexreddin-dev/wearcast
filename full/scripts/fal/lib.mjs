@@ -21,6 +21,7 @@ export const PRICES = {
   "fal-ai/birefnet/v2": { perImage: 0.01 }, // listed as $0 — we book a conservative 1 cent
   "fal-ai/clarity-upscaler": { perMegapixel: 0.03 },
   "fal-ai/fashn/tryon/v1.6": { perImage: 0.075 },
+  "fal-ai/evf-sam": { perImage: 0.005 },
   "fal-ai/kling-video/v2.5-turbo/pro/image-to-video": { per5s: 0.35 },
 };
 

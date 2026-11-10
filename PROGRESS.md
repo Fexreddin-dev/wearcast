@@ -197,5 +197,26 @@ Kart işləyən düymələrə çevrildi; seçim yalnız bulud səhnəsinin rəng
 - Test hesabı: wearcast.qa.p4@example.com (parol `full/.env.test.local`, premium, test üçün).
 - Phase 4 Fal xərci ≈ $2.39 (limit $3.00).
 
-**Açıq xəta (11 noyabr, istifadəçi tapdı):** hicablı avatarda (h1) bluz geyindirəndə hicab çalmaya çevrilir, boyun açıq qalır. Səbəb ehtimalı: `segmentation_free: false` hicabın salxımını silir (pencəkdə `true` olduğu üçün düzgün idi). Həll planı və sınaq qaydası: `HANDOFF-PHASE4B.md`, 4-cü bölmə. Növbəti söhbətdə birinci iş.
+**Açıq xəta (11 noyabr, istifadəçi tapdı):** hicablı avatarda (h1) bluz geyindirəndə hicab çalmaya çevrilir, boyun açıq qalır. Həll olundu, aşağıda.
 Təhvil: `HANDOFF-PHASE4B.md`, söhbət mətni: `PHASE4B-PROMPT.md`.
+
+## Phase 4B — hicab, keyfiyyət qoruması, yükləmələr (10–11 noyabr)
+**Hicab xətası (sübutla):** FASHN üst geyimi çəkəndə hicabın sinəyə düşən hissəsini də yenidən çəkir. "Köhnə geyimi saxla" (`segmentation_free: true`) kömək etmədi (sınandı). Həll: `src/lib/wardrobe/hijab.ts`.
+- Hər hicablı avatar üçün EVF-SAM ilə hicab maskası bir dəfə çıxarılır ($0.005), saxlanılır: baza avatarlar `generations/shared/masks/`, istifadəçininki öz avatar qovluğunda (avatar silinəndə silinir).
+- Hər geyindirmədən sonra avatarın öz başı + hicabı (+ başın üstü, çənəyə qədər kənarlar; hicab çənənin altını örtmürsə boyun zolağı) nəticənin üstünə qoyulur. h1, h2, foto avatarda sahə gözlə yoxlanıb.
+- Foto ilə hicablı avatar yaradılanda (studiya geyimi) da eyni: istifadəçinin öz hicabı geri qoyulur (əvvəl nəhəng yaxa çıxırdı). Studiya geyimi indi əvvəl "köhnəni sil" rejimi ilə (uzun kardiqan paneli qalırdı).
+- Keş açarı: hicablılar `v11` (köhnə pis nəticələr bir daha açılmır), qalanlar `v7`.
+
+**Nəticə yoxlaması (bütün avatarlar):** `lookIsSound` (`tryon.ts`): Gemini 3 dəfə baxır (geyim şəkli + əvvəlki + nəticə). Xəta sayılır: geyim/rəng/uzunluq dəyişib, sallanan parça, əyri düymə xətti, qol/əl qüsuru, digər geyim və ya ayaqqabı dəyişib, fonda ləkə, hicab qaydası. ≥2 "xəta" → 2-ci cəhd; yenə xəta → heç nə göstərilmir, kredit qaytarılır, `look_failed` mesajı. Cavab gəlməsə yenidən soruşur; 2 cavab yoxdursa göstərilmir. Kalibrasiya: 12 saxlanmış şəkildən 11-i gözlə qiymətləndirmə ilə eyni (12-ci mənim test səhvim). Yoxlama ~10–25 san əlavə edir.
+
+**Real sınaqlar (gözlə baxılıb):**
+- Təmiz alındı: h1 + bluz, h2 + bluz, h2 + ətək, yeni hicablı foto avatar (studiya geyimi), bulanıq/əyri/qarışıq fonlu kofta şəklinin səliqəyə salınması.
+- Yoxlayıcı düzgün rədd etdi (göstərilməzdi, kredit qaytarılardı): h1 + kişi köynəyi (açıq köynək, sinədə tünd ləkə, başın yanında forma) 4 cəhd; foto hicablı avatar + bluz (tunikaya çevrilir) 6 cəhd.
+- **Hələ alınmayan:** hicablı avatarlarda kişi köynəyi və foto hicablı avatarda bu bluz. FASHN bunları ardıcıl pis çəkir.
+- Yoxlanmayıb: kişi/qadın avatarlarında yeni yoxlayıcı ilə canlı geyindirmə (yalnız saxlanmış şəkillərlə kalibrasiya), hicablı + pencək yeni kodla, kişi/qadın fotosunda yeni studiya sırası.
+
+**Yükləmə qoruması:** `assertClearPhoto` (`server.ts`): ən kiçik tərəf <400 px → `photo_small`; kəskinlik balı insan <8, geyim <4 → `photo_blurry` (pulsuz, pul xərclənmədən əvvəl). Kalibrasiya: 7 şəkil × 5 variant. Geyimdə hədd aşağıdır (düz parçalar az bal alır), qalanını Kontext səliqəyə salması düzəldir.
+**Digər:** açılışda köhnə geyim görünmür (bərpa gedəndə avatar yumşaq bulanıq), Kombinlər filtrində düzgün boş mesaj, Günün kombini Azərbaycan dili lüğəti və Kiril hərfi yoxlaması, `tidyPhoto` `src/lib/wardrobe/tidy.ts`-ə köçdü.
+**Səhifələr:** Wardrobe/Avatar/Outfits 1898×872, 1024×640, 375×812, açıq/tünd; konsolda xəta yox. Build, tsc, eslint təmiz. Sürət production-da ölçülmədi (test paneli gizli idi).
+**Xərc (bu söhbət):** $1.81 (FASHN 23, EVF-SAM 9, Kontext 1). İstifadəçi icazəsi $0.85 + $1.00. Balans təxminən $5.77.
+Təhvil: `HANDOFF-PHASE5.md`, söhbət mətni: `PHASE5-PROMPT.md`.
