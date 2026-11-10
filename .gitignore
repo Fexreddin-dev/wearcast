@@ -1,0 +1,5 @@
+# Böyük orijinal assetlər (1 GB), git-ə düşmür; ayrıca ehtiyat nüsxə saxlayın
+full/assets-src/
+# Açarlar
+.env*
+!.env.local.example

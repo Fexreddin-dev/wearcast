@@ -1,0 +1,42 @@
+[
+  {
+    "id": "man-trousers",
+    "category": "pants-skirts",
+    "hero": "man:1"
+  },
+  {
+    "id": "man-blazer",
+    "category": "jackets-coats",
+    "hero": "man:2"
+  },
+  {
+    "id": "man-loafers",
+    "category": "shoes",
+    "hero": "man:3"
+  },
+  {
+    "id": "man-shirt",
+    "category": "shirts-tops",
+    "hero": null
+  },
+  {
+    "id": "woman-blouse",
+    "category": "shirts-tops",
+    "hero": "woman:1"
+  },
+  {
+    "id": "woman-skirt",
+    "category": "pants-skirts",
+    "hero": "woman:2"
+  },
+  {
+    "id": "woman-heels",
+    "category": "shoes",
+    "hero": "woman:3"
+  },
+  {
+    "id": "woman-bag",
+    "category": "accessories",
+    "hero": null
+  }
+]

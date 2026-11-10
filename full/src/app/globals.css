@@ -1,0 +1,331 @@
+@import "tailwindcss";
+
+/* WearCast design tokens — Light Glass (default) + luxe dark */
+:root {
+  --bg-from: #f4f3ef;
+  --bg-to: #eae8e1;
+  --text: #1c1c1e;
+  --text-2: #6e6e73;
+  --glass: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 8px 32px rgba(28, 28, 30, 0.08);
+  --accent: #b08d57;
+  --accent-contrast: #ffffff;
+  --danger: #b4443a;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-theme="dark"] {
+  --bg-from: #121214;
+  --bg-to: #1b1b1e;
+  --text: #f4f3ef;
+  --text-2: #a1a1a6;
+  --glass: rgba(44, 44, 48, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --accent: #c9a56b;
+  --accent-contrast: #1c1c1e;
+}
+
+@theme inline {
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), Georgia, serif;
+}
+
+html {
+  background: var(--bg-from);
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--bg-from), var(--bg-to)) fixed;
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 20px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: transform 0.4s var(--ease), opacity 0.3s var(--ease);
+  cursor: pointer;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-primary { background: var(--accent); color: var(--accent-contrast); }
+.btn-ghost { background: var(--glass); border: 1px solid var(--glass-border); color: var(--text); }
+
+.field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  outline: none;
+}
+.field:focus { border-color: var(--accent); }
+
+/* ───────── Hero film (scrollytelling) ───────── */
+/* The hero slides up under the sticky glass header (mt-3 + h-16), so nothing jumps on the first scroll. */
+.hero-root { height: 1000svh; margin-top: -4.75rem; }
+@media (max-width: 767px) { .hero-root { height: 860svh; } }
+.hero-root.is-static { height: 100svh; }
+
+.hero-sticky { container-type: size; background: #d9cbbb; }
+/* Blurred copy of the current frame: fills side/top bands so every chapter blends to the screen edge. */
+.hero-ambient { filter: blur(28px) saturate(1.05); transform: scale(1.15); }
+
+/* Fixed-ratio stage. Desktop: as tall as fits below the header; narrower screens crop the empty left wall first. */
+.hero-stage {
+  --w: min(calc(94cqh * var(--ratio)), calc(100cqw / 0.83));
+  width: var(--w);
+  aspect-ratio: var(--ratio);
+  bottom: 0;
+  left: calc(min(0px, 100cqw - var(--w)) + max(0px, (100cqw - var(--w)) / 2));
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 3%, #000 97%, transparent 100%), linear-gradient(180deg, transparent 0, #000 4%, #000 99%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent 0, #000 3%, #000 97%, transparent 100%), linear-gradient(180deg, transparent 0, #000 4%, #000 99%, transparent 100%);
+  mask-composite: intersect;
+}
+@media (max-width: 767px) {
+  .hero-stage {
+    --w: calc(100cqw / 0.68);
+    left: calc(-0.185 * var(--w));
+    bottom: auto;
+    top: 53%;
+    transform: translateY(-50%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+  }
+}
+
+.hero-camera { transform-origin: 48% 62%; will-change: transform; }
+.hero-scan {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: linear-gradient(180deg, transparent, rgba(255, 226, 160, 0.95) 20%, rgba(255, 240, 205, 1) 50%, rgba(255, 226, 160, 0.95) 80%, transparent);
+  box-shadow: 0 0 18px 6px rgba(255, 210, 130, 0.55), 0 0 60px 18px rgba(255, 210, 130, 0.25);
+  pointer-events: none;
+  z-index: 5;
+}
+.hero-flight { will-change: transform, opacity, filter; z-index: 20; }
+.hero-person-slot { z-index: 10; }
+.hero-person { transform-origin: 50% 100%; }
+.hero-idle { transform-origin: 50% 100%; will-change: transform; }
+.hero-idle-man { animation: hero-breathe 5.2s ease-in-out infinite; }
+.hero-idle-woman { animation: hero-breathe 5.8s ease-in-out -2.1s infinite; }
+@keyframes hero-breathe {
+  0%, 100% { transform: rotate(-0.22deg) scale(1, 1); }
+  50% { transform: rotate(0.22deg) scale(1.003, 1.007); }
+}
+.hero-sweep {
+  z-index: 10;
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 244, 222, 0) 34%, rgba(255, 244, 222, 0.55) 50%, rgba(255, 244, 222, 0) 66%, transparent 100%);
+  background-size: 100% 30%;
+  background-repeat: no-repeat;
+  mix-blend-mode: screen;
+  -webkit-mask-size: auto 100%;
+  mask-size: auto 100%;
+  -webkit-mask-position: 50% 100%;
+  mask-position: 50% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  pointer-events: none;
+}
+.hero-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -1.2%;
+  width: 150%;
+  height: 5%;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(70, 50, 30, 0.38), rgba(70, 50, 30, 0.12) 60%, transparent);
+  filter: blur(2px);
+}
+
+/* Chapter titles */
+.hero-title {
+  position: absolute;
+  z-index: 30;
+  color: #1c1c1e;
+  pointer-events: none;
+  translate: var(--mx, 0px) var(--my, 0px);
+  text-shadow: 0 0 28px rgba(250, 246, 238, 0.85), 0 0 2px rgba(250, 246, 238, 0.6);
+}
+.hero-count { display: block; font-size: 11px; letter-spacing: 0.32em; color: var(--accent); margin-bottom: 0.6rem; font-weight: 600; }
+.hero-heading { line-height: 1; white-space: nowrap; }
+.hero-letter { display: inline-block; will-change: transform, opacity; }
+.hero-title-center { left: 0; right: 0; top: calc(4.75rem + 9cqh); text-align: center; }
+.hero-title-center .hero-heading { font-size: clamp(44px, 7.2cqw, 128px); }
+.hero-title-zone { left: var(--zone-x); top: var(--zone-y); }
+.hero-title-zone .hero-heading { font-size: clamp(36px, calc(var(--stage-w) * 0.052), 104px); }
+
+/* Weather card */
+.hero-weather {
+  position: absolute;
+  left: 50%;
+  top: calc(4.75rem + 9cqh + clamp(44px, 7.2cqw, 128px) + 4.5rem);
+  z-index: 30;
+  display: flex;
+  gap: clamp(18px, 2.4cqw, 40px);
+  padding: 16px 26px;
+  border-radius: 22px;
+  color: #1c1c1e;
+}
+.hero-weather-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: -8px -12px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.62;
+  transition: opacity 0.35s var(--ease), background-color 0.35s var(--ease);
+}
+.hero-weather-col:hover { opacity: 1; }
+.hero-weather-col:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hero-weather-col[aria-pressed="true"] { opacity: 1; background: rgba(255, 255, 255, 0.6); }
+
+/* Time-of-day grade over the cloud film */
+@property --sky-noon { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --sky-eve { syntax: "<number>"; inherits: true; initial-value: 0; }
+.hero-sticky { transition: --sky-noon 1.1s var(--ease), --sky-eve 1.1s var(--ease); }
+[data-mood="afternoon"] { --sky-noon: 1; }
+[data-mood="evening"] { --sky-eve: 1; }
+.hero-sky > * { position: absolute; inset: 0; pointer-events: none; }
+.hero-sky-noon-neutral, .hero-sky-noon-tint, .hero-sky-noon-light { --w: var(--sky-noon); opacity: calc(var(--w) * var(--sky-k, 1)); }
+.hero-sky-dusk, .hero-sky-stars, .hero-sky-moon { opacity: calc(var(--sky-eve) * var(--sky-k, 1)); }
+/* Midday: take the sunrise warmth out, keep the clouds white, and only a pale sky at the very top */
+.hero-sky-noon-neutral {
+  mix-blend-mode: color;
+  background: linear-gradient(180deg, #9fc4ea 0%, #b6d0ea 40%, #dbe4ee 100%);
+}
+.hero-sky-noon-tint {
+  mix-blend-mode: multiply;
+  background: linear-gradient(180deg, #c3daf1 0%, #e3edf7 28%, #fff 55%);
+}
+.hero-sky-noon-light {
+  mix-blend-mode: soft-light;
+  background: linear-gradient(180deg, #fff 0%, #fff 100%);
+}
+.hero-sky-dusk {
+  mix-blend-mode: multiply;
+  background: linear-gradient(180deg, #161c44 0%, #2d3369 42%, #6a5a8c 78%, #b98a86 100%);
+}
+.hero-sky-stars {
+  height: 55%;
+  background-image:
+    radial-gradient(1.4px 1.4px at 12% 22%, #fff, transparent),
+    radial-gradient(1px 1px at 24% 58%, #fff, transparent),
+    radial-gradient(1.6px 1.6px at 37% 14%, #fff, transparent),
+    radial-gradient(1px 1px at 49% 40%, #fff, transparent),
+    radial-gradient(1.3px 1.3px at 63% 18%, #fff, transparent),
+    radial-gradient(1px 1px at 72% 52%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 86% 26%, #fff, transparent),
+    radial-gradient(1px 1px at 94% 62%, #fff, transparent);
+  -webkit-mask-image: linear-gradient(180deg, #000 45%, transparent);
+  mask-image: linear-gradient(180deg, #000 45%, transparent);
+}
+.hero-sky-moon {
+  inset: auto;
+  left: 76%;
+  top: 22%;
+  width: clamp(38px, 4.4cqw, 76px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 36%, #fffaf0, #e9e2d0 72%);
+  box-shadow: 0 0 34px 8px rgba(240, 232, 210, 0.42), 0 0 110px 40px rgba(200, 200, 235, 0.2);
+}
+@media (max-width: 767px) {
+  .hero-sky-moon { left: 74%; top: 29%; width: 34px; }
+}
+[data-mood="evening"][data-sky-on="1"] .hero-title-center, [data-mood="evening"][data-sky-on="1"] .hero-title-center .hero-heading, [data-mood="evening"][data-sky-on="1"] .hero-hint { color: #f4f3ef; }
+.hero-title-center, .hero-title-center .hero-heading, .hero-hint { transition: color 0.6s var(--ease); }
+.hero-wx-sun { animation: hero-spin 14s linear infinite; color: var(--accent); }
+.hero-wx-cloud { animation: hero-float 4s ease-in-out infinite; }
+.hero-wx-moon { animation: hero-float 5s ease-in-out -1.5s infinite; }
+@keyframes hero-spin { to { transform: rotate(360deg); } }
+@keyframes hero-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+/* Closing copy */
+.hero-final {
+  position: absolute;
+  z-index: 30;
+  left: var(--zone-x);
+  top: var(--zone-y);
+  max-width: var(--zone-w);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #1c1c1e;
+}
+.hero-final-brand { font-size: clamp(30px, calc(var(--stage-w) * 0.034), 64px); line-height: 1; }
+.hero-final-tag { font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; }
+.hero-final .hero-cta { margin-top: 6px; }
+
+@media (max-width: 767px) {
+  .hero-title-zone, .hero-final { left: 0; right: 0; top: calc(4.75rem + 6svh); text-align: center; max-width: none; }
+  .hero-title-zone .hero-heading { font-size: 46px; }
+  .hero-title-center .hero-heading { font-size: 50px; }
+  .hero-title-center { top: calc(4.75rem + 6svh); }
+  .hero-heading { white-space: normal; }
+  .hero-weather { top: auto; bottom: 12svh; padding: 12px 18px; }
+  .hero-final { align-items: center; bottom: 9svh; }
+  .hero-final .hero-cta { margin-top: auto; justify-content: center; }
+}
+
+.hero-scroll-line {
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(180deg, rgba(28, 28, 30, 0.55), transparent);
+  animation: hero-scroll 2.2s var(--ease) infinite;
+  transform-origin: top;
+}
+@keyframes hero-scroll {
+  0% { transform: scaleY(0); opacity: 0; }
+  40% { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1) translateY(12px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-root { height: 100svh !important; }
+  .hero-hint { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

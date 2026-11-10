@@ -1,0 +1,1034 @@
+[
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar m1 front",
+    "at": "2026-11-08T00:36:11.334Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar m2 front",
+    "at": "2026-11-08T00:36:29.322Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar m3 front",
+    "at": "2026-11-08T00:36:35.055Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar f1 front",
+    "at": "2026-11-08T00:36:40.543Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar f2 front",
+    "at": "2026-11-08T00:36:46.120Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar f3 front",
+    "at": "2026-11-08T00:36:51.781Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar h1 front",
+    "at": "2026-11-08T00:36:57.451Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar h2 front",
+    "at": "2026-11-08T00:37:04.152Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar tb1 front",
+    "at": "2026-11-08T00:37:09.742Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar tb2 front",
+    "at": "2026-11-08T00:37:16.537Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar tg1 front",
+    "at": "2026-11-08T00:37:22.127Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar tg2 front",
+    "at": "2026-11-08T00:37:27.935Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar m1 side",
+    "at": "2026-11-08T00:39:51.430Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar m2 side",
+    "at": "2026-11-08T00:40:09.023Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar m3 side",
+    "at": "2026-11-08T00:40:20.425Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar f1 side",
+    "at": "2026-11-08T00:40:34.204Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar f2 side",
+    "at": "2026-11-08T00:40:46.441Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar f3 side",
+    "at": "2026-11-08T00:40:58.326Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar h1 side",
+    "at": "2026-11-08T00:41:10.416Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar h2 side",
+    "at": "2026-11-08T00:41:21.497Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar tb1 side",
+    "at": "2026-11-08T00:41:32.167Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar tb2 side",
+    "at": "2026-11-08T00:41:43.606Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar tg1 side",
+    "at": "2026-11-08T00:41:55.870Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar tg2 side",
+    "at": "2026-11-08T00:42:08.082Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/m1-front.png",
+    "at": "2026-11-08T00:42:27.296Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/m1-side.png",
+    "at": "2026-11-08T00:42:32.130Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/f1-front.png",
+    "at": "2026-11-08T00:42:48.420Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/f1-side.png",
+    "at": "2026-11-08T00:42:52.854Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/f2-front.png",
+    "at": "2026-11-08T00:42:57.228Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/f2-side.png",
+    "at": "2026-11-08T00:43:01.528Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/f3-front.png",
+    "at": "2026-11-08T00:43:05.841Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/f3-side.png",
+    "at": "2026-11-08T00:43:10.197Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/h1-front.png",
+    "at": "2026-11-08T00:43:15.185Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/h1-side.png",
+    "at": "2026-11-08T00:43:19.551Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/h2-front.png",
+    "at": "2026-11-08T00:43:24.296Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/h2-side.png",
+    "at": "2026-11-08T00:43:29.532Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/m2-front.png",
+    "at": "2026-11-08T00:43:33.999Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/m2-side.png",
+    "at": "2026-11-08T00:43:38.217Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/m3-front.png",
+    "at": "2026-11-08T00:43:43.055Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/m3-side.png",
+    "at": "2026-11-08T00:43:47.502Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/tb1-front.png",
+    "at": "2026-11-08T00:43:52.361Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/tb1-side.png",
+    "at": "2026-11-08T00:43:57.137Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/tb2-front.png",
+    "at": "2026-11-08T00:44:02.084Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/tb2-side.png",
+    "at": "2026-11-08T00:44:07.287Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/tg1-front.png",
+    "at": "2026-11-08T00:44:11.766Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/tg1-side.png",
+    "at": "2026-11-08T00:44:16.034Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/tg2-front.png",
+    "at": "2026-11-08T00:44:21.402Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/tg2-side.png",
+    "at": "2026-11-08T00:44:26.800Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "garment man-blazer",
+    "at": "2026-11-08T00:47:30.413Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "garment man-trousers",
+    "at": "2026-11-08T00:47:51.711Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "garment man-blazer",
+    "at": "2026-11-08T00:47:57.320Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "garment man-loafers",
+    "at": "2026-11-08T00:48:04.355Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "garment man-shirt",
+    "at": "2026-11-08T00:48:11.812Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "garment woman-blouse",
+    "at": "2026-11-08T00:48:18.772Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "garment woman-skirt",
+    "at": "2026-11-08T00:48:25.657Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "garment woman-heels",
+    "at": "2026-11-08T00:48:33.394Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "garment woman-bag",
+    "at": "2026-11-08T00:48:40.733Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "garment man-trousers",
+    "at": "2026-11-08T00:49:04.439Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "garment woman-blouse",
+    "at": "2026-11-08T00:49:11.707Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/man-blazer.png",
+    "at": "2026-11-08T00:49:25.742Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/man-loafers.png",
+    "at": "2026-11-08T00:49:30.411Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/man-shirt.png",
+    "at": "2026-11-08T00:49:34.909Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/man-trousers.png",
+    "at": "2026-11-08T00:49:39.937Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/woman-bag.png",
+    "at": "2026-11-08T00:49:46.568Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/woman-blouse.png",
+    "at": "2026-11-08T00:49:51.972Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/woman-heels.png",
+    "at": "2026-11-08T00:49:57.294Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/woman-skirt.png",
+    "at": "2026-11-08T00:50:02.415Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "avatar f1 front",
+    "at": "2026-11-08T00:51:40.351Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "edit f1-front.png -> f1-front.png",
+    "at": "2026-11-08T00:52:03.365Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar f1 side",
+    "at": "2026-11-08T00:52:32.020Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/f1-front.png",
+    "at": "2026-11-08T00:52:37.377Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/f1-side.png",
+    "at": "2026-11-08T00:52:41.827Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "hero wardrobe closed",
+    "at": "2026-11-08T00:53:04.399Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero wardrobe open",
+    "at": "2026-11-08T00:53:16.644Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "edit m1-front.png -> m1-front.png",
+    "at": "2026-11-08T00:59:10.073Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatars/m1-front.png",
+    "at": "2026-11-08T00:59:23.843Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "hero wardrobe closed variant a",
+    "at": "2026-11-08T00:59:50.818Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "hero wardrobe closed variant b",
+    "at": "2026-11-08T00:59:56.495Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero stage closed 16:9",
+    "at": "2026-11-08T01:00:36.022Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero stage open 16:9",
+    "at": "2026-11-08T01:00:48.149Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero stage open 16:9",
+    "at": "2026-11-08T01:01:26.253Z"
+  },
+  {
+    "model": "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+    "cost_usd": 0.35,
+    "note": "hero doors video 5s",
+    "at": "2026-11-08T01:03:07.150Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "hero man-1 tryon man-trousers.png",
+    "at": "2026-11-08T01:05:32.374Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "hero man-2 tryon man-blazer.png",
+    "at": "2026-11-08T01:05:57.801Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero man-3 shoes edit",
+    "at": "2026-11-08T01:06:09.760Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "hero woman-1 tryon woman-blouse.png",
+    "at": "2026-11-08T01:06:43.449Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "hero woman-2 tryon woman-skirt.png",
+    "at": "2026-11-08T01:07:06.683Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero woman-3 shoes edit",
+    "at": "2026-11-08T01:07:19.340Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/man-0.png",
+    "at": "2026-11-08T01:07:35.072Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/man-1.png",
+    "at": "2026-11-08T01:07:40.146Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/man-2.png",
+    "at": "2026-11-08T01:07:44.936Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/man-3.png",
+    "at": "2026-11-08T01:07:49.760Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/woman-0.png",
+    "at": "2026-11-08T01:07:55.399Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/woman-1.png",
+    "at": "2026-11-08T01:08:00.311Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/woman-2.png",
+    "at": "2026-11-08T01:08:05.076Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/woman-3.png",
+    "at": "2026-11-08T01:08:10.528Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero2 stage closed (wardrobe left)",
+    "at": "2026-11-08T01:40:12.722Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero2 man smile",
+    "at": "2026-11-08T01:40:26.871Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero2 woman smile",
+    "at": "2026-11-08T01:40:39.450Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "hero2 man-1 tryon man-trousers.png",
+    "at": "2026-11-08T01:41:34.032Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "hero2 man-2 tryon man-blazer.png",
+    "at": "2026-11-08T01:41:57.787Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero2 man-3 shoes edit",
+    "at": "2026-11-08T01:42:10.848Z"
+  },
+  {
+    "model": "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+    "cost_usd": 0.35,
+    "note": "hero2 doors video 5s",
+    "at": "2026-11-08T01:42:15.195Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "hero2 woman-1 tryon woman-skirt.png",
+    "at": "2026-11-08T01:42:33.731Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "hero2 woman-2 tryon woman-blouse.png",
+    "at": "2026-11-08T01:42:55.630Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero2 woman-3 shoes edit",
+    "at": "2026-11-08T01:43:12.438Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero2 man-2 shoes edit",
+    "at": "2026-11-08T01:43:46.300Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero2 man-3 shoes edit",
+    "at": "2026-11-08T01:44:00.821Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/man-0.png",
+    "at": "2026-11-08T01:44:21.964Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/man-1.png",
+    "at": "2026-11-08T01:44:26.970Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/man-2.png",
+    "at": "2026-11-08T01:44:31.902Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/man-3.png",
+    "at": "2026-11-08T01:44:38.334Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/woman-0.png",
+    "at": "2026-11-08T01:44:43.867Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/woman-1.png",
+    "at": "2026-11-08T01:44:48.680Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/woman-2.png",
+    "at": "2026-11-08T01:44:54.124Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout states/woman-3.png",
+    "at": "2026-11-08T01:45:00.943Z"
+  },
+  {
+    "model": "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+    "cost_usd": 0.35,
+    "note": "hero2 living ending 5s",
+    "at": "2026-11-08T01:47:02.005Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "hero3 k1 sky",
+    "at": "2026-11-08T02:14:00.279Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero3 k2 window",
+    "at": "2026-11-08T02:14:13.533Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero3 k4 inside wardrobe",
+    "at": "2026-11-08T02:14:27.163Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "hero3 k4 gold blueprint",
+    "at": "2026-11-08T02:14:40.081Z"
+  },
+  {
+    "model": "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+    "cost_usd": 0.35,
+    "note": "hero3 v2 video 5s",
+    "at": "2026-11-08T02:16:25.596Z"
+  },
+  {
+    "model": "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+    "cost_usd": 0.35,
+    "note": "hero3 v3 video 5s",
+    "at": "2026-11-08T02:16:38.511Z"
+  },
+  {
+    "model": "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+    "cost_usd": 0.35,
+    "note": "hero3 v1 video 5s",
+    "at": "2026-11-08T02:16:43.849Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar f1 back",
+    "at": "2026-11-09T13:04:46.754Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatar f1 back",
+    "at": "2026-11-09T13:04:53.675Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar m1 back",
+    "at": "2026-11-09T13:44:09.445Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatar m1 back",
+    "at": "2026-11-09T13:44:16.141Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar m2 back",
+    "at": "2026-11-09T13:44:31.063Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatar m2 back",
+    "at": "2026-11-09T13:44:36.585Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar m3 back",
+    "at": "2026-11-09T13:44:50.212Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatar m3 back",
+    "at": "2026-11-09T13:44:55.643Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar f2 back",
+    "at": "2026-11-09T13:45:09.000Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatar f2 back",
+    "at": "2026-11-09T13:45:16.280Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar f3 back",
+    "at": "2026-11-09T13:45:31.027Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatar f3 back",
+    "at": "2026-11-09T13:45:37.976Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar h1 back",
+    "at": "2026-11-09T13:45:53.616Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatar h1 back",
+    "at": "2026-11-09T13:45:58.948Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "avatar h2 back",
+    "at": "2026-11-09T13:46:13.146Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout avatar h2 back",
+    "at": "2026-11-09T13:46:18.010Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "test jacket B",
+    "at": "2026-11-09T19:41:09.742Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test blouse perf",
+    "at": "2026-11-09T19:41:18.863Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test jacket A",
+    "at": "2026-11-09T19:41:21.688Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test pants",
+    "at": "2026-11-09T19:41:24.169Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test shirt",
+    "at": "2026-11-09T19:41:28.351Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test skirt",
+    "at": "2026-11-09T19:41:29.744Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "test jacket A inner",
+    "at": "2026-11-09T19:41:30.380Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test chain 1",
+    "at": "2026-11-09T19:42:15.881Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test chain 2",
+    "at": "2026-11-09T19:42:28.404Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test chain 3",
+    "at": "2026-11-09T19:42:40.654Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "test turn side",
+    "at": "2026-11-09T19:42:50.297Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "test turn back",
+    "at": "2026-11-09T19:42:50.596Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test shirt segfree",
+    "at": "2026-11-09T19:43:05.510Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test jacket woman",
+    "at": "2026-11-09T19:43:06.397Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "inner blue",
+    "at": "2026-11-09T19:44:00.738Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "inner white",
+    "at": "2026-11-09T19:44:01.465Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test back jacket",
+    "at": "2026-11-09T19:44:02.374Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test side jacket",
+    "at": "2026-11-09T19:44:03.277Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test side pants",
+    "at": "2026-11-09T19:44:17.606Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "inner2 white",
+    "at": "2026-11-09T19:45:44.773Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "inner2 blue",
+    "at": "2026-11-09T19:45:44.969Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "test garment back",
+    "at": "2026-11-09T19:45:47.780Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test back piece",
+    "at": "2026-11-09T19:46:08.006Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "test combo tee",
+    "at": "2026-11-09T19:46:52.353Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext/multi",
+    "cost_usd": 0.04,
+    "note": "test combo shirt",
+    "at": "2026-11-09T19:47:04.860Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test combo m2",
+    "at": "2026-11-09T19:47:31.798Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test combo f2",
+    "at": "2026-11-09T19:47:32.290Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test back pants",
+    "at": "2026-11-09T19:48:26.353Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "test perf",
+    "at": "2026-11-09T19:48:38.596Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "test cutout light",
+    "at": "2026-11-09T19:48:43.194Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "test tidy",
+    "at": "2026-11-09T19:51:13.993Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "test tidy",
+    "at": "2026-11-09T19:58:51.854Z"
+  }
+]

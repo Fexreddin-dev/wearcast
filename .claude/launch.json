@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "wearcast-full", "runtimeExecutable": "npm", "runtimeArgs": ["--prefix", "full", "run", "dev"], "port": 3000 }
+  ]
+}
