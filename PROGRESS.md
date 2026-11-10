@@ -196,3 +196,6 @@ Kart işləyən düymələrə çevrildi; seçim yalnız bulud səhnəsinin rəng
 - Yoxlanmayıb: Günün kombini real axını (0004-dən sonra), tənzimlənmiş avatar app daxilində (limit doldu), production build yeni kodla, tünd rejim.
 - Test hesabı: wearcast.qa.p4@example.com (parol `full/.env.test.local`, premium, test üçün).
 - Phase 4 Fal xərci ≈ $2.39 (limit $3.00).
+
+**Açıq xəta (11 noyabr, istifadəçi tapdı):** hicablı avatarda (h1) bluz geyindirəndə hicab çalmaya çevrilir, boyun açıq qalır. Səbəb ehtimalı: `segmentation_free: false` hicabın salxımını silir (pencəkdə `true` olduğu üçün düzgün idi). Həll planı və sınaq qaydası: `HANDOFF-PHASE4B.md`, 4-cü bölmə. Növbəti söhbətdə birinci iş.
+Təhvil: `HANDOFF-PHASE4B.md`, söhbət mətni: `PHASE4B-PROMPT.md`.
