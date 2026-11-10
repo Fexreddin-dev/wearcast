@@ -10,11 +10,12 @@ export const ROOT = path.resolve(__dirname, "../..");
 export const ASSETS = path.join(ROOT, "public", "assets");
 
 // Hard spending cap for Phase 2 (USD). The script refuses any call that would cross it.
-export const BUDGET_CAP_USD = 7.9; // Phase 2 + hero film + Phase 3 tests the owner asked for (Nov 2026)
+export const BUDGET_CAP_USD = 9.35; // 7.85 spent before Phase 4 + the $1.50 the owner allowed for Phase 4 tests (2026-11-10)
 
 // Known prices (checked on fal.ai, 2026-11-08). Estimates round up to be safe.
 export const PRICES = {
   "fal-ai/flux-pro/v1.1": { perMegapixel: 0.04 },
+  "fal-ai/flux/dev": { perMegapixel: 0.025 },
   "fal-ai/flux-pro/kontext": { perImage: 0.04 },
   "fal-ai/flux-pro/kontext/multi": { perImage: 0.04 },
   "fal-ai/birefnet/v2": { perImage: 0.01 }, // listed as $0 — we book a conservative 1 cent

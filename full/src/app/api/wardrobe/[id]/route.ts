@@ -41,6 +41,13 @@ export async function DELETE(_req: NextRequest, ctx: RouteContext<"/api/wardrobe
     if (prepared.length) await admin.storage.from("generations").remove(prepared);
     if (gens?.length) await admin.from("generations").delete().in("id", gens.map((g) => g.id));
     await admin.from("wardrobe_items").delete().eq("id", id).eq("user_id", user.id);
+    // Saved outfits lose this piece; an outfit left with nothing is removed.
+    const { data: outfits } = await admin.from("outfits").select("id, refs").eq("user_id", user.id).contains("refs", [id]);
+    for (const o of outfits ?? []) {
+      const refs = (o.refs as string[]).filter((r) => r !== id);
+      if (refs.length) await admin.from("outfits").update({ refs, item_ids: refs.filter((r) => !r.startsWith("demo:")), generation_id: null }).eq("id", o.id);
+      else await admin.from("outfits").delete().eq("id", o.id);
+    }
     return Response.json({ ok: true });
   } catch (e) {
     return fail(e);

@@ -1030,5 +1030,107 @@
     "cost_usd": 0.04,
     "note": "test tidy",
     "at": "2026-11-09T19:58:51.854Z"
+  },
+  {
+    "model": "fal-ai/flux/dev",
+    "cost_usd": 0.025,
+    "note": "p4 test photo man",
+    "at": "2026-11-10T12:56:13.699Z"
+  },
+  {
+    "model": "fal-ai/flux/dev",
+    "cost_usd": 0.025,
+    "note": "p4 test photo woman",
+    "at": "2026-11-10T12:56:20.700Z"
+  },
+  {
+    "model": "fal-ai/flux/dev",
+    "cost_usd": 0.025,
+    "note": "p4 test photo hijab",
+    "at": "2026-11-10T12:56:26.634Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit man",
+    "at": "2026-11-10T12:56:57.587Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit woman",
+    "at": "2026-11-10T12:57:15.052Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit hijab",
+    "at": "2026-11-10T12:57:32.492Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "p4 base outfit basic",
+    "at": "2026-11-10T12:58:41.140Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "p4 base outfit modest",
+    "at": "2026-11-10T12:58:53.644Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit v2 man",
+    "at": "2026-11-10T12:59:28.330Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit v2 woman",
+    "at": "2026-11-10T12:59:44.156Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit v2 hijab",
+    "at": "2026-11-10T12:59:59.950Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "p4 base outfit basic",
+    "at": "2026-11-10T13:00:46.276Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "p4 base outfit modest",
+    "at": "2026-11-10T13:00:58.771Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit v2 man",
+    "at": "2026-11-10T13:01:23.436Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit v2 hijab",
+    "at": "2026-11-10T13:01:40.285Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit v2 man",
+    "at": "2026-11-10T13:02:10.943Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit v2 woman",
+    "at": "2026-11-10T13:02:26.764Z"
   }
 ]

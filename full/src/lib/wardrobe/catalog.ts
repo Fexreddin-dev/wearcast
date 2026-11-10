@@ -16,12 +16,116 @@ export const MATERIALS = ["cotton", "denim", "leather", "silk", "wool", "linen"]
 
 export type View = "front" | "side" | "back";
 
-// Adult base avatars only. Teen and child avatars open once the age rules ship.
-export const BASE_AVATARS = ["m1", "m2", "m3", "f1", "f2", "f3", "h1", "h2"] as const;
+// Shipped avatars. Teen avatars (8-17) follow the age rules below.
+export const BASE_AVATARS = ["m1", "m2", "m3", "f1", "f2", "f3", "h1", "h2", "tb1", "tb2", "tg1", "tg2"] as const;
 export type BaseAvatar = (typeof BASE_AVATARS)[number];
 export const isBaseAvatar = (v: string): v is BaseAvatar => (BASE_AVATARS as readonly string[]).includes(v);
 
+export type Gender = "male" | "female";
+export type AgeGroup = "adult" | "teen";
+export const AGE_GROUPS = ["adult", "teen"] as const;
+export const baseInfo = (id: BaseAvatar) => ({
+  gender: (id.startsWith("m") || id.startsWith("tb") ? "male" : "female") as Gender,
+  age: (id.startsWith("t") ? "teen" : "adult") as AgeGroup,
+  modest: id.startsWith("h"),
+});
+
+// An avatar on the podium: a shipped one ("m1") or one the owner made (its uuid).
+export type AvatarCard = {
+  id: string;
+  image: string;
+  name: string | null;
+  gender: Gender;
+  age: AgeGroup;
+  modest: boolean;
+  own: boolean;
+  measurements: Measurements;
+};
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const isUuid = (v: string) => UUID.test(v);
+export const isAvatarKey = (v: string) => isBaseAvatar(v) || isUuid(v);
+
 export const avatarSrc = (id: string, view: View) => `/assets/avatars/${id}-${view}.webp`;
+
+// ───────── Avatar studio ─────────
+export const SKIN_TONES = ["porcelain", "light", "medium", "olive", "tan", "deep"] as const;
+export const HAIR_STYLES = ["keep", "bald", "short", "long", "curly", "beard"] as const;
+export const FACE_SHAPES = ["keep", "oval", "round", "square", "heart"] as const;
+export const HIJAB_STYLES = ["keep", "classic", "turban", "shawl"] as const;
+
+export const MEASURE_KEYS = ["height", "weight", "shoulder", "chest", "belly", "waist", "hips"] as const;
+export type Measurements = Record<(typeof MEASURE_KEYS)[number], number>;
+// Slider ranges in cm (weight in kg).
+export const MEASURE_RANGE: Record<(typeof MEASURE_KEYS)[number], [number, number]> = {
+  height: [120, 210],
+  weight: [25, 160],
+  shoulder: [30, 60],
+  chest: [60, 150],
+  belly: [55, 160],
+  waist: [50, 150],
+  hips: [60, 160],
+};
+export function defaultMeasurements(gender: Gender, age: AgeGroup): Measurements {
+  if (age === "teen")
+    return gender === "male"
+      ? { height: 160, weight: 50, shoulder: 40, chest: 82, belly: 70, waist: 68, hips: 84 }
+      : { height: 156, weight: 47, shoulder: 37, chest: 80, belly: 68, waist: 64, hips: 86 };
+  return gender === "male"
+    ? { height: 178, weight: 76, shoulder: 46, chest: 100, belly: 88, waist: 84, hips: 98 }
+    : { height: 166, weight: 60, shoulder: 39, chest: 90, belly: 78, waist: 72, hips: 98 };
+}
+
+// ───────── Smart Fit: body size against the garment's label size and cut ─────────
+// Body measurements (cm) at which each label size fits as intended.
+const SIZE_CHART = {
+  male: { chest: [86, 92, 100, 108, 116, 124], waist: [72, 78, 84, 92, 100, 108] },
+  female: { chest: [80, 86, 92, 98, 106, 114], waist: [62, 68, 74, 80, 88, 96], hips: [88, 94, 100, 106, 112, 120] },
+} as const;
+
+// Position of a measurement on the size scale, e.g. 2.5 = between M and L.
+function sizePosition(value: number, chart: readonly number[]) {
+  if (value <= chart[0]) return (value - chart[0]) / (chart[1] - chart[0]);
+  for (let i = 0; i < chart.length - 1; i++) {
+    if (value <= chart[i + 1]) return i + (value - chart[i]) / (chart[i + 1] - chart[i]);
+  }
+  const last = chart.length - 1;
+  return last + (value - chart[last]) / (chart[last] - chart[last - 1]);
+}
+
+export type FitResult = "tight" | "snug" | "true" | "relaxed" | "oversized";
+export function smartFit(body: Measurements, gender: Gender, category: Category, size?: string | null, fit?: string | null): FitResult | null {
+  const label = SIZES.indexOf((size ?? "") as (typeof SIZES)[number]);
+  if (label < 0 || !FASHN_CATEGORY[category]) return null;
+  const chart = SIZE_CHART[gender];
+  const upper = sizePosition(body.chest, chart.chest);
+  const lower = Math.max(sizePosition(body.waist, chart.waist), "hips" in chart ? sizePosition(body.hips, chart.hips) : -9);
+  const bodySize = category === "pants-skirts" ? lower : category === "dresses" ? Math.max(upper, lower) : upper;
+  const room = label - bodySize + (fit === "slim" ? -0.5 : fit === "oversize" ? 1.5 : 0);
+  if (room < -0.75) return "tight";
+  if (room < -0.25) return "snug";
+  if (room <= 0.75) return "true";
+  if (room <= 1.75) return "relaxed";
+  return "oversized";
+}
+
+// ───────── Coverage: age and modest-dressing rules ─────────
+export type Coverage = {
+  sleeves: "none" | "short" | "long";
+  neckline: "high" | "regular" | "low";
+  length: "mini" | "knee" | "long" | "na";
+  revealing: boolean;
+};
+export const COVERED: Coverage = { sleeves: "long", neckline: "regular", length: "long", revealing: false };
+
+// Teen avatars never wear revealing pieces. Modest avatars get a gentle note instead of a block.
+export function coverageRule(c: Coverage, age: AgeGroup, modest: boolean): "blocked" | "modest" | null {
+  if (age === "teen" && (c.revealing || c.length === "mini" || c.neckline === "low")) return "blocked";
+  if (modest && (c.revealing || c.sleeves !== "long" || c.neckline === "low" || c.length === "mini" || c.length === "knee")) return "modest";
+  return null;
+}
+
+export const OCCASIONS = ["work", "school", "wedding", "sport", "casual", "travel"] as const;
+export type Occasion = (typeof OCCASIONS)[number];
 
 export type WardrobeItem = {
   ref: string; // "demo:<id>" or the row uuid
@@ -29,6 +133,8 @@ export type WardrobeItem = {
   name: string | null;
   image: string;
   demo: boolean;
+  size?: string | null;
+  fit?: string | null;
 };
 
 const demo = (id: string, category: Category): WardrobeItem => ({
@@ -83,7 +189,11 @@ export type StudioError =
   | "daily_limit"
   | "city_not_found"
   | "too_few_items"
-  | "shuffle_limit";
+  | "shuffle_limit"
+  | "not_for_age"
+  | "photo_unusable"
+  | "avatar_limit"
+  | "consent";
 
 export const GARMENT_PROMPT =
   "Identify the main clothing item in this photo. Reply as JSON {\"category\": string} using exactly one of: " +
@@ -91,3 +201,59 @@ export const GARMENT_PROMPT =
   ". jackets-coats: blazers, jackets, coats, parkas, cardigans worn open. shirts-tops: t-shirts, shirts, blouses, sweaters, hoodies. " +
   "pants-skirts: trousers, jeans, shorts, skirts. dresses: one-piece dresses and jumpsuits. hijab-headwear: hijabs, scarves, hats, caps. " +
   "shoes: all footwear. accessories: bags, belts, sunglasses, gloves.";
+
+export const baseCards = (): AvatarCard[] =>
+  BASE_AVATARS.map((id) => {
+    const info = baseInfo(id);
+    return { id, image: avatarSrc(id, "front"), name: null, ...info, own: false, measurements: defaultMeasurements(info.gender, info.age) };
+  });
+
+// ───────── Adjusting a shipped avatar: the picture edit, or null when nothing visible changes ─────────
+const TONE: Record<string, string> = {
+  porcelain: "very fair porcelain",
+  light: "light",
+  medium: "medium beige",
+  olive: "olive",
+  tan: "warm tan brown",
+  deep: "deep dark brown",
+};
+export type CustomChoice = { skin?: string; hair?: string; face?: string; hijab?: string };
+
+export function customPrompt(base: BaseAvatar, choice: CustomChoice, m: Measurements) {
+  const info = baseInfo(base);
+  const changes: string[] = [];
+  if (choice.skin && TONE[choice.skin]) changes.push(`Change the person's skin tone to a natural ${TONE[choice.skin]} complexion on the face, neck, arms and hands.`);
+  if (!info.modest) {
+    if (choice.hair === "bald") changes.push("Make the head completely bald and smoothly shaved.");
+    if (choice.hair === "short") changes.push("Give the person short, neat hair.");
+    if (choice.hair === "long") changes.push("Give the person long hair falling past the shoulders.");
+    if (choice.hair === "curly") changes.push("Give the person voluminous natural curly hair.");
+    if (choice.hair === "beard" && info.gender === "male" && info.age === "adult") changes.push("Add a short, well-groomed full beard.");
+  } else {
+    if (choice.hijab === "classic") changes.push("Restyle the headscarf as a classic wrapped hijab that fully covers the hair, ears and neck.");
+    if (choice.hijab === "turban") changes.push("Restyle the headscarf as a neat turban-style hijab wrap, with the neck still fully covered by the high collar.");
+    if (choice.hijab === "shawl") changes.push("Restyle the headscarf as a long, loosely draped shawl hijab covering the hair, neck and upper chest.");
+  }
+  if (choice.face && choice.face !== "keep") changes.push(`Make the face shape slightly more ${choice.face}.`);
+
+  const d = defaultMeasurements(info.gender, info.age);
+  const bmi = m.weight / (m.height / 100) ** 2;
+  if (bmi < 18.5) changes.push("Make the body build noticeably slimmer.");
+  else if (bmi >= 30) changes.push("Make the body build plus-size, with a fuller stomach, arms and legs.");
+  else if (bmi >= 26) changes.push("Make the body build somewhat fuller, with a softer stomach.");
+  if (m.shoulder >= d.shoulder + 4) changes.push("Make the shoulders broader.");
+  if (info.gender === "female" && m.hips - m.waist >= 32) changes.push("Give the figure curvier hips.");
+  if (m.belly >= m.chest + 4) changes.push("Make the belly rounder.");
+  if (!changes.length) return null;
+
+  const outfit = info.modest
+    ? "the same cream sweater, beige trousers and white sneakers"
+    : info.age === "teen"
+      ? "the same white t-shirt, blue jeans and white sneakers"
+      : "the same white t-shirt, grey trousers and white sneakers";
+  return (
+    changes.join(" ") +
+    ` Keep everything else exactly the same: the same person, the same standing pose, ${outfit}, the same plain light background and soft studio lighting. ` +
+    "Full body from the top of the head to the shoes, nothing cropped. Photorealistic."
+  );
+}

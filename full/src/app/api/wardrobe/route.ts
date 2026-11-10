@@ -15,6 +15,7 @@ import {
   StudioFailure,
 } from "@/lib/wardrobe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { measureCoverage } from "@/lib/wardrobe/avatars";
 
 const MAX_BYTES = 10 * 1024 * 1024;
 const TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -154,9 +155,11 @@ export async function POST(request: Request) {
     if (up.error) throw up.error;
     paths.push(cleanPath);
 
+    // How much the piece covers, for the teen and modest rules. Free, and filled later if it fails now.
+    const coverage = parsed.data.category === "shoes" || parsed.data.category === "accessories" ? null : await measureCoverage(clean);
     const { error: saveError } = await admin
       .from("wardrobe_items")
-      .update({ original_paths: originals, clean_path: cleanPath, status: "done" })
+      .update({ original_paths: originals, clean_path: cleanPath, status: "done", coverage })
       .eq("id", id);
     if (saveError) throw saveError;
 
@@ -167,6 +170,8 @@ export async function POST(request: Request) {
       name: parsed.data.name ?? null,
       image: signed?.signedUrl ?? "",
       demo: false,
+      size: parsed.data.size,
+      fit: parsed.data.fit,
     };
     return Response.json({ item });
   } catch (e) {

@@ -4,6 +4,7 @@ import type { Dictionary } from "@/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import ThemeToggle from "./ThemeToggle";
 import LocaleSwitcher from "./LocaleSwitcher";
+import NavTabs from "./NavTabs";
 import { signOut } from "@/app/actions/auth";
 import { isUnlimitedUser } from "@/lib/admin";
 
@@ -28,11 +29,7 @@ export default async function Header({ locale, dict }: { locale: Locale; dict: D
       </div>
 
       {user && (
-        <nav className="hidden gap-8 text-xs font-medium tracking-[0.2em] md:flex">
-          <Link href={`/${locale}/wardrobe`}>{dict.nav.wardrobe}</Link>
-          <span className="text-text-2">{dict.nav.avatar}</span>
-          <span className="text-text-2">{dict.nav.outfits}</span>
-        </nav>
+        <NavTabs locale={locale} menu={dict.nav.menu} labels={{ wardrobe: dict.nav.wardrobe, avatar: dict.nav.avatar, outfits: dict.nav.outfits }} />
       )}
 
       <div className="flex items-center gap-2 sm:gap-3">

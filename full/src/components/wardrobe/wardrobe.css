@@ -148,7 +148,7 @@ body:has(.wc-studio) { display: flow-root; }
 .wc-layer-row button { cursor: pointer; color: var(--text-2); }
 .wc-mini { padding: 0.42rem 0.8rem; font-size: 0.66rem; }
 
-.wc-avatars { position: absolute; left: 0; right: 0; bottom: 6px; display: flex; justify-content: center; gap: 6px; padding: 0 8px; overflow-x: auto; scrollbar-width: none; z-index: 5; }
+.wc-avatars { position: absolute; left: 0; right: 0; bottom: 6px; display: flex; justify-content: safe center; gap: 6px; padding: 0 8px; overflow-x: auto; scrollbar-width: none; z-index: 5; }
 .wc-avatar { flex: none; width: 36px; height: 40px; border-radius: 10px; overflow: hidden; background: var(--glass); border: 1px solid var(--glass-border); cursor: pointer; }
 .wc-avatar[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .wc-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; transform: scale(2.1); transform-origin: 50% 2%; }
@@ -170,3 +170,14 @@ body:has(.wc-studio) { display: flow-root; }
 
 .wc-part { display: grid; grid-template-columns: 1fr auto auto; align-items: baseline; gap: 8px; padding: 6px 0; font-size: 0.76rem; border-bottom: 1px solid rgba(120, 100, 70, 0.16); }
 .wc-part:last-child { border-bottom: 0; }
+
+/* Smart Fit chip under each worn piece */
+.wc-fit { display: inline-block; margin-top: 1px; padding: 0 6px; border-radius: 99px; font-size: 0.56rem; letter-spacing: 0.04em; border: 1px solid var(--glass-border); background: var(--glass); color: var(--text-2); cursor: help; }
+.wc-fit.is-true { color: #4c7a4f; border-color: rgba(76, 122, 79, 0.35); }
+.wc-fit.is-tight, .wc-fit.is-oversized { color: var(--danger); border-color: rgba(180, 68, 58, 0.35); }
+.wc-fit.is-snug, .wc-fit.is-relaxed { color: var(--accent); border-color: rgba(176, 141, 87, 0.4); }
+:root[data-theme="dark"] .wc-fit.is-true { color: #8fc192; }
+/* Own avatars carry a small gold dot; the last tile opens the Avatar studio. */
+.wc-avatar { position: relative; }
+.wc-avatar.is-own::after { content: ""; position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.wc-avatar-add { display: grid; place-items: center; font-size: 1.1rem; color: var(--accent); text-decoration: none; }

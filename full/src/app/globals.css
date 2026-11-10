@@ -329,3 +329,15 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Studio section tabs */
+.wc-tab { position: relative; padding: 6px 0; transition: color 0.3s var(--ease); }
+.wc-tab:hover { color: var(--text); }
+.wc-tab.is-active::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--accent); }
+.wc-mobile-nav {
+  position: fixed; z-index: 60; left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom));
+  display: grid; grid-template-columns: repeat(3, 1fr); padding: 6px; border-radius: 18px;
+}
+.wc-mobile-nav a { padding: 11px 4px; text-align: center; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.16em; border-radius: 12px; color: var(--text-2); }
+.wc-mobile-nav a.is-active { background: var(--accent); color: var(--accent-contrast); }
+@media (max-width: 767px) { body:has(.wc-mobile-nav) main { padding-bottom: 84px; } }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isBaseAvatar, MAX_LAYERS } from "@/lib/wardrobe/catalog";
+import { isAvatarKey, MAX_LAYERS } from "@/lib/wardrobe/catalog";
 import { fail, requireUser, StudioFailure } from "@/lib/wardrobe/server";
 import { runTryOn } from "@/lib/wardrobe/tryon";
 
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   try {
     const { caller } = await requireUser();
     const parsed = body.safeParse(await request.json());
-    if (!parsed.success || !isBaseAvatar(parsed.data.avatar)) throw new StudioFailure("invalid");
+    if (!parsed.success || !isAvatarKey(parsed.data.avatar)) throw new StudioFailure("invalid");
     const { avatar, items, cacheOnly } = parsed.data;
     return Response.json(await runTryOn(caller, avatar, [...new Set(items)], cacheOnly));
   } catch (e) {

@@ -1,11 +1,10 @@
 import "server-only";
 import { createHash, randomUUID } from "node:crypto";
-import fs from "node:fs/promises";
-import path from "node:path";
 import sharp from "sharp";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { CATEGORIES, DAILY_TRYONS, DEMO_ITEMS, FASHN_CATEGORY, layerRank, type Category } from "./catalog";
+import { CATEGORIES, coverageRule, DAILY_TRYONS, DEMO_ITEMS, FASHN_CATEGORY, layerRank, type Category } from "./catalog";
+import { type AvatarProfile, coverageFor, loadAvatar, publicFile } from "./avatars";
 import {
   askGemini,
   assertPlanActive,
@@ -26,7 +25,6 @@ type Layer = { ref: string; category: Category; ownId?: string; cleanPath?: stri
 type Admin = ReturnType<typeof createAdminClient>;
 
 const STALE_MS = 3 * 60 * 1000;
-const publicFile = (...parts: string[]) => fs.readFile(path.join(process.cwd(), "public", "assets", ...parts));
 const results = (admin: Admin) => admin.storage.from("generations");
 
 const STUDIO =
@@ -188,12 +186,12 @@ const piecePrompt = (inner: string) =>
 
 // Try-on replaces the whole top, so a jacket is first pictured together with what goes under it.
 // Only the jacket's own picture is edited: combining two garment pictures distorted the jacket.
-async function jacketPicture(admin: Admin, caller: Caller, avatar: string, layers: Layer[], index: number) {
+async function jacketPicture(admin: Admin, caller: Caller, avatar: AvatarProfile, layers: Layer[], index: number) {
   const jacket = layers[index];
   const below = layers.slice(0, index);
   if (below.some((l) => l.category === "dresses")) return frontPicture(admin, jacket);
   const under = below.filter((l) => l.category === "shirts-tops" || l.category === "jackets-coats").at(-1);
-  const inner = under ? `${pieceName(under)}.v2` : avatar.startsWith("h") ? "cream" : "tee";
+  const inner = under ? `${pieceName(under)}.v2` : avatar.modest ? "cream" : "tee";
 
   return piece(admin, `${pieceFolder(caller, [jacket, ...(under ? [under] : [])])}/${pieceName(jacket)}+${inner}.png`, async () => {
     const top = under
@@ -215,7 +213,7 @@ async function jacketPicture(admin: Admin, caller: Caller, avatar: string, layer
   });
 }
 
-function garmentFor(admin: Admin, caller: Caller, avatar: string, layers: Layer[], index: number) {
+function garmentFor(admin: Admin, caller: Caller, avatar: AvatarProfile, layers: Layer[], index: number) {
   const layer = layers[index];
   if (layer.category === "jackets-coats") return jacketPicture(admin, caller, avatar, layers, index);
   return frontPicture(admin, layer);
@@ -233,18 +231,54 @@ async function assertDailyLimit(admin: Admin, userId: string, steps: number) {
   if (used + steps > (DAILY_TRYONS[await planOf(userId)] ?? 2)) throw new StudioFailure("daily_limit", 429);
 }
 
-export async function runTryOn(caller: Caller, avatar: string, refs: string[], cacheOnly = false) {
-  if (!caller.unlimited) await assertPlanActive(caller.id);
-  const admin = createAdminClient();
-  const layers = await resolveLayers(admin, caller.id, refs);
-  const avatarId = await ensureAvatarRow(admin, caller.id, avatar);
-  const keys = layers.map((_, i) => {
+// One cache key per dressing step, so every partial look on the way is reusable.
+function stepKeys(prefix: string, layers: Layer[]) {
+  return layers.map((_, i) => {
     const stack = layers.slice(0, i + 1);
     // Looks already paid for stay free, except jackets dressed over another top: those used a damaged picture.
     const uppers = stack.filter((l) => l.category === "shirts-tops" || l.category === "jackets-coats");
     const stale = uppers.length > 1 && uppers.at(-1)!.category === "jackets-coats";
-    return createHash("sha256").update(`${stale ? "v5" : "v4"}|base:${avatar}|front|${stack.map((l) => l.ref).join(",")}`).digest("hex");
+    return createHash("sha256").update(`${stale ? "v5" : "v4"}|${prefix}|front|${stack.map((l) => l.ref).join(",")}`).digest("hex");
   });
+}
+
+// The finished result for this exact look, if it was ever made. Never costs anything.
+export async function findLook(callerId: string, avatarKey: string, refs: string[]) {
+  const admin = createAdminClient();
+  const [avatar, layers] = await Promise.all([loadAvatar(admin, callerId, avatarKey), resolveLayers(admin, callerId, refs)]);
+  const key = stepKeys(avatar.cachePrefix, layers).at(-1)!;
+  const { data } = await admin
+    .from("generations")
+    .select("id, result_paths")
+    .eq("user_id", callerId)
+    .eq("cache_key", key)
+    .eq("status", "done")
+    .maybeSingle();
+  return { generationId: (data?.id as string) ?? null, refs: layers.map((l) => l.ref), ownIds: layers.flatMap((l) => (l.ownId ? [l.ownId] : [])) };
+}
+
+// Teen avatars never wear revealing pieces (checked before anything is paid). Modest avatars get a note.
+async function checkCoverage(admin: Admin, avatar: AvatarProfile, layers: Layer[]) {
+  if (avatar.age !== "teen" && !avatar.modest) return null;
+  let notice: "modest" | null = null;
+  for (const layer of layers) {
+    const c = await coverageFor(admin, layer);
+    if (!c) {
+      if (avatar.age === "teen") throw new StudioFailure("failed", 503); // unknown pieces are never risked on a teen
+      continue;
+    }
+    const rule = coverageRule(c, avatar.age, avatar.modest);
+    if (rule === "blocked") throw new StudioFailure("not_for_age", 422);
+    if (rule === "modest") notice = "modest";
+  }
+  return notice;
+}
+
+export async function runTryOn(caller: Caller, avatarKey: string, refs: string[], cacheOnly = false) {
+  if (!caller.unlimited) await assertPlanActive(caller.id);
+  const admin = createAdminClient();
+  const [avatar, layers] = await Promise.all([loadAvatar(admin, caller.id, avatarKey), resolveLayers(admin, caller.id, refs)]);
+  const keys = stepKeys(avatar.cachePrefix, layers);
   const charges = !caller.unlimited;
 
   const { data: cached, error } = await admin
@@ -263,8 +297,10 @@ export async function runTryOn(caller: Caller, avatar: string, refs: string[], c
       break;
     }
   }
-  if (cacheOnly && start < layers.length) return { image: null, items: [] as string[], charged: 0, cached: false };
+  if (cacheOnly && start < layers.length) return { image: null, items: [] as string[], charged: 0, cached: false, notice: null };
+  const notice = cacheOnly ? null : await checkCoverage(admin, avatar, layers);
   if (start < layers.length && charges) await assertDailyLimit(admin, caller.id, layers.length - start);
+  const avatarId = start < layers.length ? (avatar.rowId ?? (await ensureAvatarRow(admin, caller.id, avatar.key))) : null;
 
   let charged = 0;
   let lastPaths = start > 0 ? cachedMap.get(keys[start - 1])! : null;
@@ -272,7 +308,7 @@ export async function runTryOn(caller: Caller, avatar: string, refs: string[], c
   for (let i = start; i < layers.length; i++) {
     const layer = layers[i];
     const itemIds = layers.slice(0, i + 1).flatMap((l) => (l.ownId ? [l.ownId] : []));
-    const genId = await claim(admin, caller.id, avatarId, keys[i], itemIds);
+    const genId = await claim(admin, caller.id, avatarId!, keys[i], itemIds);
     const spendRef = `tryon:${keys[i]}:${randomUUID()}`;
 
     if (charges) {
@@ -286,7 +322,7 @@ export async function runTryOn(caller: Caller, avatar: string, refs: string[], c
 
     try {
       const [modelImage, garmentImage] = await Promise.all([
-        lastPaths ? sign(admin, lastPaths[1]) : uploadStatic(`avatar:${avatar}:front`, () => publicFile("avatars", `${avatar}-front.png`)),
+        lastPaths ? sign(admin, lastPaths[1]) : avatar.modelImage(),
         garmentFor(admin, caller, avatar, layers, i),
       ]);
       const data = await runFal(
@@ -334,5 +370,5 @@ export async function runTryOn(caller: Caller, avatar: string, refs: string[], c
     }
   }
 
-  return { image: await sign(admin, lastPaths![0]), items: layers.map((l) => l.ref), charged, cached: start === layers.length };
+  return { image: await sign(admin, lastPaths![0]), items: layers.map((l) => l.ref), charged, cached: start === layers.length, notice };
 }

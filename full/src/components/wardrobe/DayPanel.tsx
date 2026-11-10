@@ -4,20 +4,14 @@
 import { useEffect, useRef, useState } from "react";
 import type { Locale } from "@/i18n/config";
 import type { WardrobeItem } from "@/lib/wardrobe/catalog";
-import { callApi, type Text } from "./WardrobeStudio";
+import { callApi, json, type Text } from "./WardrobeStudio";
 
 export type Look = { itemIds: string[]; note: string | null };
 type Part = { temp: number; wind: number; rain: number; sky: string };
 export type WeatherData = { city: string; morning: Part; afternoon: Part; evening: Part };
 
-const json = (method: string, payload: unknown): RequestInit => ({
-  method,
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload),
-});
-
 export default function DayPanel({
-  locale, t, initialCity, initialLook, initialWeather, preview, ownCount, all, busy, onGetLook, onToast, onError,
+  locale, t, initialCity, initialLook, initialWeather, preview, ownCount, all, busy, onGetLook, onSave, onToast, onError,
 }: {
   locale: Locale;
   t: Text;
@@ -29,6 +23,7 @@ export default function DayPanel({
   all: WardrobeItem[];
   busy: boolean;
   onGetLook: (ids: string[]) => void;
+  onSave: (refs: string[]) => void;
   onToast: (text: string) => void;
   onError: (e: unknown) => void;
 }) {
@@ -81,16 +76,6 @@ export default function DayPanel({
     }
   };
 
-  const saveLook = async () => {
-    if (!look) return;
-    try {
-      await callApi("/api/outfits", json("POST", { itemIds: look.itemIds }));
-      onToast(t.toast.saved);
-    } catch (e) {
-      onError(e);
-    }
-  };
-
   const pieces = (look?.itemIds ?? []).flatMap((id) => all.filter((a) => a.ref === id));
 
   return (
@@ -134,7 +119,7 @@ export default function DayPanel({
             <button type="button" className="btn btn-primary w-full" disabled={busy} onClick={() => onGetLook(look.itemIds)}>{t.look.get}</button>
             <div className="grid grid-cols-2 gap-2">
               <button type="button" className="btn btn-ghost wc-mini" disabled={thinking} onClick={() => requestLook(true)}>{t.look.shuffle}</button>
-              <button type="button" className="btn btn-ghost wc-mini" onClick={saveLook}>{t.look.save}</button>
+              <button type="button" className="btn btn-ghost wc-mini" disabled={preview} onClick={() => look && onSave(look.itemIds)}>{t.look.save}</button>
             </div>
           </>
         )}

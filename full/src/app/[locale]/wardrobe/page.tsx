@@ -5,11 +5,13 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { isUnlimitedUser } from "@/lib/admin";
 import { createClient } from "@/lib/supabase/server";
 import { WARDROBE_LIMITS, type Category, type WardrobeItem } from "@/lib/wardrobe/catalog";
+import { ownAvatars } from "@/lib/wardrobe/pages";
 import WardrobeStudio, { type StudioData } from "@/components/wardrobe/WardrobeStudio";
 
 // Local layout check only: lets the screen be inspected without an account. Never active in production.
 const PREVIEW: StudioData = {
   items: [],
+  avatars: [],
   limit: 8,
   credits: 2,
   city: "Baku",
@@ -25,7 +27,9 @@ const PREVIEW: StudioData = {
   },
 };
 
-async function Studio({ locale, previewRequested }: { locale: Locale; previewRequested: boolean }) {
+type Start = { outfit?: string; avatar?: string };
+
+async function Studio({ locale, previewRequested, start }: { locale: Locale; previewRequested: boolean; start: Start }) {
   const dict = getDictionary(locale);
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
@@ -38,12 +42,16 @@ async function Studio({ locale, previewRequested }: { locale: Locale; previewReq
   }
 
   const today = new Date().toISOString().slice(0, 10);
-  const [{ data: rows }, { data: sub }, { data: credits }, { data: profile }, { data: look }] = await Promise.all([
-    supabase.from("wardrobe_items").select("id, category, name, clean_path").eq("status", "done").order("created_at", { ascending: false }),
+  const [{ data: rows }, { data: sub }, { data: credits }, { data: profile }, { data: look }, avatars, { data: outfit }] = await Promise.all([
+    supabase.from("wardrobe_items").select("id, category, name, clean_path, size, fit").eq("status", "done").order("created_at", { ascending: false }),
     supabase.from("subscriptions").select("plan, wardrobe_extra_slots").maybeSingle(),
     supabase.rpc("my_credit_balance"),
     supabase.from("profiles").select("city").maybeSingle(),
     supabase.from("daily_looks").select("item_ids, note").eq("look_date", today).maybeSingle(),
+    ownAvatars(supabase),
+    start.outfit && /^[0-9a-f-]{36}$/i.test(start.outfit)
+      ? supabase.from("outfits").select("refs, avatar").eq("id", start.outfit).maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
 
   const paths = (rows ?? []).map((r) => r.clean_path as string);
@@ -56,6 +64,8 @@ async function Studio({ locale, previewRequested }: { locale: Locale; previewReq
     name: r.name,
     image: signed?.[i]?.signedUrl ?? "",
     demo: false,
+    size: r.size,
+    fit: r.fit,
   }));
 
   return (
@@ -64,6 +74,8 @@ async function Studio({ locale, previewRequested }: { locale: Locale; previewReq
       t={dict.wardrobe}
       data={{
         items,
+        avatars,
+        start: outfit ? { avatar: (outfit.avatar as string | null) ?? null, refs: outfit.refs as string[] } : start.avatar ? { avatar: start.avatar, refs: [] } : null,
         limit: isUnlimitedUser(auth.user) ? Infinity : (WARDROBE_LIMITS[sub?.plan ?? "free"] ?? 8) + (sub?.wardrobe_extra_slots ?? 0),
         credits: credits ?? 0,
         city: profile?.city || "Baku",
@@ -80,7 +92,8 @@ async function Gate({ params, searchParams }: PageProps<"/[locale]/wardrobe">) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const query = await searchParams;
-  return <Studio locale={locale} previewRequested={query.preview === "1"} />;
+  const one = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
+  return <Studio locale={locale} previewRequested={query.preview === "1"} start={{ outfit: one(query.outfit), avatar: one(query.avatar) }} />;
 }
 
 export default function WardrobePage(props: PageProps<"/[locale]/wardrobe">) {

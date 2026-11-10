@@ -131,7 +131,7 @@ export default function Closet({
   );
 }
 
-function Options<T extends string>({
+export function Options<T extends string>({
   label, values, value, onChange, text,
 }: {
   label: string;

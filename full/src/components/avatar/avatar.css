@@ -1,0 +1,29 @@
+/* Avatar studio: your avatars on the left, the maker on the right. */
+.av-page { display: grid; gap: 12px; padding: 12px; grid-template-columns: minmax(0, 1fr) minmax(340px, 480px); align-items: start; }
+@media (max-width: 1023px) { .av-page { grid-template-columns: minmax(0, 1fr); } .av-make { order: -1; } }
+.av-mine, .av-make { padding: 22px; }
+.av-make { position: sticky; top: 88px; max-height: calc(100svh - 100px); overflow-y: auto; scrollbar-width: thin; }
+@media (max-width: 1023px) { .av-make { position: static; max-height: none; } }
+
+.av-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.av-card { border-radius: 16px; padding: 6px; background: var(--glass); border: 1px solid var(--glass-border); }
+.av-card-stage {
+  position: relative; aspect-ratio: 3 / 4.4; border-radius: 12px; overflow: hidden;
+  background: radial-gradient(ellipse 70% 14% at 50% 93%, rgba(60, 45, 25, 0.22), transparent 70%), linear-gradient(180deg, var(--bg-from), var(--bg-to));
+}
+.av-card-stage img { position: absolute; inset: 6% 0 5%; width: 100%; height: 89%; object-fit: contain; object-position: 50% 100%; }
+.av-badge { flex: none; font-size: 0.56rem; padding: 1px 6px; border-radius: 99px; background: var(--glass); border: 1px solid var(--glass-border); color: var(--text-2); }
+
+.av-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: 18px; border-radius: 14px; background: rgba(120, 100, 70, 0.1); }
+.av-tab { padding: 9px 6px; border-radius: 10px; font-size: 0.74rem; cursor: pointer; color: var(--text-2); transition: background 0.3s var(--ease), color 0.3s var(--ease); }
+.av-tab[aria-selected="true"] { background: var(--glass); color: var(--text); box-shadow: var(--glass-shadow); }
+
+.av-bases { display: flex; flex-wrap: wrap; gap: 6px; }
+.av-base { width: 44px; height: 50px; }
+.av-swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid var(--glass-border); box-shadow: 0 1px 4px rgba(40, 25, 10, 0.2); }
+.av-swatch[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.av-toggle { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.av-toggle input { margin-top: 2px; width: 16px; height: 16px; flex: none; accent-color: var(--accent); }
+.av-body { padding: 12px 14px; border-radius: 12px; background: rgba(120, 100, 70, 0.07); }
+.av-range input { width: 100%; accent-color: var(--accent); }
