@@ -17,7 +17,10 @@ import {
   defaultMeasurements,
   FACE_SHAPES,
   type Gender,
-  HAIR_STYLES,
+  BEARD_STYLES,
+  hairFor,
+  hasBeardChoice,
+  type HairStyle,
   HIJAB_STYLES,
   MEASURE_KEYS,
   MEASURE_RANGE,
@@ -84,6 +87,7 @@ export default function AvatarStudio({
       await callApi(`/api/avatars/${id}`, { method: "DELETE" });
       setAvatars((all) => all.filter((a) => a.id !== id));
       toast(t.deleted);
+      router.refresh();
     } catch (e) {
       showError(e);
     }
@@ -201,7 +205,7 @@ function PhotoForm({ t, w, credits, preview, onCreated, onError }: FormProps) {
     <div className="flex flex-col gap-4">
       <div>
         <p className="mb-1.5 text-xs text-text-2">{t.photos}</p>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="av-photos">
           {ANGLES.map((a) => (
             <label key={a} className="wc-photo">
               {previews[a] ? <img src={previews[a]} alt="" /> : <span>{t[a]}{a === "front" ? " *" : ""}</span>}
@@ -232,7 +236,8 @@ function CustomForm({ t, w, credits, preview, onCreated, onError }: FormProps) {
   const [base, setBase] = useState<BaseAvatar>("f1");
   const [name, setName] = useState("");
   const [skin, setSkin] = useState<"keep" | (typeof SKIN_TONES)[number]>("keep");
-  const [hair, setHair] = useState<(typeof HAIR_STYLES)[number]>("keep");
+  const [hair, setHair] = useState<HairStyle>("keep");
+  const [beard, setBeard] = useState<(typeof BEARD_STYLES)[number]>("keep");
   const [face, setFace] = useState<(typeof FACE_SHAPES)[number]>("keep");
   const [hijab, setHijab] = useState<(typeof HIJAB_STYLES)[number]>("keep");
   const [m, setM] = useState<Measurements>(defaultMeasurements("female", "adult"));
@@ -244,15 +249,16 @@ function CustomForm({ t, w, credits, preview, onCreated, onError }: FormProps) {
     setBase(id);
     setM(defaultMeasurements(i.gender, i.age));
     setHair("keep");
+    setBeard("keep");
     setHijab("keep");
   };
-  const hairs = HAIR_STYLES.filter((h) => h !== "beard" || (info.gender === "male" && info.age === "adult"));
-  const changes = customPrompt(base, { skin: skin === "keep" ? undefined : skin, hair, face, hijab }, m) !== null;
+  const beardShown = hasBeardChoice(info.gender, info.age);
+  const changes = customPrompt(base, { skin: skin === "keep" ? undefined : skin, hair, beard, face, hijab }, m) !== null;
 
   const submit = async () => {
     setSaving(true);
     try {
-      const res = await send("custom", { name: name.trim() || undefined, base, skin, hair, face, hijab, measurements: m });
+      const res = await send("custom", { name: name.trim() || undefined, base, skin, hair, beard: beardShown ? beard : "keep", face, hijab, measurements: m });
       onCreated(res.avatar, false);
       setName("");
     } catch (e) {
@@ -289,8 +295,9 @@ function CustomForm({ t, w, credits, preview, onCreated, onError }: FormProps) {
       {info.modest ? (
         <Options label={t.hijab} values={HIJAB_STYLES} value={hijab} onChange={setHijab} text={(h) => t.hijabs[h]} />
       ) : (
-        <Options label={t.hair} values={hairs} value={hair} onChange={setHair} text={(h) => t.hairs[h]} />
+        <Options label={t.hair} values={hairFor(info.gender)} value={hair} onChange={setHair} text={(h) => t.hairs[h]} />
       )}
+      {beardShown && <Options label={t.beard} values={BEARD_STYLES} value={beard} onChange={setBeard} text={(b) => t.beards[b]} />}
       <Options label={t.face} values={FACE_SHAPES} value={face} onChange={setFace} text={(f) => t.faces[f]} />
       <Body t={t} m={m} onChange={setM} />
       <Footer t={t} cost={needsCredit} saving={saving} disabled={preview || saving || (needsCredit && credits < 1)} noCredit={needsCredit && credits < 1 ? w.errors.no_credits : null} onSubmit={submit} />

@@ -6,6 +6,7 @@ import {
   assertPlanActive,
   type Caller,
   cutout,
+  describeError,
   FAL_EDIT,
   fail,
   planOf,
@@ -55,7 +56,7 @@ async function tidyPhoto(imageUrl: string, category: Category, caller: Caller) {
     return data.images![0].url;
   } catch (e) {
     if (e instanceof StudioFailure) throw e;
-    console.error("[wardrobe] tidy step failed", e instanceof Error ? e.message : "unknown");
+    console.error("[wardrobe] tidy step failed", describeError(e));
     return imageUrl;
   }
 }

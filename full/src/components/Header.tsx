@@ -16,13 +16,13 @@ export default async function Header({ locale, dict }: { locale: Locale; dict: D
   const unlimited = isUnlimitedUser(user);
 
   return (
-    <header className="glass sticky top-3 z-50 mx-3 mt-3 flex h-16 items-center justify-between gap-3 px-4 md:px-5">
+    <header className="glass sticky top-3 z-50 mx-3 mt-3 flex min-h-16 flex-wrap items-center justify-between gap-x-2 px-3 sm:gap-x-3 sm:px-4 md:px-5 lg:h-16 lg:flex-nowrap">
       <div className="flex items-center gap-4">
         <Link href={`/${locale}`} className="font-serif text-xl tracking-wide md:text-2xl">
           {dict.brand}
         </Link>
         {user && (
-          <Link href={`/${locale}`} className="text-xs uppercase tracking-widest text-text-2">
+          <Link href={`/${locale}`} className="hidden whitespace-nowrap text-xs uppercase tracking-widest text-text-2 sm:inline">
             {dict.nav.home}
           </Link>
         )}
@@ -34,7 +34,7 @@ export default async function Header({ locale, dict }: { locale: Locale; dict: D
 
       <div className="flex items-center gap-2 sm:gap-3">
         {user && (
-          <span className="hidden text-xs tracking-wide text-text-2 sm:inline">
+          <span className="hidden whitespace-nowrap text-xs tracking-wide text-text-2 sm:inline">
             {dict.wardrobe.credits}: <strong className="font-medium text-text">{unlimited ? "∞" : (credits ?? 0)}</strong>
           </span>
         )}

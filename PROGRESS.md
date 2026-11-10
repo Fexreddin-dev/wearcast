@@ -188,3 +188,11 @@ Kart işləyən düymələrə çevrildi; seçim yalnız bulud səhnəsinin rəng
 - Hostinq: ilkin Vercel/Netlify, sonra öz domen və Node.js hosting
 
 
+
+## Phase 4 — davam edir (10 noyabr, istifadə limiti ilə yarımçıq dayandı)
+- Hazır: AVATAR (foto + tənzimləmə, ayrıca saqqal), OUTFITS, Smart Fit, yeniyetmə/hicab qaydaları, Günün kombini (öz qarderob + trend, hava qrupu, tarixçə, izah), sürət (paralel yükləmə, 30 s brauzer keşi, skeletlər), alt panel silindi.
+- Geyindirmə: quality + köhnə geyimi sil; pencəkdə formanı saxla (keş v7). Studiya geyimi: neytral uzunqol flat-lay, 3 baxışlı yoxlama, 2-ci cəhd, alınmasa öz geyimi + kredit qaytarılır.
+- İstifadəçi etməlidir: `supabase/migrations/0004_look_history.sql` işə salmaq (Günün kombini bunsuz işləmir).
+- Yoxlanmayıb: Günün kombini real axını (0004-dən sonra), tənzimlənmiş avatar app daxilində (limit doldu), production build yeni kodla, tünd rejim.
+- Test hesabı: wearcast.qa.p4@example.com (parol `full/.env.test.local`, premium, test üçün).
+- Phase 4 Fal xərci ≈ $2.39 (limit $3.00).

@@ -18,9 +18,19 @@ export class StudioFailure extends Error {
   }
 }
 
+// Database errors are plain objects, not Error instances, so their message and code are read directly.
+export function describeError(e: unknown) {
+  if (e instanceof Error) return e.message;
+  if (e && typeof e === "object" && "message" in e) {
+    const { message, code } = e as { message?: unknown; code?: unknown };
+    return `${String(message)}${code ? ` (${String(code)})` : ""}`;
+  }
+  return "unknown error";
+}
+
 export function fail(e: unknown) {
   if (e instanceof StudioFailure) return Response.json({ error: e.code }, { status: e.status });
-  console.error("[wardrobe]", e instanceof Error ? e.message : "unknown error");
+  console.error("[wardrobe]", describeError(e));
   return Response.json({ error: "failed" satisfies StudioError }, { status: 500 });
 }
 
@@ -111,9 +121,13 @@ export async function cutout(imageUrl: string, caller: Caller) {
 // These models are often briefly overloaded, so a busy one hands over to the next.
 const GEMINI_MODELS = ["gemini-flash-lite-latest", "gemini-flash-latest", "gemini-3-flash-preview"];
 
-export async function askGemini(parts: (string | Part)[], timeout = 15_000) {
+// Writing that people read (the daily look, in three languages) goes to the stronger models first:
+// the light model made spelling mistakes in Azerbaijani.
+export const GEMINI_WRITING = ["gemini-flash-latest", "gemini-3-flash-preview", "gemini-flash-lite-latest"];
+
+export async function askGemini(parts: (string | Part)[], timeout = 15_000, order = GEMINI_MODELS) {
   const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
-  const models = process.env.GEMINI_MODEL ? [process.env.GEMINI_MODEL, ...GEMINI_MODELS] : GEMINI_MODELS;
+  const models = process.env.GEMINI_MODEL ? [process.env.GEMINI_MODEL, ...order] : order;
   let last: unknown;
   for (const name of models) {
     try {

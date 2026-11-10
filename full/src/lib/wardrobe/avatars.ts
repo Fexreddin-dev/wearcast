@@ -128,75 +128,91 @@ export async function coverageFor(admin: Admin, item: { ownId?: string; cleanPat
 
 // ───────── Own photo → avatar ─────────
 const PHOTO_CHECK =
-  'Check this photo before it becomes a full-body fashion avatar. Reply as JSON {"people": number, "full_body": boolean, "facing_camera": boolean, "everyday_clothes": boolean, "under_18": boolean}. ' +
-  "people: how many people are clearly visible. full_body: the whole person is visible from the top of the head down to the shoes. " +
-  "facing_camera: standing and facing the camera; a slight angle is fine. everyday_clothes: false for swimwear, underwear or nudity. under_18: the person looks younger than 18.";
+  'Check this photo before it becomes a full-body fashion avatar. Reply as JSON {"one_main_person": boolean, "full_body": boolean, "facing_camera": boolean, "everyday_clothes": boolean, "under_18": boolean}. ' +
+  "one_main_person: exactly one person stands in the foreground; ignore small or blurred people in the background. " +
+  "full_body: that person is visible from the top of the head down to the shoes. facing_camera: standing and facing the camera; a slight angle is fine. " +
+  "everyday_clothes: false only for swimwear, underwear or nudity. under_18: the person looks younger than 18.";
 
 export type PhotoVerdict = { usable: boolean; underAge: boolean };
+// Three looks; a photo is refused only when at least two agree on the same problem. One look alone was
+// not steady (it once counted people walking in the background), and a wrongly refused photo would block
+// a real customer, while a wrongly accepted one only costs a free cut-out (the studio outfit is checked again).
 export async function checkPersonPhoto(image: Buffer): Promise<PhotoVerdict> {
-  try {
-    const a = (await askGemini([PHOTO_CHECK, await jpegPart(image)], 25_000)) as Record<string, unknown>;
-    const usable = a.people === 1 && a.full_body === true && a.facing_camera !== false && a.everyday_clothes !== false;
-    return { usable, underAge: a.under_18 === true };
-  } catch {
-    // When the checker is unreachable the photo is accepted; the try-on model still moderates.
-    return { usable: true, underAge: false };
-  }
+  const part = await jpegPart(image);
+  const answers = (
+    await Promise.all([0, 1, 2].map(() => askGemini([PHOTO_CHECK, part], 25_000).catch(() => null)))
+  ).filter((a): a is Record<string, unknown> => !!a && typeof a === "object");
+  if (answers.length === 0) return { usable: true, underAge: false }; // checker unreachable: accepted
+  const votes = (test: (a: Record<string, unknown>) => boolean) => answers.filter(test).length;
+  const need = Math.min(2, answers.length);
+  const problem = (["one_main_person", "full_body", "facing_camera", "everyday_clothes"] as const).some((k) => votes((a) => a[k] === false) >= need);
+  return { usable: !problem, underAge: votes((a) => a.under_18 === true) >= need };
 }
 
-// Studio outfit: the person is dressed in the same plain base outfit as the shipped models.
-// Tested (Nov 2026): a base model photo as the garment works for plain outfits; for modest outfits a
-// garment-only flat lay is used, because the base model's own headscarf would otherwise travel too.
-function studioOutfit(gender: Gender, age: AgeGroup, modest: boolean) {
-  if (modest) {
-    return {
-      garment: () => uploadStatic("studio:modest", () => publicFile("studio", "outfit-modest.png"), "#FFFFFF"),
-      input: { category: "one-pieces", garment_photo_type: "flat-lay" },
-      expected: "a cream long-sleeve sweater and beige wide trousers",
-    };
-  }
-  const base: BaseAvatar = age === "teen" ? (gender === "male" ? "tb1" : "tg1") : gender === "male" ? "m1" : "f1";
-  return {
-    garment: () => uploadStatic(`studio:${base}`, () => publicFile("avatars", `${base}-front.png`)),
-    input: { category: "auto", garment_photo_type: "model" },
-    expected: "a plain white t-shirt",
-  };
+// Studio outfit: the person is dressed in one plain, neutral outfit for cleaner try-ons.
+// Tested on three photos (Nov 2026):
+// - a base model's photo as the garment was unreliable: once it swapped the clothes, once it changed nothing,
+//   and on the hijab photo it also replaced the headscarf;
+// - a short-sleeve t-shirt left the photo's own long sleeves showing underneath;
+// - a garment-only flat lay with long sleeves worked: modest outfit on the hijab photo, neutral one on the man.
+//   On a woman in a wide dress the dress still showed beside the trousers, and removing the old clothes
+//   first (second attempt below) fixed that.
+function studioOutfit(modest: boolean) {
+  return modest
+    ? {
+        garment: () => uploadStatic("studio:modest", () => publicFile("studio", "outfit-modest.png"), "#FFFFFF"),
+        expected: "a cream long-sleeve sweater and beige wide trousers",
+      }
+    : {
+        garment: () => uploadStatic("studio:neutral", () => publicFile("studio", "outfit-neutral.png"), "#FFFFFF"),
+        expected: "a plain white long-sleeve top and light grey trousers",
+      };
 }
 
 const outfitCheck = (expected: string) =>
   `This photo should show one real person wearing ${expected}. Reply as JSON {"ok": boolean, "problem": string}. ` +
-  "ok is false only if: sleeves, cuffs, a hood or fabric of a different garment stick out under or over the new clothes; " +
-  "hands or arms look like a white mannequin; the person has extra or missing limbs; the face or headscarf looks damaged or replaced. Small wrinkles are normal.";
+  "ok is false only if: sleeves, cuffs, a hood or fabric of a different garment (for example a dress, skirt or jacket) stick out under, beside or over the new clothes; " +
+  "hands or arms look like a white mannequin; the person has extra or missing limbs; the face or headscarf looks damaged or replaced; the person still wears different clothes. " +
+  "Small wrinkles are normal.";
 
+// Three looks, majority wins: a single look was sometimes too strict on a clean picture (1 in 3), and
+// caught a leftover dress every time. When the checker cannot be reached the picture is not trusted.
 async function outfitIsClean(url: string, expected: string) {
   try {
     const part = await jpegPart(await fetchBuffer(url));
     const prompt = outfitCheck(expected);
-    const answers = (await Promise.all([askGemini([prompt, part]), askGemini([prompt, part])])) as { ok?: boolean }[];
-    return answers.every((a) => a.ok !== false);
+    const answers = (await Promise.all([0, 1, 2].map(() => askGemini([prompt, part])))) as { ok?: boolean }[];
+    return answers.filter((a) => a.ok === true).length >= 2;
   } catch {
-    return true;
+    return false;
   }
 }
 
-// Returns the picture to cut out, and whether the studio outfit was really applied.
-export async function dressInStudioOutfit(photoUrl: string, profile: { gender: Gender; age: AgeGroup; modest: boolean }, caller: Caller) {
-  const s = studioOutfit(profile.gender, profile.age, profile.modest);
-  const data = await runFal(
-    FAL_TRYON,
-    {
-      model_image: photoUrl,
-      garment_image: await s.garment(),
-      ...s.input,
-      mode: "balanced",
-      moderation_level: "conservative",
-      num_samples: 1,
-      output_format: "png",
-    },
-    caller,
-  );
-  const url = data.images![0].url;
-  return (await outfitIsClean(url, s.expected)) ? url : null;
+// The dressed picture, or null when neither attempt is clean (the person's own clothes are kept then).
+export async function dressInStudioOutfit(photoUrl: string, profile: { modest: boolean }, caller: Caller) {
+  const s = studioOutfit(profile.modest);
+  const garment = await s.garment();
+  for (const keepShape of [true, false]) {
+    const data = await runFal(
+      FAL_TRYON,
+      {
+        model_image: photoUrl,
+        garment_image: garment,
+        category: "one-pieces",
+        garment_photo_type: "flat-lay",
+        mode: "balanced",
+        // First attempt keeps the person's silhouette; the second removes the old clothes first.
+        segmentation_free: keepShape,
+        moderation_level: "conservative",
+        num_samples: 1,
+        output_format: "png",
+      },
+      caller,
+    );
+    const url = data.images![0].url;
+    if (await outfitIsClean(url, s.expected)) return url;
+  }
+  return null;
 }
 
 // ───────── Shipped avatar → adjusted avatar ─────────

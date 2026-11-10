@@ -1,28 +1,28 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- private signed images */
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Locale } from "@/i18n/config";
-import type { WardrobeItem } from "@/lib/wardrobe/catalog";
+import type { LookEntry, LookSource, WardrobeItem } from "@/lib/wardrobe/catalog";
 import { callApi, json, type Text } from "./WardrobeStudio";
 
-export type Look = { itemIds: string[]; note: string | null };
 type Part = { temp: number; wind: number; rain: number; sky: string };
 export type WeatherData = { city: string; morning: Part; afternoon: Part; evening: Part };
+type Reply = { history: LookEntry[]; changesLeft: number | null };
+type Slot = Reply & { index: number };
 
 export default function DayPanel({
-  locale, t, initialCity, initialLook, initialWeather, preview, ownCount, all, busy, onGetLook, onSave, onToast, onError,
+  locale, t, initialCity, initialWeather, preview, avatar, all, busy, onGetLook, onSave, onToast, onError,
 }: {
   locale: Locale;
   t: Text;
   initialCity: string;
-  initialLook: Look | null;
   initialWeather?: WeatherData;
   preview: boolean;
-  ownCount: number;
+  avatar: string;
   all: WardrobeItem[];
   busy: boolean;
-  onGetLook: (ids: string[]) => void;
+  onGetLook: (refs: string[]) => void;
   onSave: (refs: string[]) => void;
   onToast: (text: string) => void;
   onError: (e: unknown) => void;
@@ -31,9 +31,14 @@ export default function DayPanel({
   const [weatherFailed, setWeatherFailed] = useState(false);
   const [editing, setEditing] = useState(false);
   const [city, setCity] = useState(initialCity);
-  const [look, setLook] = useState(initialLook);
-  const [thinking, setThinking] = useState(false);
-  const askedToday = useRef(false);
+  const [source, setSource] = useState<LookSource>("wardrobe");
+  // Looks per source and avatar, so switching back and forth never asks again.
+  const [slots, setSlots] = useState<Record<string, Slot>>({});
+  const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
+  const asked = useRef(new Set<string>());
+  const key = `${source}|${avatar}`;
+  const slot = slots[key];
 
   useEffect(() => {
     if (preview) return;
@@ -42,26 +47,38 @@ export default function DayPanel({
       .catch(() => setWeatherFailed(true));
   }, [initialCity, preview]);
 
-  const requestLook = async (shuffle: boolean) => {
-    setThinking(true);
-    try {
-      setLook(await callApi<Look>("/api/look", json("POST", { shuffle, locale })));
-    } catch (e) {
-      onError(e);
-    } finally {
-      setThinking(false);
-    }
-  };
+  const load = useCallback(
+    async (src: LookSource, av: string, change: boolean) => {
+      const k = `${src}|${av}`;
+      setLoading(true);
+      setFailed(null);
+      try {
+        const res = await callApi<Reply>("/api/look", json("POST", { source: src, avatar: av, change }));
+        setSlots((all) => ({ ...all, [k]: { ...res, index: 0 } }));
+      } catch (e) {
+        const code = e instanceof Error ? e.message : "failed";
+        // No credit is involved here, so the general "credit returned" message would mislead.
+        if (change) {
+          if (code === "failed") onToast(t.look.failed);
+          else onError(e);
+        } else setFailed(code);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [onError, onToast, t],
+  );
 
+  // The look for the avatar on the podium; asked once per source and avatar while the page is open.
   useEffect(() => {
-    if (preview || look || ownCount < 2 || askedToday.current) return;
-    askedToday.current = true;
-    setThinking(true);
-    callApi<Look>("/api/look", json("POST", { shuffle: false, locale }))
-      .then(setLook)
-      .catch(() => undefined)
-      .finally(() => setThinking(false));
-  }, [look, locale, ownCount, preview]);
+    if (preview || asked.current.has(key)) return;
+    asked.current.add(key);
+    const run = async () => {
+      await Promise.resolve();
+      await load(source, avatar, false);
+    };
+    void run();
+  }, [avatar, key, load, preview, source]);
 
   const saveCity = async () => {
     try {
@@ -71,12 +88,21 @@ export default function DayPanel({
       setEditing(false);
       setWeatherFailed(false);
       onToast(t.toast.city);
+      // A new city may mean other weather: the look is checked again.
+      asked.current.clear();
+      setSlots({});
+      void load(source, avatar, false);
+      asked.current.add(key);
     } catch (e) {
       onError(e);
     }
   };
 
-  const pieces = (look?.itemIds ?? []).flatMap((id) => all.filter((a) => a.ref === id));
+  const entry = slot?.history[slot.index] ?? null;
+  const pieceOf = (ref: string | null) => (ref ? all.find((a) => a.ref === ref) : undefined);
+  const step = (by: number) =>
+    setSlots((all) => (slot ? { ...all, [key]: { ...slot, index: Math.min(slot.history.length - 1, Math.max(0, slot.index + by)) } } : all));
+  const usesSamples = entry?.refs.some((r) => r.startsWith("demo:")) ?? false;
 
   return (
     <div className="flex flex-col gap-3">
@@ -105,23 +131,83 @@ export default function DayPanel({
       </section>
 
       <section className="glass flex flex-col gap-3 p-4">
-        <h2 className="text-[0.68rem] font-medium tracking-[0.18em]">{t.look.title}</h2>
-        {ownCount < 2 && <p className="text-xs leading-relaxed text-text-2">{t.look.needItems}</p>}
-        {ownCount >= 2 && !look && <div className="wc-skeleton w-full" />}
-        {look && (
-          <>
-            <div className="flex gap-2">
-              {pieces.map((p) => (
-                <img key={p.ref} src={p.image} alt={p.name ?? t.cat[p.category]} className="h-20 w-16 object-contain" />
-              ))}
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-[0.68rem] font-medium tracking-[0.18em]">{t.look.title}</h2>
+          {slot && slot.history.length > 1 && (
+            <div className="flex items-center gap-1 text-[0.68rem] text-text-2">
+              <button type="button" className="wc-arrow" aria-label={t.look.older} disabled={slot.index >= slot.history.length - 1} onClick={() => step(1)}>‹</button>
+              <span>{slot.index + 1}/{slot.history.length}</span>
+              <button type="button" className="wc-arrow" aria-label={t.look.newer} disabled={slot.index === 0} onClick={() => step(-1)}>›</button>
             </div>
-            {look.note && <p className="font-serif text-[1.02rem] leading-snug">{look.note}</p>}
-            <button type="button" className="btn btn-primary w-full" disabled={busy} onClick={() => onGetLook(look.itemIds)}>{t.look.get}</button>
+          )}
+        </div>
+        <div className="wc-seg" role="tablist">
+          {(["wardrobe", "trend"] as const).map((s) => (
+            <button key={s} type="button" role="tab" aria-selected={source === s} onClick={() => setSource(s)}>
+              {s === "wardrobe" ? t.look.mine : t.look.trends}
+            </button>
+          ))}
+        </div>
+
+        {preview && <p className="text-xs leading-relaxed text-text-2">{t.look.needItems}</p>}
+        {!preview && loading && !entry && (
+          <div className="flex flex-col gap-2 py-1" aria-busy="true">
+            <span className="wc-skeleton w-full" />
+            <span className="text-[0.66rem] text-text-2">{t.look.thinking}</span>
+          </div>
+        )}
+        {!preview && !loading && !entry && failed && (
+          <p className="text-xs leading-relaxed text-text-2">{failed === "too_few_items" ? t.look.needItems : failed === "failed" ? t.look.failed : (t.errors[failed as keyof Text["errors"]] ?? t.look.failed)}</p>
+        )}
+
+        {entry && slot && (
+          <div className={`flex flex-col gap-3 ${loading ? "opacity-60" : ""}`}>
+            {entry.source === "wardrobe" ? (
+              <div className="flex gap-2">
+                {entry.refs.map((r) => {
+                  const p = pieceOf(r);
+                  return p ? <img key={r} src={p.image} alt={p.name ?? t.cat[p.category]} className="h-20 w-16 object-contain" /> : null;
+                })}
+              </div>
+            ) : (
+              <ul className="flex flex-col gap-1.5">
+                {entry.pieces.map((p, i) => {
+                  const match = pieceOf(p.ref);
+                  return (
+                    <li key={i} className="wc-trend-row">
+                      <span className="wc-dot" style={{ background: p.color }} aria-hidden="true" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[0.76rem]">{p.name[locale]}</span>
+                        <span className="block text-[0.62rem] text-text-2">{t.cat[p.category]}{match ? ` · ${t.look.closest}` : ""}</span>
+                      </span>
+                      {match && <img src={match.image} alt="" className="h-10 w-8 flex-none object-contain" />}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            <p className="font-serif text-[1.02rem] leading-snug">{entry.note[locale]}</p>
+            <details className="wc-why">
+              <summary>{t.look.why}</summary>
+              <dl>
+                <dt>{t.look.whyWeather}</dt><dd>{entry.why.weather[locale]}</dd>
+                <dt>{t.look.whyHarmony}</dt><dd>{entry.why.harmony[locale]}</dd>
+                <dt>{t.look.whyLayers}</dt><dd>{entry.why.layers[locale]}</dd>
+              </dl>
+            </details>
+            {usesSamples && <p className="text-[0.66rem] text-text-2">{t.look.samplesUsed}</p>}
+            {entry.source === "trend" && entry.refs.length === 0 && <p className="text-[0.66rem] text-text-2">{t.look.noMatch}</p>}
+            <button type="button" className="btn btn-primary w-full" disabled={busy || entry.refs.length === 0} onClick={() => onGetLook(entry.refs)}>{t.look.get}</button>
             <div className="grid grid-cols-2 gap-2">
-              <button type="button" className="btn btn-ghost wc-mini" disabled={thinking} onClick={() => requestLook(true)}>{t.look.shuffle}</button>
-              <button type="button" className="btn btn-ghost wc-mini" disabled={preview} onClick={() => look && onSave(look.itemIds)}>{t.look.save}</button>
+              <button type="button" className="btn btn-ghost wc-mini" disabled={loading || slot.changesLeft === 0} onClick={() => load(source, avatar, true)}>
+                {t.look.shuffle}
+              </button>
+              <button type="button" className="btn btn-ghost wc-mini" disabled={entry.refs.length === 0} onClick={() => onSave(entry.refs)}>{t.look.save}</button>
             </div>
-          </>
+            <p className="text-center text-[0.62rem] leading-relaxed text-text-2">
+              {slot.changesLeft === null ? t.look.stable : `${t.look.changesLeft.replace("{n}", String(slot.changesLeft))} · ${t.look.stable}`}
+            </p>
+          </div>
         )}
       </section>
     </div>

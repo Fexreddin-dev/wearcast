@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { AvatarSkeleton } from "@/components/Skeletons";
 import { notFound, redirect } from "next/navigation";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -10,7 +11,12 @@ import AvatarStudio from "@/components/avatar/AvatarStudio";
 async function Studio({ locale, previewRequested }: { locale: Locale; previewRequested: boolean }) {
   const dict = getDictionary(locale);
   const supabase = await createClient();
-  const { data: auth } = await supabase.auth.getUser();
+  // Asked together: each trip to the database takes about 0.4 s.
+  const [{ data: auth }, avatars, { data: credits }] = await Promise.all([
+    supabase.auth.getUser(),
+    ownAvatars(supabase),
+    supabase.rpc("my_credit_balance"),
+  ]);
   if (!auth.user) {
     // Local layout check only, never active in production.
     if (previewRequested && process.env.NODE_ENV === "development") {
@@ -18,7 +24,6 @@ async function Studio({ locale, previewRequested }: { locale: Locale; previewReq
     }
     redirect(`/${locale}/login`);
   }
-  const [avatars, { data: credits }] = await Promise.all([ownAvatars(supabase), supabase.rpc("my_credit_balance")]);
   return (
     <AvatarStudio
       locale={locale}
@@ -40,7 +45,7 @@ async function Gate({ params, searchParams }: PageProps<"/[locale]/avatar">) {
 
 export default function AvatarPage(props: PageProps<"/[locale]/avatar">) {
   return (
-    <Suspense fallback={<div className="glass m-3 h-[calc(100svh-6rem)] animate-pulse" />}>
+    <Suspense fallback={<AvatarSkeleton />}>
       <Gate {...props} />
     </Suspense>
   );

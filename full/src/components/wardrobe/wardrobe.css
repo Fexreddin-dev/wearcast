@@ -141,10 +141,20 @@ body:has(.wc-studio) { display: flow-root; }
 .wc-preview { position: absolute; left: 50%; transform: translateX(-50%); object-fit: contain; pointer-events: none; z-index: 3; filter: drop-shadow(0 8px 14px rgba(40, 25, 10, 0.3)); animation: wc-rise 0.35s var(--ease); }
 
 .wc-tool { position: absolute; z-index: 5; }
-.wc-layers { left: 12px; bottom: 60px; width: min(46%, 200px); padding: 10px 12px; }
-/* On narrow podiums the list moves up, so it never covers the model's feet. */
-@media (max-width: 1279px) { .wc-layers { top: 38px; bottom: auto; width: min(40%, 170px); } }
-.wc-layer-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 0.72rem; padding: 3px 0; }
+/* Bottom-left and never wider than 30 % of the podium: the model's legs stand in the middle 40-60 %,
+   so the list covers neither the feet nor (as it did when it sat at the top) the shoulders. */
+.wc-layers { left: 10px; bottom: 58px; width: min(30%, 200px); padding: 9px 10px; }
+.wc-layers-head { display: block; margin-bottom: 4px; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-2); text-align: left; cursor: default; }
+.wc-layers-count { display: none; }
+/* Phones: the legs fill more of the podium, so the list sits top-left as a small button that opens on tap. */
+@media (max-width: 639px) {
+  .wc-layers { top: 10px; bottom: auto; width: auto; max-width: 62%; padding: 7px 11px; }
+  .wc-layers-head { margin: 0; cursor: pointer; }
+  .wc-layers-count { display: inline; }
+  .wc-layers:not(.is-open) .wc-layer-row, .wc-layers:not(.is-open) .wc-reset, .wc-layers:not(.is-open) .wc-layers-empty { display: none; }
+  .wc-layers.is-open .wc-layers-head { margin-bottom: 4px; }
+}
+.wc-layer-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 0.72rem; padding: 3px 0; min-width: 0; }
 .wc-layer-row button { cursor: pointer; color: var(--text-2); }
 .wc-mini { padding: 0.42rem 0.8rem; font-size: 0.66rem; }
 
@@ -153,7 +163,8 @@ body:has(.wc-studio) { display: flow-root; }
 .wc-avatar[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .wc-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; transform: scale(2.1); transform-origin: 50% 2%; }
 
-.wc-toasts { position: fixed; top: 88px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 80; width: min(92vw, 380px); }
+/* Notifications never cover the model: top-right beside the podium on wide screens, at the bottom on narrower ones. */
+.wc-toasts { position: fixed; top: 92px; right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 80; width: min(92vw, 340px); }
 .wc-toast { padding: 11px 16px; font-size: 0.8rem; text-align: center; animation: wc-rise 0.5s var(--ease); }
 @keyframes wc-rise { from { opacity: 0; transform: translateY(-8px); } }
 
@@ -181,3 +192,16 @@ body:has(.wc-studio) { display: flow-root; }
 .wc-avatar { position: relative; }
 .wc-avatar.is-own::after { content: ""; position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 .wc-avatar-add { display: grid; place-items: center; font-size: 1.1rem; color: var(--accent); text-decoration: none; }
+@media (max-width: 1023px) { .wc-toasts { top: auto; right: auto; bottom: max(16px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); flex-direction: column-reverse; } }
+
+/* Daily Curated Look */
+.wc-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 3px; border-radius: 12px; background: rgba(120, 100, 70, 0.1); }
+.wc-seg button { padding: 6px 4px; border-radius: 9px; font-size: 0.68rem; cursor: pointer; color: var(--text-2); transition: background 0.3s var(--ease), color 0.3s var(--ease); }
+.wc-seg button[aria-selected="true"] { background: var(--glass); color: var(--text); box-shadow: var(--glass-shadow); }
+.wc-arrow { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 0.9rem; border: 1px solid var(--glass-border); background: var(--glass); color: var(--text); }
+.wc-arrow:disabled { opacity: 0.35; cursor: default; }
+.wc-trend-row { display: flex; align-items: center; gap: 9px; }
+.wc-dot { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, 0.12); box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4); }
+.wc-why summary { cursor: pointer; font-size: 0.7rem; color: var(--accent); }
+.wc-why dl { margin-top: 8px; display: grid; gap: 4px; font-size: 0.72rem; line-height: 1.45; }
+.wc-why dt { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-2); margin-top: 4px; }

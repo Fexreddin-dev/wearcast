@@ -49,7 +49,14 @@ export const avatarSrc = (id: string, view: View) => `/assets/avatars/${id}-${vi
 
 // ───────── Avatar studio ─────────
 export const SKIN_TONES = ["porcelain", "light", "medium", "olive", "tan", "deep"] as const;
-export const HAIR_STYLES = ["keep", "bald", "short", "long", "curly", "beard"] as const;
+export const HAIR_STYLES = ["keep", "bald", "buzz", "short", "medium", "bob", "long", "curly", "wavy", "bun"] as const;
+export type HairStyle = (typeof HAIR_STYLES)[number];
+// Hair choices that suit each body; a beard is its own choice, for adult men only.
+export const hairFor = (gender: Gender): HairStyle[] =>
+  gender === "male" ? ["keep", "bald", "buzz", "short", "medium", "long", "curly"] : ["keep", "short", "bob", "long", "curly", "wavy", "bun"];
+export const BEARD_STYLES = ["keep", "clean", "stubble", "short", "full", "goatee", "mustache"] as const;
+export type BeardStyle = (typeof BEARD_STYLES)[number];
+export const hasBeardChoice = (gender: Gender, age: AgeGroup) => gender === "male" && age === "adult";
 export const FACE_SHAPES = ["keep", "oval", "round", "square", "heart"] as const;
 export const HIJAB_STYLES = ["keep", "classic", "turban", "shawl"] as const;
 
@@ -209,26 +216,46 @@ export const baseCards = (): AvatarCard[] =>
   });
 
 // ───────── Adjusting a shipped avatar: the picture edit, or null when nothing visible changes ─────────
+// Tested on f1 (Nov 2026): a bare word like "olive" made the skin far darker than meant; describing the
+// tone and saying what must stay (face, body) kept the edit close to the request.
 const TONE: Record<string, string> = {
-  porcelain: "very fair porcelain",
-  light: "light",
-  medium: "medium beige",
-  olive: "olive",
-  tan: "warm tan brown",
-  deep: "deep dark brown",
+  porcelain: "a very fair, porcelain skin tone",
+  light: "a light skin tone",
+  medium: "a medium, light-brown skin tone",
+  olive: "a light olive, Mediterranean skin tone",
+  tan: "a warm tan, golden-brown skin tone",
+  deep: "a deep brown skin tone",
 };
-export type CustomChoice = { skin?: string; hair?: string; face?: string; hijab?: string };
+export type CustomChoice = { skin?: string; hair?: string; beard?: string; face?: string; hijab?: string };
+const HAIR_TEXT: Partial<Record<HairStyle, string>> = {
+  bald: "Make the head completely bald and smoothly shaved.",
+  buzz: "Give the person a very short buzz cut.",
+  short: "Give the person short, neat hair.",
+  medium: "Give the person medium-length hair reaching the ears.",
+  bob: "Give the person a chin-length bob haircut.",
+  long: "Give the person long hair falling past the shoulders.",
+  curly: "Change the hair into natural loose curls.",
+  wavy: "Give the person long, soft wavy hair.",
+  bun: "Style the person's hair in a neat bun.",
+};
+const BEARD_TEXT: Partial<Record<BeardStyle, string>> = {
+  clean: "Make the face clean-shaven, with no beard or moustache.",
+  stubble: "Give the person light stubble.",
+  short: "Give the person a short, well-groomed beard.",
+  full: "Give the person a full, well-groomed beard.",
+  goatee: "Give the person a neat goatee and no other facial hair.",
+  mustache: "Give the person a neat moustache and no beard.",
+};
 
 export function customPrompt(base: BaseAvatar, choice: CustomChoice, m: Measurements) {
   const info = baseInfo(base);
   const changes: string[] = [];
-  if (choice.skin && TONE[choice.skin]) changes.push(`Change the person's skin tone to a natural ${TONE[choice.skin]} complexion on the face, neck, arms and hands.`);
+  if (choice.skin && TONE[choice.skin]) changes.push(`Skin: ${TONE[choice.skin]}, the same on the face, neck, arms and hands.`);
   if (!info.modest) {
-    if (choice.hair === "bald") changes.push("Make the head completely bald and smoothly shaved.");
-    if (choice.hair === "short") changes.push("Give the person short, neat hair.");
-    if (choice.hair === "long") changes.push("Give the person long hair falling past the shoulders.");
-    if (choice.hair === "curly") changes.push("Give the person voluminous natural curly hair.");
-    if (choice.hair === "beard" && info.gender === "male" && info.age === "adult") changes.push("Add a short, well-groomed full beard.");
+    const hair = choice.hair as HairStyle;
+    if (hairFor(info.gender).includes(hair) && HAIR_TEXT[hair]) changes.push(HAIR_TEXT[hair]!);
+    const beard = choice.beard as BeardStyle;
+    if (hasBeardChoice(info.gender, info.age) && BEARD_TEXT[beard]) changes.push(BEARD_TEXT[beard]!);
   } else {
     if (choice.hijab === "classic") changes.push("Restyle the headscarf as a classic wrapped hijab that fully covers the hair, ears and neck.");
     if (choice.hijab === "turban") changes.push("Restyle the headscarf as a neat turban-style hijab wrap, with the neck still fully covered by the high collar.");
@@ -251,9 +278,44 @@ export function customPrompt(base: BaseAvatar, choice: CustomChoice, m: Measurem
     : info.age === "teen"
       ? "the same white t-shirt, blue jeans and white sneakers"
       : "the same white t-shirt, grey trousers and white sneakers";
+  const bodyNamed = changes.some((c) => /body|shoulders|hips|belly/.test(c));
   return (
+    "Edit only what is named here. " +
     changes.join(" ") +
-    ` Keep everything else exactly the same: the same person, the same standing pose, ${outfit}, the same plain light background and soft studio lighting. ` +
+    " Keep the person's identity: the same face, eyes, nose, lips and expression." +
+    (bodyNamed ? "" : " Keep the same body shape, weight and height.") +
+    ` Keep the same standing pose, ${outfit}, the same plain light background and soft studio lighting. ` +
     "Full body from the top of the head to the shoes, nothing cropped. Photorealistic."
   );
 }
+
+// ───────── Daily Curated Look ─────────
+export type Audience = "men" | "women" | "hijab" | "teen_boys" | "teen_girls";
+export const audienceOf = (a: { gender: Gender; age: AgeGroup; modest: boolean }): Audience =>
+  a.modest ? "hijab" : a.age === "teen" ? (a.gender === "male" ? "teen_boys" : "teen_girls") : a.gender === "male" ? "men" : "women";
+export type LookSource = "wardrobe" | "trend";
+export type Text3 = { en: string; az: string; tr: string };
+export type TrendPiece = { category: Category; color: string; name: Text3; ref: string | null };
+export type LookEntry = {
+  id: string;
+  source: LookSource;
+  refs: string[];
+  pieces: TrendPiece[];
+  note: Text3;
+  why: { weather: Text3; harmony: Text3; layers: Text3 };
+  createdAt: string;
+  city: string | null;
+};
+// "Show me another look" per day; a new look because the weather changed is never counted.
+export const DAILY_LOOK_CHANGES: Record<string, number> = { free: 3, starter: 5, plus: 8, premium: 12 };
+// What the sample pieces are, for the stylist.
+export const SAMPLE_NOTES: Record<string, string> = {
+  "demo:man-blazer": "camel wool single-breasted blazer, men",
+  "demo:man-shirt": "light blue cotton oxford button-down shirt, long sleeves, men",
+  "demo:woman-blouse": "ivory silk blouse, long sleeves, women",
+  "demo:man-trousers": "navy wool pleated trousers, full length, men",
+  "demo:woman-skirt": "camel pleated midi skirt, women",
+  "demo:man-loafers": "brown leather loafers, men",
+  "demo:woman-heels": "nude leather heels, women",
+  "demo:woman-bag": "tan leather handbag, women",
+};

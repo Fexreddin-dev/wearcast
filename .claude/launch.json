@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "wearcast-full", "runtimeExecutable": "npm", "runtimeArgs": ["--prefix", "full", "run", "dev"], "port": 3000 }
+    { "name": "wearcast-full", "runtimeExecutable": "npm", "runtimeArgs": ["--prefix", "full", "run", "dev"], "port": 3000 },
+    { "name": "wearcast-prod", "runtimeExecutable": "node", "runtimeArgs": ["--use-system-ca", "full/node_modules/next/dist/bin/next", "start", "full", "-p", "3100"], "port": 3100 }
   ]
 }

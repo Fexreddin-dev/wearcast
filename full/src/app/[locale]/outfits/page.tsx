@@ -1,16 +1,27 @@
 import { Suspense } from "react";
+import { OutfitsSkeleton } from "@/components/Skeletons";
 import { notFound, redirect } from "next/navigation";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
-import { baseCards, canTryOn, type Category, DEMO_ITEMS, type Occasion, type WardrobeItem } from "@/lib/wardrobe/catalog";
-import { ownAvatars } from "@/lib/wardrobe/pages";
+import { signedUrls } from "@/lib/supabase/signed";
+import { baseCards, canTryOn, DEMO_ITEMS, type Occasion } from "@/lib/wardrobe/catalog";
+import { ownAvatars, ownItems } from "@/lib/wardrobe/pages";
 import OutfitsBoard, { type SavedOutfit } from "@/components/outfits/OutfitsBoard";
 
 async function Board({ locale, previewRequested }: { locale: Locale; previewRequested: boolean }) {
   const dict = getDictionary(locale);
   const supabase = await createClient();
-  const { data: auth } = await supabase.auth.getUser();
+  // Asked together: each trip to the database takes about 0.4 s.
+  const [{ data: auth }, { data: rows }, own, avatars] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from("outfits")
+      .select("id, name, occasion, refs, avatar, created_at, generations(result_paths, status)")
+      .order("created_at", { ascending: false }),
+    ownItems(supabase),
+    ownAvatars(supabase),
+  ]);
   if (!auth.user) {
     if (previewRequested && process.env.NODE_ENV === "development") {
       return <OutfitsBoard locale={locale} t={dict.outfits} w={dict.wardrobe} outfits={[]} preview />;
@@ -18,32 +29,12 @@ async function Board({ locale, previewRequested }: { locale: Locale; previewRequ
     redirect(`/${locale}/login`);
   }
 
-  const [{ data: rows }, { data: items }, avatars] = await Promise.all([
-    supabase
-      .from("outfits")
-      .select("id, name, occasion, refs, avatar, created_at, generations(result_paths, status)")
-      .order("created_at", { ascending: false }),
-    supabase.from("wardrobe_items").select("id, category, name, clean_path").eq("status", "done"),
-    ownAvatars(supabase),
-  ]);
-
   // Short-lived links: finished looks and own pieces.
   const lookPaths = (rows ?? []).map((r) => {
     const g = r.generations as unknown as { result_paths: string[]; status: string } | null;
     return g?.status === "done" ? g.result_paths[0] : null;
   });
-  const wanted = lookPaths.filter((p): p is string => !!p);
-  const [{ data: looks }, { data: pieces }] = await Promise.all([
-    wanted.length ? supabase.storage.from("generations").createSignedUrls(wanted, 3600) : Promise.resolve({ data: [] }),
-    items?.length ? supabase.storage.from("wardrobe").createSignedUrls(items.map((i) => i.clean_path as string), 3600) : Promise.resolve({ data: [] }),
-  ]);
-  const own: WardrobeItem[] = (items ?? []).map((r, i) => ({
-    ref: r.id,
-    category: r.category as Category,
-    name: r.name,
-    image: pieces?.[i]?.signedUrl ?? "",
-    demo: false,
-  }));
+  const looks = await signedUrls(supabase, "generations", lookPaths.filter((p): p is string => !!p));
   const allPieces = [...own, ...DEMO_ITEMS];
   const allAvatars = [...avatars, ...baseCards()];
 
@@ -58,7 +49,7 @@ async function Board({ locale, previewRequested }: { locale: Locale; previewRequ
       createdAt: r.created_at,
       pieces: found.map((p) => ({ image: p.image, label: p.name ?? dict.wardrobe.cat[p.category] })),
       missing: found.length < refs.length,
-      look: path ? (looks?.find((l) => l.path === path)?.signedUrl ?? null) : null,
+      look: path ? (looks.get(path) ?? null) : null,
       avatarImage: allAvatars.find((a) => a.id === r.avatar)?.image ?? null,
       steps: found.filter((p) => canTryOn(p.category)).length,
     };
@@ -76,7 +67,7 @@ async function Gate({ params, searchParams }: PageProps<"/[locale]/outfits">) {
 
 export default function OutfitsPage(props: PageProps<"/[locale]/outfits">) {
   return (
-    <Suspense fallback={<div className="glass m-3 h-[calc(100svh-6rem)] animate-pulse" />}>
+    <Suspense fallback={<OutfitsSkeleton />}>
       <Gate {...props} />
     </Suspense>
   );

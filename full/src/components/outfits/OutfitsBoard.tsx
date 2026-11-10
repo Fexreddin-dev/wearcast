@@ -3,6 +3,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { OCCASIONS, type Occasion, type StudioError } from "@/lib/wardrobe/catalog";
@@ -11,6 +12,11 @@ import "@/components/wardrobe/wardrobe.css";
 import "./outfits.css";
 
 type T = Dictionary["outfits"];
+const MONTHS: Record<Locale, string[]> = {
+  en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  az: ["yan", "fev", "mar", "apr", "may", "iyn", "iyl", "avq", "sen", "okt", "noy", "dek"],
+  tr: ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"],
+};
 type W = Dictionary["wardrobe"];
 export type SavedOutfit = {
   id: string;
@@ -25,6 +31,7 @@ export type SavedOutfit = {
 };
 
 export default function OutfitsBoard({ locale, t, w, outfits: initial, preview }: { locale: Locale; t: T; w: W; outfits: SavedOutfit[]; preview: boolean }) {
+  const router = useRouter();
   const [outfits, setOutfits] = useState(initial);
   const [filter, setFilter] = useState<"all" | Occasion>("all");
   const [editing, setEditing] = useState<string | null>(null);
@@ -42,7 +49,11 @@ export default function OutfitsBoard({ locale, t, w, outfits: initial, preview }
   };
 
   const shown = outfits.filter((o) => filter === "all" || o.occasion === filter);
-  const date = (iso: string) => new Date(iso).toLocaleDateString(locale, { day: "numeric", month: "short" });
+  // Month names written out: some browsers have no Azerbaijani month names and print "M11".
+  const date = (iso: string) => {
+    const d = new Date(iso);
+    return `${d.getDate()} ${MONTHS[locale][d.getMonth()]}`;
+  };
 
   const update = async (id: string, name: string, occasion: Occasion | null) => {
     try {
@@ -50,6 +61,7 @@ export default function OutfitsBoard({ locale, t, w, outfits: initial, preview }
       setOutfits((all) => all.map((o) => (o.id === id ? { ...o, name: name || null, occasion } : o)));
       setEditing(null);
       toast(t.updated);
+      router.refresh();
     } catch (e) {
       showError(e);
     }
@@ -59,6 +71,7 @@ export default function OutfitsBoard({ locale, t, w, outfits: initial, preview }
       await callApi(`/api/outfits/${id}`, { method: "DELETE" });
       setOutfits((all) => all.filter((o) => o.id !== id));
       toast(t.deleted);
+      router.refresh();
     } catch (e) {
       showError(e);
     }
@@ -101,7 +114,6 @@ export default function OutfitsBoard({ locale, t, w, outfits: initial, preview }
                 </div>
               )}
               {!o.look && o.avatarImage && <img className="of-avatar" src={o.avatarImage} alt="" loading="lazy" />}
-              <span className={`of-status ${o.look ? "is-ready" : ""}`}>{o.look ? t.ready : t.costs.replace("{n}", String(o.steps))}</span>
             </div>
 
             {editing === o.id ? (
@@ -112,7 +124,10 @@ export default function OutfitsBoard({ locale, t, w, outfits: initial, preview }
                   <h2 className="truncate font-serif text-lg">{o.name ?? o.pieces.map((p) => p.label).join(" · ")}</h2>
                   <span className="flex-none text-[0.65rem] text-text-2">{date(o.createdAt)}</span>
                 </div>
-                <span className="text-[0.7rem] text-accent">{o.occasion ? t.occ[o.occasion] : t.noOccasion}</span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[0.7rem] text-accent">{o.occasion ? t.occ[o.occasion] : t.noOccasion}</span>
+                  <span className={`of-status ${o.look ? "is-ready" : ""}`}>{o.look ? t.ready : t.costs.replace("{n}", String(o.steps))}</span>
+                </div>
                 {o.missing && <p className="text-[0.68rem] text-text-2">{t.missing}</p>}
                 <div className="mt-1 flex gap-1.5">
                   <Link href={`/${locale}/wardrobe?outfit=${o.id}`} className="btn btn-primary wc-mini flex-1 justify-center" aria-disabled={o.steps === 0}>

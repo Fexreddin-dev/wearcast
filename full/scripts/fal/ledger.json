@@ -1132,5 +1132,83 @@
     "cost_usd": 0.075,
     "note": "p4 studio outfit v2 woman",
     "at": "2026-11-10T13:02:26.764Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 fit test A",
+    "at": "2026-11-10T13:49:00.186Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 fit test B",
+    "at": "2026-11-10T13:49:14.629Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 fit test C",
+    "at": "2026-11-10T13:49:33.251Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 fit test D",
+    "at": "2026-11-10T13:50:04.674Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 fit test E",
+    "at": "2026-11-10T13:50:22.450Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit woman",
+    "at": "2026-11-10T14:10:20.429Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "p4 neutral long-sleeve outfit",
+    "at": "2026-11-10T14:11:44.664Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit neutral man",
+    "at": "2026-11-10T14:12:11.432Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit neutral woman",
+    "at": "2026-11-10T14:12:28.736Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 studio outfit neutral woman",
+    "at": "2026-11-10T14:14:26.068Z"
+  },
+  {
+    "model": "fal-ai/fashn/tryon/v1.6",
+    "cost_usd": 0.075,
+    "note": "p4 jacket keep-shape quality",
+    "at": "2026-11-10T14:21:47.958Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "p4 custom f1",
+    "at": "2026-11-10T14:29:26.177Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/kontext",
+    "cost_usd": 0.04,
+    "note": "p4 custom f1",
+    "at": "2026-11-10T14:29:57.243Z"
   }
 ]

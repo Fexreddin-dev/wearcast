@@ -17,17 +17,17 @@ import {
 } from "@/lib/wardrobe/catalog";
 import Closet from "./Closet";
 import Podium from "./Podium";
-import DayPanel, { type Look, type WeatherData } from "./DayPanel";
+import DayPanel, { type WeatherData } from "./DayPanel";
 import "./wardrobe.css";
 
 export type Text = Dictionary["wardrobe"];
 export type StudioData = {
+  owner: string; // the signed-in account; keeps the in-browser memory per person
   items: WardrobeItem[];
   avatars: AvatarCard[]; // the owner's own avatars
   limit: number;
   credits: number;
   city: string;
-  look: Look | null;
   worn: Record<string, string[]>;
   wornAvatar: string | null;
   preview: boolean;
@@ -55,17 +55,22 @@ function withItem(current: WardrobeItem[], item: WardrobeItem) {
 
 type TryOnReply = { image: string | null; charged: number; cached: boolean; notice: "modest" | null };
 
+// What each avatar wears, kept in the browser while moving between the studio pages: a page shown
+// again from the short browser cache may carry slightly older account data than this.
+const memory = new Map<string, { worn: Record<string, string[]>; avatar: string | null }>();
+
 export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t: Text; data: StudioData }) {
   const router = useRouter();
   const [own, setOwn] = useState(data.items);
   const avatars = useMemo(() => [...data.avatars, ...baseCards()], [data.avatars]);
-  const known = (id: string | null | undefined) => (id && avatars.some((a) => a.id === id) ? id : null);
-  const [avatar, setAvatar] = useState<string>(() => known(data.start?.avatar) ?? known(data.wornAvatar) ?? "f1");
+  const known = useCallback((id: string | null | undefined) => (id && avatars.some((a) => a.id === id) ? id : null), [avatars]);
+  const kept = memory.get(data.owner);
+  const [avatar, setAvatar] = useState<string>(() => known(data.start?.avatar) ?? known(kept?.avatar) ?? known(data.wornAvatar) ?? "f1");
   const [layers, setLayers] = useState<WardrobeItem[]>([]);
   const [look, setLook] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState<WardrobeItem | null>(null);
-  const worn = useRef(data.worn);
+  const worn = useRef(kept?.worn ?? data.worn);
   const viewToken = useRef(0);
   const [toasts, setToasts] = useState<{ id: number; text: string }[]>([]);
   const nextToast = useRef(0);
@@ -90,9 +95,10 @@ export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t:
   const remember = useCallback(
     (id: string, items: WardrobeItem[]) => {
       worn.current = { ...worn.current, [id]: items.map((i) => i.ref) };
+      memory.set(data.owner, { worn: worn.current, avatar: id });
       if (!data.preview) void callApi("/api/worn", json("POST", { avatar: id, items: items.map((i) => i.ref) })).catch(() => undefined);
     },
-    [data.preview],
+    [data.owner, data.preview],
   );
 
   // Puts back what this avatar was last wearing. Only ever reads saved results, so it costs nothing.
@@ -139,31 +145,39 @@ export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t:
     [avatar, remember, router, showError, t, toast],
   );
 
-  // First visit: a look opened from Outfits is put on (free when it was made before); otherwise the last look returns.
-  const started = useRef(false);
+  // Runs on the first visit and every time a look or an avatar is opened from Outfits or the Avatar studio.
+  // The page itself can be reused from the browser's short cache, so each new request is handled, not only
+  // the first one. A look made before is shown for free; only a look never made is dressed (and paid).
+  const handled = useRef<StudioData["start"] | undefined>(undefined);
   useEffect(() => {
-    if (started.current) return;
-    started.current = true;
-    const startItems = data.start?.refs.length ? piecesOf(data.start.refs).filter((i) => canTryOn(i.category)) : [];
-    if (startItems.length) {
-      const sorted = startItems.reduce<WardrobeItem[]>((acc, item) => withItem(acc, item), []);
-      // Runs after this render: first the free saved picture, and only if there is none, a real dressing.
-      const putOn = async () => {
-        await Promise.resolve();
-        if (await restore(avatar, sorted)) remember(avatar, sorted);
-        else await dress(sorted, null, avatar);
-      };
-      void putOn();
-      router.replace(`/${locale}/wardrobe`, { scroll: false });
-      return;
-    }
-    if (data.start?.avatar) {
+    const start = data.start ?? null;
+    const first = handled.current === undefined;
+    if (!first && handled.current === start) return;
+    handled.current = start;
+    if (!first && !start) return; // the address was tidied after a request was handled
+    const target = known(start?.avatar) ?? avatar;
+    const startItems = start?.refs.length ? piecesOf(start.refs).filter((i) => canTryOn(i.category)) : [];
+    const run = async () => {
+      await Promise.resolve();
+      if (target !== avatar) {
+        setAvatar(target);
+        setLayers([]);
+        setLook(null);
+      }
+      memory.set(data.owner, { worn: worn.current, avatar: target });
+      if (startItems.length) {
+        const sorted = startItems.reduce<WardrobeItem[]>((acc, item) => withItem(acc, item), []);
+        if (await restore(target, sorted)) remember(target, sorted);
+        else await dress(sorted, null, target);
+        return;
+      }
       // Opened from the Avatar studio: this avatar becomes the one that opens next time too.
-      if (!data.preview) void callApi("/api/worn", json("POST", { avatar, items: worn.current[avatar] ?? [] })).catch(() => undefined);
-      router.replace(`/${locale}/wardrobe`, { scroll: false });
-    }
-    void restore(avatar, piecesOf(worn.current[avatar] ?? []));
-  }, [avatar, data.preview, data.start, dress, locale, piecesOf, remember, restore, router]);
+      if (start?.avatar && !data.preview) void callApi("/api/worn", json("POST", { avatar: target, items: worn.current[target] ?? [] })).catch(() => undefined);
+      await restore(target, piecesOf(worn.current[target] ?? []));
+    };
+    void run();
+    if (start) router.replace(`/${locale}/wardrobe`, { scroll: false });
+  }, [avatar, data.owner, data.preview, data.start, dress, known, locale, piecesOf, remember, restore, router]);
 
   const applyLayers = useCallback(
     (next: WardrobeItem[], added: WardrobeItem | null = null) => {
@@ -190,15 +204,16 @@ export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t:
   const chooseAvatar = (id: string) => {
     if (busy) return;
     setAvatar(id);
+    memory.set(data.owner, { worn: worn.current, avatar: id });
     setLayers([]);
     setLook(null);
     void restore(id, piecesOf(worn.current[id] ?? []));
     if (!data.preview) void callApi("/api/worn", json("POST", { avatar: id, items: worn.current[id] ?? [] })).catch(() => undefined);
   };
 
-  const getTheLook = (itemIds: string[]) => {
+  const getTheLook = (refs: string[]) => {
     if (busy) return;
-    const items = itemIds.flatMap((id) => own.filter((o) => o.ref === id && canTryOn(o.category)));
+    const items = piecesOf(refs).filter((i) => canTryOn(i.category));
     if (items.length) applyLayers(items.reduce<WardrobeItem[]>((acc, item) => withItem(acc, item), []));
   };
 
@@ -206,6 +221,7 @@ export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t:
     try {
       await callApi("/api/outfits", json("POST", { refs, avatar, name, occasion }));
       toast(t.toast.saved);
+      router.refresh();
       return true;
     } catch (e) {
       showError(e);
@@ -223,6 +239,7 @@ export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t:
       setOwn((all) => all.filter((o) => o.ref !== item.ref));
       if (layers.some((l) => l.ref === item.ref)) applyLayers(layers.filter((l) => l.ref !== item.ref));
       toast(t.toast.removed);
+      router.refresh();
     } catch (e) {
       showError(e);
     }
@@ -243,6 +260,7 @@ export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t:
           onAdded={(item) => {
             setOwn((all) => [item, ...all]);
             toast(t.toast.added);
+            router.refresh();
           }}
           onError={showError}
         />
@@ -271,10 +289,9 @@ export default function WardrobeStudio({ locale, t, data }: { locale: Locale; t:
           locale={locale}
           t={t}
           initialCity={data.city}
-          initialLook={data.look}
           initialWeather={data.weather}
           preview={data.preview}
-          ownCount={own.length}
+          avatar={avatar}
           all={everything}
           busy={busy}
           onGetLook={getTheLook}

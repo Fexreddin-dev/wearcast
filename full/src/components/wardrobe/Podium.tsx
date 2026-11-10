@@ -38,6 +38,7 @@ export default function Podium({
 }) {
   const [loupe, setLoupe] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [listOpen, setListOpen] = useState(false); // phones: the worn list folds into a small button
   const [lens, setLens] = useState<{ x: number; y: number; style: React.CSSProperties } | null>(null);
   const figure = useRef<HTMLImageElement>(null);
 
@@ -101,9 +102,12 @@ export default function Podium({
         {loupe && lens && <div className="wc-lens" style={{ left: lens.x, top: lens.y, ...lens.style }} />}
       </div>
 
-      <div className="wc-tool glass wc-layers">
-        <p className="mb-1 text-[0.62rem] uppercase tracking-widest text-text-2">{t.podium.layers}</p>
-        {layers.length === 0 && <p className="text-[0.7rem] text-text-2">{t.podium.noLayers}</p>}
+      <div className={`wc-tool glass wc-layers ${listOpen ? "is-open" : ""}`}>
+        <button type="button" className="wc-layers-head" aria-expanded={listOpen} onClick={() => setListOpen((v) => !v)}>
+          {t.podium.layers}
+          {layers.length > 0 && <span className="wc-layers-count"> · {layers.length}</span>}
+        </button>
+        {layers.length === 0 && <p className="wc-layers-empty text-[0.7rem] text-text-2">{t.podium.noLayers}</p>}
         {layers.map((l) => {
           const fit = smartFit(current.measurements, current.gender, l.category, l.size, l.fit);
           return (
@@ -117,7 +121,7 @@ export default function Podium({
           );
         })}
         {layers.length > 0 && (
-          <button type="button" className="mt-1 cursor-pointer text-[0.68rem] text-accent" onClick={onReset}>{t.podium.reset}</button>
+          <button type="button" className="wc-reset mt-1 cursor-pointer text-[0.68rem] text-accent" onClick={onReset}>{t.podium.reset}</button>
         )}
       </div>
 

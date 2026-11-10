@@ -27,3 +27,4 @@
 .av-toggle input { margin-top: 2px; width: 16px; height: 16px; flex: none; accent-color: var(--accent); }
 .av-body { padding: 12px 14px; border-radius: 12px; background: rgba(120, 100, 70, 0.07); }
 .av-range input { width: 100%; accent-color: var(--accent); }
+.av-photos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; max-width: 400px; }

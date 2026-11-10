@@ -10,7 +10,7 @@ export const ROOT = path.resolve(__dirname, "../..");
 export const ASSETS = path.join(ROOT, "public", "assets");
 
 // Hard spending cap for Phase 2 (USD). The script refuses any call that would cross it.
-export const BUDGET_CAP_USD = 9.35; // 7.85 spent before Phase 4 + the $1.50 the owner allowed for Phase 4 tests (2026-11-10)
+export const BUDGET_CAP_USD = 10.85; // 7.85 before Phase 4 + $1.50 + $1.50 the owner allowed for Phase 4 tests (2026-11-10)
 
 // Known prices (checked on fal.ai, 2026-11-08). Estimates round up to be safe.
 export const PRICES = {

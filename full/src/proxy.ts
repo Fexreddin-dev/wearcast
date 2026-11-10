@@ -22,7 +22,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Keep the Supabase session fresh.
+  // Keep the Supabase session fresh. getClaims checks the token locally against the project's public
+  // key (ES256) and only calls Supabase when the token must be refreshed: one network trip less per page.
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,7 +39,7 @@ export async function proxy(request: NextRequest) {
       },
     },
   );
-  await supabase.auth.getUser();
+  await supabase.auth.getClaims();
   return response;
 }
 

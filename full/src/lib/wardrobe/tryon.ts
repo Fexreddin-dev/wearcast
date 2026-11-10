@@ -10,6 +10,7 @@ import {
   assertPlanActive,
   type Caller,
   cutout,
+  describeError,
   FAL_EDIT,
   FAL_TRYON,
   fetchBuffer,
@@ -235,10 +236,9 @@ async function assertDailyLimit(admin: Admin, userId: string, steps: number) {
 function stepKeys(prefix: string, layers: Layer[]) {
   return layers.map((_, i) => {
     const stack = layers.slice(0, i + 1);
-    // Looks already paid for stay free, except jackets dressed over another top: those used a damaged picture.
-    const uppers = stack.filter((l) => l.category === "shirts-tops" || l.category === "jackets-coats");
-    const stale = uppers.length > 1 && uppers.at(-1)!.category === "jackets-coats";
-    return createHash("sha256").update(`${stale ? "v5" : "v4"}|${prefix}|front|${stack.map((l) => l.ref).join(",")}`).digest("hex");
+    // v7 (10 Nov 2026): "quality" mode; the old piece is removed except under jackets. Looks made before
+    // (v4, v5: short, shiny trousers and open shirts; v6: jackets with a stray panel) are never reused.
+    return createHash("sha256").update(`v7|${prefix}|front|${stack.map((l) => l.ref).join(",")}`).digest("hex");
   });
 }
 
@@ -275,18 +275,27 @@ async function checkCoverage(admin: Admin, avatar: AvatarProfile, layers: Layer[
 }
 
 export async function runTryOn(caller: Caller, avatarKey: string, refs: string[], cacheOnly = false) {
-  if (!caller.unlimited) await assertPlanActive(caller.id);
+  const t0 = Date.now();
+  const lap = (label: string) => process.env.NODE_ENV === "development" && console.info(`[tryon] ${label} +${Date.now() - t0} ms`);
   const admin = createAdminClient();
-  const [avatar, layers] = await Promise.all([loadAvatar(admin, caller.id, avatarKey), resolveLayers(admin, caller.id, refs)]);
+  // Independent checks run together: each trip to the database takes about 0.4 s.
+  const [avatar, layers] = await Promise.all([
+    loadAvatar(admin, caller.id, avatarKey),
+    resolveLayers(admin, caller.id, refs),
+    caller.unlimited ? null : assertPlanActive(caller.id),
+  ]);
   const keys = stepKeys(avatar.cachePrefix, layers);
   const charges = !caller.unlimited;
+  // Looks without one of the trousers or skirts, for the one-step shortcut below.
+  const bottoms = layers.some((l) => l.category === "dresses") ? [] : layers.filter((l) => l.category === "pants-skirts" && layers.length > 1);
+  const restKeys = bottoms.map((b) => stepKeys(avatar.cachePrefix, layers.filter((l) => l !== b)).at(-1)!);
 
   const { data: cached, error } = await admin
     .from("generations")
     .select("cache_key, result_paths")
     .eq("user_id", caller.id)
     .eq("status", "done")
-    .in("cache_key", keys);
+    .in("cache_key", [...keys, ...restKeys]);
   if (error) throw error;
   const cachedMap = new Map(cached?.map((c) => [c.cache_key as string, c.result_paths as string[]]));
 
@@ -298,18 +307,34 @@ export async function runTryOn(caller: Caller, avatarKey: string, refs: string[]
     }
   }
   if (cacheOnly && start < layers.length) return { image: null, items: [] as string[], charged: 0, cached: false, notice: null };
-  const notice = cacheOnly ? null : await checkCoverage(admin, avatar, layers);
-  if (start < layers.length && charges) await assertDailyLimit(admin, caller.id, layers.length - start);
-  const avatarId = start < layers.length ? (avatar.rowId ?? (await ensureAvatarRow(admin, caller.id, avatar.key))) : null;
+
+  // The dressing steps still to do: normally from the innermost missing layer outwards.
+  let lastPaths = start > 0 ? cachedMap.get(keys[start - 1])! : null;
+  let steps = layers.slice(start).map((_, n) => ({ index: start + n, key: keys[start + n], all: false }));
+  // Trousers or a skirt added to a look that is already made go straight on top of it: one step and
+  // one credit, instead of dressing every layer again from the inside out.
+  if (!cacheOnly && steps.length > 1) {
+    const found = bottoms.findIndex((_, n) => cachedMap.has(restKeys[n]));
+    if (found >= 0) {
+      lastPaths = cachedMap.get(restKeys[found])!;
+      steps = [{ index: layers.indexOf(bottoms[found]), key: keys.at(-1)!, all: true }];
+    }
+  }
+
+  const [notice, , avatarId] = await Promise.all([
+    cacheOnly ? null : checkCoverage(admin, avatar, layers),
+    steps.length && charges ? assertDailyLimit(admin, caller.id, steps.length) : null,
+    steps.length ? (avatar.rowId ?? ensureAvatarRow(admin, caller.id, avatar.key)) : null,
+  ]);
 
   let charged = 0;
-  let lastPaths = start > 0 ? cachedMap.get(keys[start - 1])! : null;
-
-  for (let i = start; i < layers.length; i++) {
+  let previous: string | null = null; // picture from the step just done, used directly by the next one
+  for (const step of steps) {
+    const i = step.index;
     const layer = layers[i];
-    const itemIds = layers.slice(0, i + 1).flatMap((l) => (l.ownId ? [l.ownId] : []));
-    const genId = await claim(admin, caller.id, avatarId!, keys[i], itemIds);
-    const spendRef = `tryon:${keys[i]}:${randomUUID()}`;
+    const itemIds = (step.all ? layers : layers.slice(0, i + 1)).flatMap((l) => (l.ownId ? [l.ownId] : []));
+    const genId = await claim(admin, caller.id, avatarId!, step.key, itemIds);
+    const spendRef = `tryon:${step.key}:${randomUUID()}`;
 
     if (charges) {
       const { data: paid, error: spendError } = await admin.rpc("spend_credits", { p_user: caller.id, p_amount: 1, p_ref: spendRef });
@@ -321,10 +346,12 @@ export async function runTryOn(caller: Caller, avatarKey: string, refs: string[]
     }
 
     try {
+      lap("ready to dress");
       const [modelImage, garmentImage] = await Promise.all([
-        lastPaths ? sign(admin, lastPaths[1]) : avatar.modelImage(),
+        previous ?? (lastPaths ? sign(admin, lastPaths[1]) : avatar.modelImage()),
         garmentFor(admin, caller, avatar, layers, i),
       ]);
+      lap("pictures uploaded");
       const data = await runFal(
         FAL_TRYON,
         {
@@ -332,7 +359,13 @@ export async function runTryOn(caller: Caller, avatarKey: string, refs: string[]
           garment_image: garmentImage,
           category: FASHN_CATEGORY[layer.category],
           garment_photo_type: "flat-lay",
-          mode: "balanced",
+          // Tested side by side (Nov 2026): "balanced" over the model's own clothes kept their shape
+          // (cropped, wide, shiny trousers; shirts left open over the t-shirt). Removing the old piece and
+          // "quality" gave full-length, matte trousers and buttoned shirts, at about 17 s instead of 11 s.
+          // A jacket is different: it is drawn over what is already worn, and removing first left a stray
+          // panel behind the legs and changed the shoes, so jackets keep the silhouette.
+          mode: "quality",
+          segmentation_free: layer.category === "jackets-coats",
           moderation_level: "conservative",
           num_samples: 1,
           output_format: "png",
@@ -343,7 +376,9 @@ export async function runTryOn(caller: Caller, avatarKey: string, refs: string[]
       const url = data.images![0].url;
       const rawPath = `${caller.id}/${genId}/raw.jpg`;
       const cutPath = `${caller.id}/${genId}/look.webp`;
+      lap("dressed");
       const [rawPng, cutPng] = await Promise.all([fetchBuffer(url), cutout(url, caller)]);
+      lap("background removed");
       // Compact formats: the full-size PNGs took about 5 seconds to store.
       const [raw, cut] = await Promise.all([
         sharp(rawPng).flatten({ background: "#F4F3EF" }).jpeg({ quality: 93 }).toBuffer(),
@@ -355,7 +390,9 @@ export async function runTryOn(caller: Caller, avatarKey: string, refs: string[]
       ]);
       for (const up of stored) if (up.error) throw up.error;
       lastPaths = [cutPath, rawPath];
-      const { error: e } = await admin.from("generations").update({ status: "done", result_paths: lastPaths, cost_usd: 0.085 }).eq("id", genId);
+      previous = url;
+      lap("stored");
+      const { error: e } = await admin.from("generations").update({ status: "done", result_paths: lastPaths, cost_usd: 0.075 }).eq("id", genId);
       if (e) throw e;
       if (charges) charged += 1;
     } catch (err) {
@@ -365,7 +402,7 @@ export async function runTryOn(caller: Caller, avatarKey: string, refs: string[]
         .update({ status: "failed", error: err instanceof Error ? err.message.slice(0, 200) : "failed" })
         .eq("id", genId);
       if (err instanceof StudioFailure) throw err;
-      console.error("[tryon] failed", err instanceof Error ? err.message : "unknown");
+      console.error("[tryon] failed", describeError(err));
       throw new StudioFailure("failed", 502);
     }
   }

@@ -135,3 +135,34 @@ if (step === "studio2") {
     await download(data.images[0].url, path.join(OUT, process.argv.includes("--strict") ? `${id}-studio4.png` : `${id}-studio3.png`));
   }
 }
+
+// Neutral long-sleeve outfit for everyone: long sleeves cover any sleeves of the clothes in the photo.
+if (step === "neutral") {
+  const img = await upJpeg(fs.readFileSync(path.join(OUT, "flat-basic.png")), "#FFFFFF");
+  const data = await falRun(
+    "fal-ai/flux-pro/kontext",
+    {
+      prompt:
+        "Make the t-shirt long-sleeved: a plain white long-sleeve crew-neck cotton t-shirt with straight sleeves laid flat down to the cuffs. " +
+        "Keep the light grey trousers exactly as they are. Keep the same flat lay from directly above on a plain white surface, neatly pressed, soft even studio light, photorealistic. No person, no mannequin, no hanger.",
+      image_url: img,
+      aspect_ratio: "9:16",
+      output_format: "png",
+      safety_tolerance: "2",
+    },
+    { note: "p4 neutral long-sleeve outfit" },
+  );
+  await download(data.images[0].url, path.join(OUT, "flat-neutral.png"));
+}
+if (step === "studio5") {
+  for (const id of ids) {
+    const model = await upJpeg(fs.readFileSync(path.join(OUT, `${id}-photo.jpg`)));
+    const garment = await upJpeg(fs.readFileSync(path.join(OUT, "flat-neutral.png")), "#FFFFFF");
+    const data = await falRun(
+      "fal-ai/fashn/tryon/v1.6",
+      { model_image: model, garment_image: garment, category: "one-pieces", garment_photo_type: "flat-lay", mode: "balanced", segmentation_free: !process.argv.includes("--strict"), moderation_level: "conservative", num_samples: 1, output_format: "png" },
+      { note: `p4 studio outfit neutral ${id}` },
+    );
+    await download(data.images[0].url, path.join(OUT, process.argv.includes("--strict") ? `${id}-studio6.png` : `${id}-studio5.png`));
+  }
+}

@@ -11,6 +11,7 @@ import {
   customPrompt,
   FACE_SHAPES,
   HAIR_STYLES,
+  BEARD_STYLES,
   HIJAB_STYLES,
   MEASURE_KEYS,
   MEASURE_RANGE,
@@ -26,7 +27,7 @@ import {
   publicFile,
   purgeAvatar,
 } from "@/lib/wardrobe/avatars";
-import { assertPlanActive, type Caller, fail, requireUser, startOfToday, StudioFailure } from "@/lib/wardrobe/server";
+import { assertPlanActive, type Caller, describeError, fail, requireUser, startOfToday, StudioFailure } from "@/lib/wardrobe/server";
 
 type Admin = ReturnType<typeof createAdminClient>;
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -52,6 +53,7 @@ const customFields = common.extend({
   base: z.enum(BASE_AVATARS),
   skin: z.enum(["keep", ...SKIN_TONES]),
   hair: z.enum(HAIR_STYLES),
+  beard: z.enum(BEARD_STYLES),
   face: z.enum(FACE_SHAPES),
   hijab: z.enum(HIJAB_STYLES),
 });
@@ -102,7 +104,7 @@ function wallet(admin: Admin, caller: Caller) {
 const card = (row: { id: string; name: string | null; gender: string; age_group: string; modest: boolean; measurements: Measurements }, image: string): AvatarCard => ({
   id: row.id,
   image,
-  name: row.name,
+  name: row.name || null,
   gender: row.gender as AvatarCard["gender"],
   age: row.age_group === "adult" ? "adult" : "teen",
   modest: row.modest,
@@ -147,7 +149,7 @@ export async function POST(request: Request) {
         age_group: info.age,
         modest: info.modest,
         base_avatar_id: input.base,
-        extra: { skin_tone: input.skin, hair_style: input.hair, face_shape: input.face, hijab_style: input.hijab },
+        extra: { skin_tone: input.skin, hair_style: input.beard === "keep" ? input.hair : `${input.hair}+${input.beard}`, face_shape: input.face, hijab_style: input.hijab },
       };
     } else throw new StudioFailure("invalid");
 
@@ -158,7 +160,7 @@ export async function POST(request: Request) {
       .from("avatars")
       .insert({
         user_id: user.id,
-        name: input.name || null,
+        name: input.name ?? "", // the column is required; an empty name shows as "Yours"
         kind: row.kind,
         gender: row.gender,
         age_group: row.age_group,
@@ -213,10 +215,10 @@ export async function POST(request: Request) {
         await pay.spend();
         let dressed: string | null = null;
         try {
-          dressed = await dressInStudioOutfit(source, { gender: p.gender, age: row.age_group as "adult" | "teen", modest: p.modest }, caller);
+          dressed = await dressInStudioOutfit(source, { modest: p.modest }, caller);
         } catch (e) {
           if (e instanceof StudioFailure && e.code === "budget") throw e;
-          console.error("[avatars] studio outfit failed", e instanceof Error ? e.message : "unknown");
+          console.error("[avatars] studio outfit failed", describeError(e));
         }
         if (dressed) source = dressed;
         else {
@@ -226,7 +228,7 @@ export async function POST(request: Request) {
       }
     } else {
       const c = input as z.infer<typeof customFields>;
-      const prompt = customPrompt(c.base, { skin: c.skin === "keep" ? undefined : c.skin, hair: c.hair, face: c.face, hijab: c.hijab }, c.measurements);
+      const prompt = customPrompt(c.base, { skin: c.skin === "keep" ? undefined : c.skin, hair: c.hair, beard: c.beard, face: c.face, hijab: c.hijab }, c.measurements);
       if (prompt) {
         await pay.spend();
         source = await makeCustomPicture(c.base, prompt, caller);
