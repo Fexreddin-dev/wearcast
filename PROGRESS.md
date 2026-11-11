@@ -232,3 +232,5 @@ Təhvil: `HANDOFF-PHASE5.md`, söhbət mətni: `PHASE5-PROMPT.md`.
 - **Ana səhifə:** hero-dan sonra "WearCast nə edir", Haqqımızda, Dəstək (support.wearcast@gmail.com), footer.
 - **Deploy:** `DEPLOY.md` (Netlify tövsiyə olunur; Vercel Hobby qeyri-kommersiyadır).
 - **Xərc:** cəmi ≈ $2.72 (icazə $4.00): geyim şəkilləri və fon silmə $0.76, geyindirmə ≈ $1.96. `cost_log` cəmi 18.455.
+- **Təkmilləşdirmə (11 noyabr, 2-ci hissə):** kombin şəkilləri yüngül kəskinləşdirildi, kənar haşiyə təmizləndi (tünd rejimdə açıq xətt yox, şəffaflıq hər faylda yoxlanır). Podium: sakit nəfəs, yeni kombin yumşaq keçidlə, studiya işığı. Şkaf boş başlayır, yalnız podiumdakı modelin dəstlərini və onların geyimlərini göstərir. Ana səhifə: Necə işləyir, hava demosu (soyuq/sərin/mülayim), Tezliklə (8 plan), Suallar, gözləmə siyahısı (`0005_waitlist.sql` işə salınmalıdır, admin səhifəsində görünür), scroll animasiyası. Daxil olmuş istifadəçi giriş/qeydiyyat səhifəsindən Wardrobe-a keçir.
+- **Netlify:** Claude-a qoşulan Netlify hesabı istifadəçinin şəxsi Gmail hesabıdır, WearCast hesabı deyil. Deploy WearCast hesabında olmalıdır (istifadəçinin qərarı).
