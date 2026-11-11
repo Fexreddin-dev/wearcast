@@ -1,6 +1,5 @@
 # WearCast on Netlify. Environment variables (keys) are set in the Netlify dashboard / CLI, never in this file.
 [build]
-  base = "full"
   command = "npm run build"
   publish = ".next"
 
