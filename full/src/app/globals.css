@@ -288,6 +288,8 @@ body {
   flex-direction: column;
   gap: 10px;
   color: #1c1c1e;
+  /* Invisible until the end; on phones it spans the screen and would catch taps meant for the weather card. The buttons switch themselves on. */
+  pointer-events: none;
 }
 .hero-final-brand { font-size: clamp(30px, calc(var(--stage-w) * 0.034), 64px); line-height: 1; }
 .hero-final-tag { font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; }

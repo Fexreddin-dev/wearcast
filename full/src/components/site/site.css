@@ -8,7 +8,8 @@
 .site-demo-look { position: relative; z-index: 1; height: 94%; width: auto; max-width: 46%; object-fit: contain; object-position: bottom; animation: site-look-in 0.7s var(--ease) both; filter: drop-shadow(0 14px 14px rgba(40, 28, 14, 0.18)); }
 .site-demo-floor { position: absolute; left: 50%; bottom: 0; width: min(78%, 560px); height: 44px; transform: translate(-50%, 45%); border-radius: 50%; background: radial-gradient(ellipse at 50% 40%, #fbf8f1, #e2dbcd 70%, #d6cdbb); box-shadow: 0 10px 28px rgba(70, 50, 25, 0.18); }
 :root[data-theme="dark"] .site-demo-floor { background: radial-gradient(ellipse at 50% 35%, #4b4a4c, #333235 68%, #252427); }
-@keyframes site-look-in { from { opacity: 0; transform: translateY(10px); filter: blur(6px); } to { opacity: 1; transform: none; } }
+/* No blur in the entrance: on phones a filter animation could stay at its first frame and leave the models blurred. */
+@keyframes site-look-in { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: none; } }
 
 .site-step-art { height: 168px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(255, 255, 255, 0.35); border: 1px solid var(--glass-border); overflow: hidden; }
 :root[data-theme="dark"] .site-step-art { background: rgba(255, 255, 255, 0.05); }

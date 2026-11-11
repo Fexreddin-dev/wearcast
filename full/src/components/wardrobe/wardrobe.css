@@ -16,7 +16,8 @@ body:has(.wc-studio) { display: flow-root; }
   .wc-center { order: -1; height: min(76svh, 620px); }
   /* Phones and tablets: model, then the Daily Curated Look right under it, then the wardrobe. */
   .wc-studio > .wc-col:first-child { order: 1; }
-  .wc-closet { height: 560px; }
+  /* A fixed height of its own (flex: 1 let the column shrink it, so the page ended before the closet did). */
+  .wc-studio .wc-closet { flex: none; height: 560px; }
 }
 
 .wc-closet {
@@ -105,7 +106,8 @@ body:has(.wc-studio) { display: flow-root; }
 
 /* ───────── Podium ───────── */
 .wc-center { position: relative; overflow: hidden; container-type: inline-size; --floor-h: calc(min(64cqw, 400px) / 5); }
-.wc-stage { position: absolute; inset: 0 0 52px; touch-action: none; cursor: grab; user-select: none; }
+/* The model is not dragged any more, so a finger on the podium scrolls the page like anywhere else. */
+.wc-stage { position: absolute; inset: 0 0 52px; touch-action: pan-y; user-select: none; }
 .wc-stage.is-dragging { cursor: grabbing; }
 .wc-stage.is-loupe { cursor: none; }
 .wc-floor {
@@ -130,7 +132,7 @@ body:has(.wc-studio) { display: flow-root; }
 /* A new look appears over the previous one instead of switching at once. */
 .wc-figure img.is-new { animation: wc-look-in 0.7s var(--ease) both; }
 .wc-figure img.is-old { animation: wc-look-out 0.7s var(--ease) both; }
-@keyframes wc-look-in { from { opacity: 0; filter: blur(6px); } to { opacity: 1; filter: none; } }
+@keyframes wc-look-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes wc-look-out { from { opacity: 1; } to { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .wc-figure img.is-new, .wc-figure img.is-old { animation: none; } .wc-figure img.is-old { display: none; } }
 @media (prefers-reduced-motion: reduce) { .wc-figure { animation: none; } }
