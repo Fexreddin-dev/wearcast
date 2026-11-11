@@ -1,6 +1,12 @@
 # WearCast on Netlify. Environment variables (keys) are set in the Netlify dashboard / CLI, never in this file.
 [build]
+  base = "full"
   command = "npm run build"
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "22"
+
+# The Next.js runtime is named explicitly: a build without it published the source files as a static site.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
