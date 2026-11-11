@@ -21,7 +21,7 @@ export async function recolourShoes(input, colour, { debug = null } = {}) {
   const target = SHOE_COLOURS[colour];
   const { data, info } = await sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const { width: w, height: h } = info;
-  if (!target) return { buf: await sharp(data, { raw: { width: w, height: h, channels: 4 } }).webp({ quality: 95, alphaQuality: 95 }).toBuffer(), pixels: 0 };
+  const recolour = !!target;
 
   const y0 = Math.round(h * 0.9); // the foot area (shoes start about here in every look)
   const px = (x, y) => (y * w + x) * 4;
@@ -103,13 +103,13 @@ export async function recolourShoes(input, colour, { debug = null } = {}) {
     const k = y * w + x;
     const i = k * 4;
     if (dbg && mask[k]) { dbg[i] = soleKeep[k] ? 0 : 255; dbg[i + 1] = soleKeep[k] ? 255 : 0; dbg[i + 2] = 0; }
-    const a = soft[k] / 255;
+    const a = recolour ? soft[k] / 255 : 0;
     if (a < 0.04 || data[i + 3] < 30) continue;
     const l = Math.min(1, lum(i) / 235);
     const shade = 0.22 + 0.78 * Math.pow(l, 1.15);
     const sheen = Math.max(0, l - 0.9) * 0.7 * 255;
     for (let c = 0; c < 3; c++) {
-      const tone = Math.max(0, Math.min(255, target[c] * shade + sheen));
+      const tone = Math.max(0, Math.min(255, (target ? target[c] : 255) * shade + sheen));
       out[i + c] = Math.round(data[i + c] * (1 - a) + tone * a);
     }
     changed++;
@@ -117,7 +117,14 @@ export async function recolourShoes(input, colour, { debug = null } = {}) {
   const rgba = out;
   if (debug) await sharp(dbg, { raw: { width: w, height: h, channels: 4 } }).flatten({ background: "#1b1b1e" }).extract({ left: 0, top: y0, width: w, height: h - y0 }).resize({ width: 700 }).png().toFile(debug);
   const buf = await sharp(rgba, { raw: { width: w, height: h, channels: 4 } }).webp({ quality: 95, alphaQuality: 95 }).toBuffer();
-  return { buf, pixels: changed };
+  // The pair on its own, without socks, trousers or legs: only the shoe pixels stay (a slightly softened edge).
+  const whole = Buffer.alloc(w * h);
+  for (let k = 0; k < w * h; k++) whole[k] = mask[k] ? 255 : 0;
+  const edge = await sharp(whole, { raw: { width: w, height: h, channels: 1 } }).blur(0.9).extractChannel(0).raw().toBuffer();
+  const alone = Buffer.from(rgba);
+  for (let k = 0; k < w * h; k++) alone[k * 4 + 3] = Math.min(data[k * 4 + 3], Math.max(0, Math.min(255, Math.round((edge[k] - 90) * 1.6))));
+  const piece = await sharp(alone, { raw: { width: w, height: h, channels: 4 } }).trim({ threshold: 8 }).webp({ quality: 95, alphaQuality: 95 }).toBuffer();
+  return { buf, piece, pixels: changed };
 }
 
 if (process.argv[1]?.endsWith("shoes.mjs") && process.argv[4]) {

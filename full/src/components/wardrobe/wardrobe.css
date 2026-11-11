@@ -249,5 +249,5 @@ body:has(.wc-studio) { display: flow-root; }
 :root[data-theme="dark"] .wc-set { background: rgba(255, 255, 255, 0.06); }
 :root[data-theme="dark"] .wc-set-piece img { filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5)) brightness(1.08); }
 
-.wc-set-shoes img { height: 46px; margin-top: 46px; }
+.wc-set-shoes img { height: 92px; }
 .wc-set-thumbs .wc-set-shoe { width: 30px; height: 18px; align-self: flex-end; }

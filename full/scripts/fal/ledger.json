@@ -1516,5 +1516,53 @@
     "cost_usd": 0.01,
     "note": "cutout wardrobe/woman-puffer.png",
     "at": "2026-11-11T11:54:38.059Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto shoe white",
+    "at": "2026-11-11T15:25:01.194Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto shoe black",
+    "at": "2026-11-11T15:25:12.947Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto shoe brown",
+    "at": "2026-11-11T15:25:20.320Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto shoe tan",
+    "at": "2026-11-11T15:25:25.867Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout shoes/black.png",
+    "at": "2026-11-11T15:25:45.840Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout shoes/brown.png",
+    "at": "2026-11-11T15:25:50.448Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout shoes/tan.png",
+    "at": "2026-11-11T15:25:55.656Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout shoes/white.png",
+    "at": "2026-11-11T15:26:00.471Z"
   }
 ]

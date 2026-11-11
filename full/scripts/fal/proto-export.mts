@@ -9,7 +9,6 @@ import { fal } from "@fal-ai/client";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { findLook } from "@/lib/wardrobe/tryon";
 import { APPROVED, CURATED, CURATOR_ID } from "@/lib/wardrobe/curated";
-import sharp from "sharp";
 import { finishLook } from "./finish.mjs";
 import { recolourShoes } from "./shoes.mjs";
 
@@ -43,16 +42,9 @@ for (const look of todo) {
   }
   const finished = ((await finishLook(cutPath)) as { buf: Buffer }).buf;
   // Shoes matched to the outfit, from the same sneakers (free, deterministic).
-  const shod = ((await recolourShoes(finished, look.shoes)) as { buf: Buffer }).buf;
+  const shoes = (await recolourShoes(finished, look.shoes)) as { buf: Buffer; piece: Buffer };
+  const shod = shoes.buf;
   fs.writeFileSync(path.join(OUT, `${look.id}.webp`), shod);
-  // The pair as worn, cut from the picture, is the "shoes" piece of the set.
-  const meta = await sharp(shod).metadata();
-  const top = Math.round(meta.height! * 0.9);
-  fs.mkdirSync(path.join(OUT, "shoes"), { recursive: true });
-  fs.writeFileSync(
-    path.join(OUT, "shoes", `${look.id}.webp`),
-    await sharp(shod).extract({ left: 0, top, width: meta.width!, height: meta.height! - top }).trim({ threshold: 1 }).webp({ quality: 95, alphaQuality: 95 }).toBuffer(),
-  );
   const buf = shod;
   console.log(`saved ${look.id} ${Math.round(buf.length / 1024)} KB`);
 }

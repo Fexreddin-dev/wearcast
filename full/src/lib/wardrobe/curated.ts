@@ -20,7 +20,7 @@ export type CuratedLook = {
   high: number;
   refs: string[]; // every piece is dressed; inner layers first
   shoes: ShoeColour; // the colour of the sneakers on the model: matched to the outfit (scripts/fal/shoes.mjs)
-  shoe: { name: Text3; image: string }; // the pair as worn, shown with the other pieces
+  shoe: { name: Text3; image: string }; // a catalogue picture of that pair, shown with the other pieces
   image: string; // the finished look, shipped with the site (public/assets/looks), so it opens at once
   note: Text3;
   why: { weather: Text3; harmony: Text3; layers: Text3 };
@@ -55,7 +55,7 @@ const PLANS: Plan[] = [
 const texts = TEXTS as Record<string, { note: Text3; why: CuratedLook["why"] }>;
 
 // Only looks that were dressed, checked and approved are listed in curated-texts.json.
-export const CURATED: CuratedLook[] = PLANS.map((p) => ({ ...p, id: `${p.avatar}-${p.n}`, image: `/assets/looks/${p.avatar}-${p.n}.webp`, shoe: { name: SHOE_NAMES[p.shoes], image: `/assets/looks/shoes/${p.avatar}-${p.n}.webp` }, ...(texts[`${p.avatar}-${p.n}`] ?? { note: null!, why: null! }) }));
+export const CURATED: CuratedLook[] = PLANS.map((p) => ({ ...p, id: `${p.avatar}-${p.n}`, image: `/assets/looks/${p.avatar}-${p.n}.webp`, shoe: { name: SHOE_NAMES[p.shoes], image: `/assets/looks/shoes/${p.shoes}.webp` }, ...(texts[`${p.avatar}-${p.n}`] ?? { note: null!, why: null! }) }));
 export const APPROVED = () => CURATED.filter((c) => c.note);
 
 // The looks for this avatar, the best match for today's real weather first (the coldest and the warmest part
