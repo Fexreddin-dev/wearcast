@@ -25,10 +25,11 @@ async function AdminContent({ dict, locale }: { dict: Dictionary; locale: Locale
   const owner = isOwnerUser(user);
   const admin = createAdminClient();
 
-  const [{ data: users }, { data: costs }, { data: cap }] = await Promise.all([
+  const [{ data: users }, { data: costs }, { data: cap }, waitlist] = await Promise.all([
     admin.auth.admin.listUsers({ perPage: 1000 }),
     admin.from("cost_log").select("cost_usd").eq("provider", "fal"),
     admin.from("app_settings").select("value").eq("key", "fal_budget_cap_usd").maybeSingle(),
+    admin.from("waitlist").select("email, locale, created_at").order("created_at", { ascending: false }).limit(200),
   ]);
   const spent = (costs ?? []).reduce((s, r) => s + Number(r.cost_usd), 0);
   const shared = (users?.users ?? []).filter((u) => u.app_metadata?.wearcast_unlimited === true);
@@ -50,6 +51,24 @@ async function AdminContent({ dict, locale }: { dict: Dictionary; locale: Locale
         <Stat label={t.remaining} value={`$${Math.max(0, Number(cap?.value ?? 0) - spent).toFixed(2)}`} />
       </div>
       {Number(cap?.value ?? 0) <= spent && <p className="text-sm text-danger">{t.capReached}</p>}
+
+      <div className="glass flex flex-col gap-3 p-5">
+        <h2 className="font-serif text-2xl">{t.waitlist}{waitlist.data?.length ? ` · ${waitlist.data.length}` : ""}</h2>
+        {waitlist.error ? (
+          <p className="text-sm text-text-2">{t.waitlistMissing}</p>
+        ) : !waitlist.data?.length ? (
+          <p className="text-sm text-text-2">{t.waitlistEmpty}</p>
+        ) : (
+          <ul className="flex max-h-72 flex-col gap-1 overflow-y-auto text-sm">
+            {waitlist.data.map((w) => (
+              <li key={w.email} className="flex justify-between gap-3">
+                <span className="break-all">{w.email}</span>
+                <span className="whitespace-nowrap text-text-2">{(w.locale ?? "").toUpperCase()} · {String(w.created_at).slice(0, 10)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       {owner && (
         <>

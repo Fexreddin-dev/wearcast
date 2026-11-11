@@ -5,7 +5,7 @@ import { useRef, useState, useSyncExternalStore } from "react";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { type AvatarCard, PIECE_NAMES, canTryOn, CATEGORIES, DEMO_ITEMS, FITS, type Gender, MATERIALS, SIZES, type Category, type WardrobeItem } from "@/lib/wardrobe/catalog";
-import { APPROVED, PROTOTYPE } from "@/lib/wardrobe/curated";
+import { PROTOTYPE } from "@/lib/wardrobe/curated";
 import { callApi, type SavedSet, type Text } from "./WardrobeStudio";
 
 type Filter = "all" | Category;
@@ -61,8 +61,10 @@ function ProtoCloset({
 }) {
   const all = DEMO_ITEMS;
   const nameOf = (i: WardrobeItem) => PIECE_NAMES[i.ref]?.[locale] ?? t.cat[i.category];
+  // The wardrobe holds what the person chose: the pieces of the sets they added, for the model on the
+  // podium. Removing a set takes away the pieces no other set uses.
   const avatarIds = avatars.filter((a) => a.gender === gender).map((a) => a.id);
-  const used = new Set(APPROVED().filter((c) => avatarIds.includes(c.avatar)).flatMap((c) => c.refs));
+  const used = new Set(sets.filter((x) => x.avatar && avatarIds.includes(x.avatar)).flatMap((x) => x.refs));
   const pieces = all.filter((i) => used.has(i.ref));
   return (
     <div className="wc-closet">
@@ -93,8 +95,8 @@ function ProtoCloset({
               );
             })}
           </div>
-          <h2 className="wc-shelf-title">{p.pieces}</h2>
-          <div className="wc-rail" />
+          {pieces.length > 0 && <h2 className="wc-shelf-title">{p.pieces}</h2>}
+          {pieces.length > 0 && <div className="wc-rail" />}
           <div className="wc-grid">
             {pieces.map((item) => (
               <div key={item.ref} className="wc-item-wrap">

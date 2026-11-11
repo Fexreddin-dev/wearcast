@@ -352,7 +352,8 @@ export default function WardrobeStudio({ locale, t, p, data }: { locale: Locale;
           t={t}
           p={p}
           gender={current.gender}
-          sets={sets.filter((x) => !PROTOTYPE || !x.avatar || avatars.some((a) => a.id === x.avatar))}
+          // Each model has its own wardrobe: the sets (and so the pieces) of the model on the podium.
+          sets={PROTOTYPE ? sets.filter((x) => x.avatar === avatar) : sets}
           avatars={avatars}
           onWearSet={wearSet}
           onRemoveSet={removeSet}

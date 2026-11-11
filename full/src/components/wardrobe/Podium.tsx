@@ -44,6 +44,10 @@ export default function Podium({
   const [listOpen, setListOpen] = useState(false); // phones: the worn list folds into a small button
   const [lens, setLens] = useState<{ x: number; y: number; style: React.CSSProperties } | null>(null);
   const figure = useRef<HTMLImageElement>(null);
+  // The picture on screen and the one it replaces, so a new look fades in over the last one.
+  const src = look ?? current.image;
+  const [shown, setShown] = useState<{ cur: string; prev: string | null }>({ cur: src, prev: null });
+  if (shown.cur !== src) setShown({ cur: src, prev: shown.cur });
 
   // Only the outermost piece of each kind can be reached on the body; the list shows them all.
   const reachable = layers.filter((l, i) => !layers.slice(i + 1).some((later) => later.category === l.category));
@@ -74,7 +78,8 @@ export default function Podium({
       <div className="wc-floor" aria-hidden="true" />
       <div className={`wc-stage ${loupe ? "is-loupe" : ""}`} onPointerMove={moveLens} onPointerLeave={() => setLens(null)}>
         <div className={`wc-figure ${busy ? "is-busy" : restoring ? "is-restoring" : ""}`}>
-          <img ref={figure} src={look ?? current.image} alt="" draggable={false} />
+          {shown.prev && <img key={`old-${shown.prev}`} className="is-old" src={shown.prev} alt="" draggable={false} onAnimationEnd={() => setShown((s) => ({ ...s, prev: null }))} />}
+          <img key={shown.cur} ref={figure} className={shown.prev ? "is-new" : ""} src={shown.cur} alt="" draggable={false} />
         </div>
 
         {/* The chosen piece appears on the body at once, while the finished look is prepared. */}
