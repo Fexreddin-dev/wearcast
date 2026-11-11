@@ -262,5 +262,29 @@
         "tr": "Montun altına sıcak, uzun kollu bir şey giy. İçeride montu çıkarabilirsin."
       }
     }
+  },
+  "f1-1": {
+    "note": {
+      "en": "A navy knit midi dress: elegant and warm for a cool day.",
+      "az": "Tünd göy trikotaj midi don: sərin gün üçün həm zərif, həm də isti seçim.",
+      "tr": "Lacivert triko midi elbise: serin bir gün için hem zarif hem sıcak."
+    },
+    "why": {
+      "weather": {
+        "en": "The knit fabric provides gentle warmth for temperatures between 6°C and 12°C. Its long sleeves offer essential protection against the famous Baku wind.",
+        "az": "Hava 6–12°C olacaq. Uzunqollu trikotaj don soyuqda isti saxlayır.",
+        "tr": "6-12°C arasındaki hava sıcaklığında ince triko kumaş seni sıcak tutar. Uzun kolları sayesinde Bakü'nün rüzgarlı havasından korunursun."
+      },
+      "harmony": {
+        "en": "The deep navy color is professional and sophisticated. The fine-knit texture and midi length create a sleek, feminine silhouette.",
+        "az": "Tünd göy rəng sakit və zərif görünür, sadə forması isə hər yerə yaraşır.",
+        "tr": "Lacivert tonu hem asil durur hem de her ortama uyum sağlar. İnce triko dokusu ve midi boyu vücut hatlarını zarifçe ortaya çıkarır."
+      },
+      "layers": {
+        "en": "A warm coat goes on top outdoors since it is below 15°C. You can remove it to reveal the dress once you are inside.",
+        "az": "Çöldə üstünə isti palto geyin. İçəridə paltonu çıxarıb donda qala bilərsən.",
+        "tr": "Hava 15°C'den düşük olduğu için dışarı çıkarken üzerine sıcak tutan bir kaban alabilirsin. Kapalı mekana geçtiğinde kabanını çıkararak elbisenin şıklığını sergileyebilirsin."
+      }
+    }
   }
 }

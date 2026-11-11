@@ -19,33 +19,43 @@ export type CuratedLook = {
   low: number; // planned temperature range, °C
   high: number;
   refs: string[]; // every piece is dressed; inner layers first
+  shoes: ShoeColour; // the colour of the sneakers on the model: matched to the outfit (scripts/fal/shoes.mjs)
+  shoe: { name: Text3; image: string }; // the pair as worn, shown with the other pieces
   image: string; // the finished look, shipped with the site (public/assets/looks), so it opens at once
   note: Text3;
   why: { weather: Text3; harmony: Text3; layers: Text3 };
 };
 
-type Plan = Omit<CuratedLook, "id" | "image" | "note" | "why">;
+export type ShoeColour = "white" | "black" | "brown" | "tan";
+type Plan = Omit<CuratedLook, "id" | "image" | "note" | "why" | "shoe">;
+const SHOE_NAMES: Record<ShoeColour, Text3> = {
+  white: { en: "White sneakers", az: "Ağ idman ayaqqabısı", tr: "Beyaz spor ayakkabı" },
+  black: { en: "Black sneakers", az: "Qara idman ayaqqabısı", tr: "Siyah spor ayakkabı" },
+  brown: { en: "Brown sneakers", az: "Qəhvəyi idman ayaqqabısı", tr: "Kahverengi spor ayakkabı" },
+  tan: { en: "Tan sneakers", az: "Bej idman ayaqqabısı", tr: "Bej spor ayakkabı" },
+};
 // Looks span the year, from hot to cold, so the look of the day follows the real forecast.
 // Left out after checks (11 Nov 2026): a blazer over a shirt (broke the shirt), navy trousers (hem folded at the
-// shoes), a navy dress (long hair over a dark top left light streaks), jeans with an open shirt; round 2: shorts (legs and shoes redrawn), grey trousers (came out shiny like leather joggers), a summer dress on f1 (hem hung loose twice), a long and a short coat on f1 (both cut to a cropped jacket).
+// shoes), jeans with an open shirt; round 2: shorts (legs and shoes redrawn), grey trousers (came out shiny like leather joggers), a summer dress on f1 (hem hung loose twice), a long and a short coat and a puffer on f1 (cut to a cropped jacket; the puffer lost its collar).
 const PLANS: Plan[] = [
-  { avatar: "m1", n: 7, low: 21, high: 32, refs: ["demo:man-chinos", "demo:man-tee"] },
-  { avatar: "m1", n: 5, low: 13, high: 18, refs: ["demo:man-chinos", "demo:man-shirt"] },
-  { avatar: "m1", n: 3, low: 10, high: 15, refs: ["demo:man-chinos", "demo:man-sweater"] },
-  { avatar: "m1", n: 1, low: 7, high: 12, refs: ["demo:man-jeans", "demo:man-sweater"] },
-  { avatar: "m1", n: 10, low: -5, high: 6, refs: ["demo:man-jeans", "demo:man-puffer"] },
-  { avatar: "f1", n: 7, low: 21, high: 32, refs: ["demo:woman-jeans", "demo:woman-tee"] },
-  { avatar: "f1", n: 5, low: 13, high: 18, refs: ["demo:woman-skirt", "demo:woman-blouse"] },
-  { avatar: "f1", n: 4, low: 9, high: 19, refs: ["demo:woman-jeans", "demo:woman-shirt"] },
-  { avatar: "f1", n: 3, low: 10, high: 15, refs: ["demo:woman-jeans", "demo:woman-blouse"] },
-  { avatar: "f1", n: 2, low: 9, high: 13, refs: ["demo:woman-trousers", "demo:woman-shirt"] },
-  { avatar: "f1", n: 8, low: 12, high: 17, refs: ["demo:woman-knitdress"] },
+  { avatar: "m1", n: 7, low: 21, high: 32, shoes: "white", refs: ["demo:man-chinos", "demo:man-tee"] },
+  { avatar: "m1", n: 5, low: 13, high: 18, shoes: "brown", refs: ["demo:man-chinos", "demo:man-shirt"] },
+  { avatar: "m1", n: 3, low: 10, high: 15, shoes: "brown", refs: ["demo:man-chinos", "demo:man-sweater"] },
+  { avatar: "m1", n: 1, low: 7, high: 12, shoes: "black", refs: ["demo:man-jeans", "demo:man-sweater"] },
+  { avatar: "m1", n: 10, low: -5, high: 6, shoes: "black", refs: ["demo:man-jeans", "demo:man-puffer"] },
+  { avatar: "f1", n: 1, low: 6, high: 12, shoes: "white", refs: ["demo:woman-dress"] },
+  { avatar: "f1", n: 7, low: 21, high: 32, shoes: "white", refs: ["demo:woman-jeans", "demo:woman-tee"] },
+  { avatar: "f1", n: 5, low: 13, high: 18, shoes: "brown", refs: ["demo:woman-skirt", "demo:woman-blouse"] },
+  { avatar: "f1", n: 4, low: 9, high: 19, shoes: "white", refs: ["demo:woman-jeans", "demo:woman-shirt"] },
+  { avatar: "f1", n: 3, low: 10, high: 15, shoes: "tan", refs: ["demo:woman-jeans", "demo:woman-blouse"] },
+  { avatar: "f1", n: 2, low: 9, high: 13, shoes: "black", refs: ["demo:woman-trousers", "demo:woman-shirt"] },
+  { avatar: "f1", n: 8, low: 12, high: 17, shoes: "tan", refs: ["demo:woman-knitdress"] },
 ];
 
 const texts = TEXTS as Record<string, { note: Text3; why: CuratedLook["why"] }>;
 
 // Only looks that were dressed, checked and approved are listed in curated-texts.json.
-export const CURATED: CuratedLook[] = PLANS.map((p) => ({ ...p, id: `${p.avatar}-${p.n}`, image: `/assets/looks/${p.avatar}-${p.n}.webp`, ...(texts[`${p.avatar}-${p.n}`] ?? { note: null!, why: null! }) }));
+export const CURATED: CuratedLook[] = PLANS.map((p) => ({ ...p, id: `${p.avatar}-${p.n}`, image: `/assets/looks/${p.avatar}-${p.n}.webp`, shoe: { name: SHOE_NAMES[p.shoes], image: `/assets/looks/shoes/${p.avatar}-${p.n}.webp` }, ...(texts[`${p.avatar}-${p.n}`] ?? { note: null!, why: null! }) }));
 export const APPROVED = () => CURATED.filter((c) => c.note);
 
 // The looks for this avatar, the best match for today's real weather first (the coldest and the warmest part
@@ -61,4 +71,9 @@ export function looksFor(avatar: string, weather?: { low: number; high: number }
 export function curatedImage(avatar: string | null | undefined, refs: string[]) {
   const look = APPROVED().find((c) => c.avatar === avatar && c.refs.length === refs.length && c.refs.every((r) => refs.includes(r)));
   return look?.image ?? null;
+}
+
+// The approved look for exactly these pieces on this avatar (to show its shoes with the set).
+export function curatedLook(avatar: string | null | undefined, refs: string[]) {
+  return APPROVED().find((c) => c.avatar === avatar && c.refs.length === refs.length && c.refs.every((r) => refs.includes(r))) ?? null;
 }

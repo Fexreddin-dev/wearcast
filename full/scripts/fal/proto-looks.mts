@@ -10,7 +10,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { runTryOn } from "@/lib/wardrobe/tryon";
 import { CURATED, CURATOR_ID } from "@/lib/wardrobe/curated";
 
-const LIMIT_USD = 20.60; // was 20.455; one more coat step from the extra $0.94 the owner allowed if all looks are clean // cost_log before round 2 (18.455) + the $2.00 the owner allowed on 11 Nov 2026 (balance $2.94)
+const LIMIT_USD = 20.95; // cost_log 20.595 after round 2; the owner has about $0.80 of Fal balance left (11 Nov 2026), so at most ~$0.35 more
 const OUT = process.env.PROTO_OUT ?? "proto-out";
 fs.mkdirSync(OUT, { recursive: true });
 const admin = createAdminClient();

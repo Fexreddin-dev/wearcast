@@ -5,7 +5,7 @@ import { useRef, useState, useSyncExternalStore } from "react";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { type AvatarCard, PIECE_NAMES, canTryOn, CATEGORIES, DEMO_ITEMS, FITS, type Gender, MATERIALS, SIZES, type Category, type WardrobeItem } from "@/lib/wardrobe/catalog";
-import { PROTOTYPE } from "@/lib/wardrobe/curated";
+import { curatedLook, PROTOTYPE } from "@/lib/wardrobe/curated";
 import { callApi, type SavedSet, type Text } from "./WardrobeStudio";
 
 type Filter = "all" | Category;
@@ -66,6 +66,8 @@ function ProtoCloset({
   const avatarIds = avatars.filter((a) => a.gender === gender).map((a) => a.id);
   const used = new Set(sets.filter((x) => x.avatar && avatarIds.includes(x.avatar)).flatMap((x) => x.refs));
   const pieces = all.filter((i) => used.has(i.ref));
+  // The shoes of the saved sets hang on the glass shelf, one pair for each colour.
+  const shoes = [...new Map(sets.flatMap((x) => { const l = curatedLook(x.avatar, x.refs); return l ? [[l.shoe.image, l.shoe] as const] : []; })).values()];
   return (
     <div className="wc-closet">
       <div className="wc-closet-inner">
@@ -80,12 +82,14 @@ function ProtoCloset({
               const items = set.refs.flatMap((r) => all.filter((i) => i.ref === r));
               const who = avatars.find((a) => a.id === set.avatar);
               const label = set.name || items.map(nameOf).join(" + ");
+              const shoe = curatedLook(set.avatar, set.refs)?.shoe;
               return (
                 <div key={set.id} className="wc-set-card">
                   <button type="button" className="wc-set-main" onClick={() => onWearSet(set)} aria-label={`${p.wear}: ${label}`}>
                     {who && <img className="wc-set-who" src={who.image} alt="" />}
                     <span className="wc-set-thumbs">
                       {items.map((i) => <img key={i.ref} src={i.image} alt="" />)}
+                      {shoe && <img src={shoe.image} alt="" className="wc-set-shoe" />}
                     </span>
                     <span className="wc-set-label" title={label}>{label}</span>
                     <span className="wc-set-wear">{p.wear}</span>
@@ -95,8 +99,8 @@ function ProtoCloset({
               );
             })}
           </div>
-          {pieces.length > 0 && <h2 className="wc-shelf-title">{p.pieces}</h2>}
-          {pieces.length > 0 && <div className="wc-rail" />}
+          {(pieces.length > 0 || shoes.length > 0) && <h2 className="wc-shelf-title">{p.pieces}</h2>}
+          {(pieces.length > 0 || shoes.length > 0) && <div className="wc-rail" />}
           <div className="wc-grid">
             {pieces.map((item) => (
               <div key={item.ref} className="wc-item-wrap">
@@ -104,6 +108,16 @@ function ProtoCloset({
                   <Hanger />
                   <span className="wc-item-frame relative block">
                     <img src={item.image} alt={nameOf(item)} title={nameOf(item)} loading="lazy" draggable={false} />
+                  </span>
+                </div>
+              </div>
+            ))}
+            {shoes.map((shoe) => (
+              <div key={shoe.image} className="wc-item-wrap">
+                <div className="wc-item w-full">
+                  <span className="wc-no-hanger" />
+                  <span className="wc-item-frame on-shelf relative block">
+                    <img src={shoe.image} alt={shoe.name[locale]} title={shoe.name[locale]} loading="lazy" draggable={false} />
                   </span>
                 </div>
               </div>

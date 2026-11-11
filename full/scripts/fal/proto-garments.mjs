@@ -42,6 +42,8 @@ export const PROTO = [
   { id: "woman-knitdress", kind: FLAT, desc: "one women's oatmeal cream fine-knit long-sleeve midi dress alone, round neckline, straight relaxed fit, sleeves laid out at the sides, full length visible" },
   // A knee-length coat was cut to waist length by the try-on twice (11 Nov 2026), so a hip-length one.
   { id: "woman-jacket", kind: GHOST, desc: "a camel brown wool short coat for women, hip length, closed with four buttons down the front, round collar, long sleeves, straight cut" },
+  // Round 3: closed outerwear for women. A puffer worked for the man (hip length, zipped), coats did not.
+  { id: "woman-puffer", kind: GHOST, desc: "women's ivory cream quilted down puffer jacket, zipped all the way up to a stand collar, fully closed front, long sleeves, hip length, matte fabric" },
 ];
 
 const args = process.argv.slice(2);

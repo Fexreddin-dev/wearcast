@@ -42,9 +42,9 @@ const AZ = {
   },
   "f1-1": {
     note: "Tünd göy trikotaj midi don: sərin gün üçün həm zərif, həm də isti seçim.",
-    weather: "Hava 7–12°C olacaq. Uzunqollu trikotaj don soyuqda isti saxlayır.",
+    weather: "Hava 6–12°C olacaq. Uzunqollu trikotaj don soyuqda isti saxlayır.",
     harmony: "Tünd göy rəng sakit və zərif görünür, sadə forması isə hər yerə yaraşır.",
-    layers: "Çöldə üstünə isti palto geyin. Daha isti olsun deyə altına incə termal geyim də geyə bilərsən.",
+    layers: "Çöldə üstünə isti palto geyin. İçəridə paltonu çıxarıb donda qala bilərsən.",
   },
   "f1-2": {
     note: "Qara enli şalvar və ağ köynək: iş günü üçün klassik və səliqəli kombin.",

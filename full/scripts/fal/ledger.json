@@ -1504,5 +1504,17 @@
     "cost_usd": 0.01,
     "note": "cutout wardrobe/woman-jacket.png",
     "at": "2026-11-11T11:13:26.491Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment woman-puffer",
+    "at": "2026-11-11T11:54:31.071Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/woman-puffer.png",
+    "at": "2026-11-11T11:54:38.059Z"
   }
 ]

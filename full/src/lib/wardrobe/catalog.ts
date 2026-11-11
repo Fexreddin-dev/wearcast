@@ -180,10 +180,11 @@ export const DEMO_ITEMS: WardrobeItem[] = [
   demo("woman-coat", "jackets-coats"),
   demo("woman-knitdress", "dresses"),
   demo("woman-jacket", "jackets-coats"),
+  demo("woman-puffer", "jackets-coats"),
 ];
 // Outerwear that is worn fully closed: it is dressed like a top (it replaces what is above the waist), so no
 // inner layer has to show through an opening.
-export const CLOSED_OUTERWEAR = new Set(["demo:man-puffer", "demo:woman-coat", "demo:woman-jacket"]);
+export const CLOSED_OUTERWEAR = new Set(["demo:man-puffer", "demo:woman-coat", "demo:woman-jacket", "demo:woman-puffer"]);
 
 // What the try-on model can dress today, and how it names each kind.
 export const FASHN_CATEGORY: Partial<Record<Category, "tops" | "bottoms" | "one-pieces">> = {
@@ -358,6 +359,7 @@ export const PIECE_NAMES: Record<string, Text3> = {
   "demo:woman-coat": { en: "Camel wool coat", az: "Dəvəyunu rəngli yun palto", tr: "Camel yün kaban" },
   "demo:woman-knitdress": { en: "Cream knit dress", az: "Krem trikotaj don", tr: "Krem triko elbise" },
   "demo:woman-jacket": { en: "Camel short coat", az: "Dəvəyunu rəngli qısa palto", tr: "Camel kısa kaban" },
+  "demo:woman-puffer": { en: "Cream puffer jacket", az: "Krem pufer gödəkçə", tr: "Krem şişme mont" },
 };
 // What the sample pieces are, for the stylist.
 export const SAMPLE_NOTES: Record<string, string> = {
@@ -386,4 +388,5 @@ export const SAMPLE_NOTES: Record<string, string> = {
   "demo:woman-coat": "camel wool coat, buttoned closed, knee length, women",
   "demo:woman-knitdress": "oatmeal cream knit midi dress, long sleeves, women",
   "demo:woman-jacket": "camel wool short coat, hip length, buttoned closed, women",
+  "demo:woman-puffer": "ivory cream quilted puffer jacket, zipped closed, women",
 };

@@ -50,6 +50,10 @@ function CuratedLooks({
             <figcaption>{PIECE_NAMES[piece.ref]?.[locale] ?? t.cat[piece.category]}</figcaption>
           </figure>
         ))}
+        <figure className="wc-set-piece wc-set-shoes">
+          <img src={look.shoe.image} alt="" />
+          <figcaption>{look.shoe.name[locale]}</figcaption>
+        </figure>
       </div>
       <p className="text-[0.66rem] tracking-wide text-text-2">{p.planned.replace("{low}", String(look.low)).replace("{high}", String(look.high))}</p>
       <p className="font-serif text-[1.02rem] leading-snug">{look.note[locale]}</p>
