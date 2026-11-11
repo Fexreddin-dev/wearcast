@@ -112,6 +112,19 @@ export default function Hero({ text, locale }: { text: HeroText; locale: string 
     const video = videoRef.current!;
     const ctx = canvas.getContext("2d", { alpha: false })!;
     const actx = ambient.getContext("2d", { alpha: false })!;
+    // An opaque canvas starts black. Until the first film frame arrives it shows the stage's own warm colour and then
+    // the poster, so the page never flashes dark on arrival (seen on the live site, 11 Nov 2026).
+    actx.fillStyle = "#d9cbbb";
+    actx.fillRect(0, 0, ambient.width, ambient.height);
+    {
+      const poster = root.querySelector<HTMLImageElement>("[data-poster]");
+      const fillFromPoster = () => {
+        // only while no film frame has been drawn yet (the film canvas becomes visible with its first frame)
+        if (poster?.naturalWidth && canvas.style.opacity !== "1") actx.drawImage(poster, 0, 0, ambient.width, ambient.height);
+      };
+      if (poster?.complete) fillFromPoster();
+      else poster?.addEventListener("load", fillFromPoster, { once: true });
+    }
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const mobile = window.matchMedia("(max-width: 767px)").matches;
     const set = mobile ? "m" : "d";
@@ -357,8 +370,18 @@ export default function Hero({ text, locale }: { text: HeroText; locale: string 
             o = appear > 0 ? 1 : 0;
             const ee = lerp(-18, 118, appear);
             mask = `linear-gradient(180deg, #000 ${ee - 14}%, transparent ${ee + 14}%)`;
-          } else if (j === base) o = 1;
-          else if (j === base + 1 && frac > 0) {
+          } else if (j === base) {
+            o = 1;
+            // While the next look is revealed from the top, the previous one is hidden above the same line:
+            // otherwise its white top showed beside the new garment until the light reached the feet.
+            if (frac > 0) {
+              const ee = lerp(-18, 118, frac);
+              // Below the light the previous look stays as it is. Above it, it is kept only inside the new look's
+              // outline (a second mask: the next state's own picture), so it fills the soft edge of the light
+              // without a see-through gap, and nothing of it (the white top's sleeves) shows beside the new garment.
+              mask = `linear-gradient(180deg, transparent ${ee + 14}%, #000 ${ee + 15}%), url(${V2}/states/${who}-${j + 1}.webp)`;
+            }
+          } else if (j === base + 1 && frac > 0) {
             o = 1;
             const ee = lerp(-18, 118, frac);
             mask = `linear-gradient(180deg, #000 ${ee - 14}%, transparent ${ee + 14}%)`;
@@ -367,9 +390,15 @@ export default function Hero({ text, locale }: { text: HeroText; locale: string 
           if (mask) {
             img.style.maskImage = mask;
             img.style.setProperty("-webkit-mask-image", mask);
+            // two layers (gradient + outline) are added together; each covers the whole picture
+            img.style.setProperty("mask-size", "100% 100%");
+            img.style.setProperty("-webkit-mask-size", "100% 100%");
+            img.style.setProperty("mask-repeat", "no-repeat");
+            img.style.setProperty("-webkit-mask-repeat", "no-repeat");
+            img.style.setProperty("mask-composite", "add");
+            img.style.setProperty("-webkit-mask-composite", "source-over");
           } else {
-            img.style.removeProperty("mask-image");
-            img.style.removeProperty("-webkit-mask-image");
+            for (const prop of ["mask-image", "-webkit-mask-image", "mask-size", "-webkit-mask-size", "mask-repeat", "-webkit-mask-repeat", "mask-composite", "-webkit-mask-composite"]) img.style.removeProperty(prop);
           }
         });
         const sw = sweepRefs.current[who];
