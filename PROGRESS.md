@@ -220,3 +220,15 @@ Təhvil: `HANDOFF-PHASE4B.md`, söhbət mətni: `PHASE4B-PROMPT.md`.
 **Səhifələr:** Wardrobe/Avatar/Outfits 1898×872, 1024×640, 375×812, açıq/tünd; konsolda xəta yox. Build, tsc, eslint təmiz. Sürət production-da ölçülmədi (test paneli gizli idi).
 **Xərc (bu söhbət):** $1.81 (FASHN 23, EVF-SAM 9, Kontext 1). İstifadəçi icazəsi $0.85 + $1.00. Balans təxminən $5.77.
 Təhvil: `HANDOFF-PHASE5.md`, söhbət mətni: `PHASE5-PROMPT.md`.
+
+## Investor prototipi (11 noyabr 2026) — plan dəyişdi
+İstifadəçinin qərarı: büdcə azdır, əvvəl investor üçün sadə, amma tam işləyən versiya. Ödəniş, planlar, admin ödəniş axını, hicab, aksesuar, avatar studiyası və öz geyimini yükləmə sonraya qaldı.
+- **Demo rejimi:** `NEXT_PUBLIC_PROTOTYPE` (yazılmasa açıqdır, `false` tam versiyanı qaytarır). `src/lib/wardrobe/curated.ts`.
+- **Hazır kombinlər:** m1 və f1 üçün 5-5 kombin, Bakı proqnozuna görə (11–15 noyabr, 7–19°C). Sviterlilər soyuq günlərə, köynəklilər mülayim günlərə. Hər addım `runTryOn` ilə (3 baxışlı yoxlama + 2-ci cəhd) sahib hesabında geyindirildi və gözlə yoxlandı. Bu nəticələr bütün istifadəçilərlə paylaşılır (`cacheOwners`), ona görə geyinmək, dəyişmək və təkrar geyinmək pulsuzdur.
+- Rədd olunanlar: pencək köynəyin üstündə (m1, 2 dəfə), m1 cins + köynək (köynək açıq, altında ağ futbolka). Pencəkli kombinlər çıxarıldı.
+- **Mətnlər:** `scripts/fal/proto-texts.mts` (Gemini yazır, sonra 3 dəfə yoxlayır) → `curated-texts.json`. AZ mətnlər əl ilə də düzəldildi. Yalnız mətni olan kombin göstərilir.
+- **Yeni geyimlər:** kişi chinos, cins, sviter; qadın qara şalvar, cins, ağ köynək, göy don, qara pencək (pencək işlədilmir). Rədd: boğazlı sviter (şəkildə adam), harrington (bağlı), qadın sviteri (asılqan, sonra maneken).
+- **UI:** Günün kombini (dəst şəklində geyimlər, "KOMBİNİ GEYİN", "Başqa kombin", "Şkafıma əlavə et"), şkafda "Dəstlərim" (bir kliklə pulsuz geyin, sil) və "Geyimlər". Gizlədilənlər: kredit sayğacı, AVATAR tabı (səhifə Wardrobe-a yönləndirir), geyim yükləmə, tək-tək geyindirmə. Server: demo rejimində `/api/tryon` yalnız hazır nəticə qaytarır, `/api/look`, `/api/wardrobe` POST, `/api/avatars` POST `prototype_only` qaytarır (limitsiz hesablar istisna).
+- **Ana səhifə:** hero-dan sonra "WearCast nə edir", Haqqımızda, Dəstək (support.wearcast@gmail.com), footer.
+- **Deploy:** `DEPLOY.md` (Netlify tövsiyə olunur; Vercel Hobby qeyri-kommersiyadır).
+- **Xərc:** cəmi ≈ $2.72 (icazə $4.00): geyim şəkilləri və fon silmə $0.76, geyindirmə ≈ $1.96. `cost_log` cəmi 18.455.

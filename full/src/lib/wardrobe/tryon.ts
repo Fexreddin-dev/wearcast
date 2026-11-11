@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { CATEGORIES, coverageRule, DAILY_TRYONS, DEMO_ITEMS, FASHN_CATEGORY, layerRank, type Category } from "./catalog";
 import { type AvatarProfile, coverageFor, loadAvatar, publicFile } from "./avatars";
 import { keepHeadscarf } from "./hijab";
+import { CURATOR_ID, PROTOTYPE } from "./curated";
 import {
   askGemini,
   assertPlanActive,
@@ -27,6 +28,9 @@ type Layer = { ref: string; category: Category; ownId?: string; cleanPath?: stri
 type Admin = ReturnType<typeof createAdminClient>;
 
 const STALE_MS = 3 * 60 * 1000;
+
+// Prototype: the curated looks were dressed once by the owner account and are shared with everyone.
+const cacheOwners = (callerId: string) => (PROTOTYPE ? [...new Set([callerId, CURATOR_ID])] : [callerId]);
 const results = (admin: Admin) => admin.storage.from("generations");
 
 const STUDIO =
@@ -310,9 +314,10 @@ export async function findLook(callerId: string, avatarKey: string, refs: string
   const { data } = await admin
     .from("generations")
     .select("id, result_paths")
-    .eq("user_id", callerId)
+    .in("user_id", cacheOwners(callerId))
     .eq("cache_key", key)
     .eq("status", "done")
+    .limit(1)
     .maybeSingle();
   return { generationId: (data?.id as string) ?? null, refs: layers.map((l) => l.ref), ownIds: layers.flatMap((l) => (l.ownId ? [l.ownId] : [])) };
 }
@@ -353,7 +358,7 @@ export async function runTryOn(caller: Caller, avatarKey: string, refs: string[]
   const { data: cached, error } = await admin
     .from("generations")
     .select("cache_key, result_paths")
-    .eq("user_id", caller.id)
+    .in("user_id", cacheOwners(caller.id))
     .eq("status", "done")
     .in("cache_key", [...keys, ...restKeys]);
   if (error) throw error;
@@ -366,6 +371,8 @@ export async function runTryOn(caller: Caller, avatarKey: string, refs: string[]
       break;
     }
   }
+  // Prototype: visitors only ever wear finished looks, so nothing is paid and nothing unchecked is shown.
+  if (PROTOTYPE && !caller.unlimited && start < layers.length && !cacheOnly) throw new StudioFailure("prototype_only", 409);
   if (cacheOnly && start < layers.length) return { image: null, items: [] as string[], charged: 0, cached: false, notice: null };
 
   // The dressing steps still to do: normally from the innermost missing layer outwards.

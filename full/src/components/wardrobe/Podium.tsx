@@ -20,12 +20,14 @@ const ZONE: Partial<Record<Category, { top: string; height: string; left?: strin
 const LOWER_PREVIEW = { top: "calc(50% + 62px)", height: "calc(47% - 62px)" };
 
 export default function Podium({
-  t, avatars, current, avatarHref, onAvatar, look, layers, busy, restoring = false, preview, canSave, onSave, onRemove, onReset,
+  t, avatars, current, avatarHref, onAvatar, look, layers, busy, restoring = false, preview, canSave, saveLabel, emptyText, onSave, onRemove, onReset,
 }: {
   t: Text;
   avatars: AvatarCard[];
   current: AvatarCard;
-  avatarHref: string;
+  avatarHref: string | null; // null: making new avatars is not offered (prototype)
+  saveLabel: string;
+  emptyText: string;
   onAvatar: (id: string) => void;
   look: string | null;
   layers: WardrobeItem[];
@@ -34,7 +36,7 @@ export default function Podium({
   preview: WardrobeItem | null;
   canSave: boolean;
   onSave: (name: string, occasion: Occasion | null) => Promise<boolean>;
-  onRemove: (ref: string) => void;
+  onRemove: ((ref: string) => void) | null; // null: pieces come off only together, with Reset (prototype)
   onReset: () => void;
 }) {
   const [loupe, setLoupe] = useState(false);
@@ -82,7 +84,7 @@ export default function Podium({
           </div>
         )}
 
-        {!busy && !loupe && (
+        {!busy && !loupe && onRemove && (
           <div className="wc-figure-box">
             {reachable.map((l) => (
               <div key={l.ref} className="wc-zone" style={ZONE[l.category]}>
@@ -108,7 +110,7 @@ export default function Podium({
           {t.podium.layers}
           {layers.length > 0 && <span className="wc-layers-count"> · {layers.length}</span>}
         </button>
-        {layers.length === 0 && <p className="wc-layers-empty text-[0.7rem] text-text-2">{t.podium.noLayers}</p>}
+        {layers.length === 0 && <p className="wc-layers-empty text-[0.7rem] text-text-2">{emptyText}</p>}
         {layers.map((l) => {
           const fit = smartFit(current.measurements, current.gender, l.category, l.size, l.fit);
           return (
@@ -117,7 +119,7 @@ export default function Podium({
                 <span className="block truncate">{l.name ?? t.cat[l.category]}</span>
                 {fit && <span className={`wc-fit is-${fit}`} title={t.fit.help}>{t.fit[fit]}</span>}
               </span>
-              <button type="button" aria-label={t.podium.remove} onClick={() => onRemove(l.ref)}>×</button>
+              {onRemove && <button type="button" aria-label={t.podium.remove} onClick={() => onRemove(l.ref)}>×</button>}
             </div>
           );
         })}
@@ -131,7 +133,7 @@ export default function Podium({
           {t.podium.loupe}
         </button>
         {canSave && layers.length > 0 && !busy && (
-          <button type="button" className="btn btn-ghost wc-mini" onClick={() => setSaving(true)}>{t.saveLook}</button>
+          <button type="button" className="btn btn-ghost wc-mini" onClick={() => setSaving(true)}>{saveLabel}</button>
         )}
       </div>
 
@@ -149,7 +151,7 @@ export default function Podium({
             <img src={a.image} alt="" loading="lazy" />
           </button>
         ))}
-        <Link href={avatarHref} className="wc-avatar wc-avatar-add" aria-label="+">+</Link>
+        {avatarHref && <Link href={avatarHref} className="wc-avatar wc-avatar-add" aria-label="+">+</Link>}
       </div>
 
       {saving && <SaveLook t={t} onClose={() => setSaving(false)} onSave={onSave} />}

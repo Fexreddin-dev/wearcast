@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { PROTOTYPE } from "@/lib/wardrobe/curated";
 import { fal } from "@fal-ai/client";
 import sharp from "sharp";
 import { z } from "zod";
@@ -116,6 +117,8 @@ export async function POST(request: Request) {
   let cleanup: (() => Promise<void>) | undefined;
   try {
     const { user, caller } = await requireUser();
+    // Prototype: only the ready-made looks are used, so nothing here can cost money.
+    if (PROTOTYPE && !caller.unlimited) throw new StudioFailure("prototype_only", 409);
     const form = await request.formData();
     const mode = form.get("mode");
     let raw: Record<string, unknown>;

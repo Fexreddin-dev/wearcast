@@ -7,6 +7,7 @@ import { isUnlimitedUser } from "@/lib/admin";
 import { createClient } from "@/lib/supabase/server";
 import { ownAvatars } from "@/lib/wardrobe/pages";
 import AvatarStudio from "@/components/avatar/AvatarStudio";
+import { PROTOTYPE } from "@/lib/wardrobe/curated";
 
 async function Studio({ locale, previewRequested }: { locale: Locale; previewRequested: boolean }) {
   const dict = getDictionary(locale);
@@ -39,6 +40,8 @@ async function Studio({ locale, previewRequested }: { locale: Locale; previewReq
 async function Gate({ params, searchParams }: PageProps<"/[locale]/avatar">) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
+  // Prototype: the two ready-made avatars live on the Wardrobe podium; making new ones is not offered yet.
+  if (PROTOTYPE) redirect(`/${locale}/wardrobe`);
   const query = await searchParams;
   return <Studio locale={locale} previewRequested={query.preview === "1"} />;
 }

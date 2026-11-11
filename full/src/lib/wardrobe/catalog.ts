@@ -161,6 +161,15 @@ export const DEMO_ITEMS: WardrobeItem[] = [
   demo("man-loafers", "shoes"),
   demo("woman-heels", "shoes"),
   demo("woman-bag", "accessories"),
+  // Added for the investor prototype (11 Nov 2026): enough pieces for five looks per base avatar.
+  demo("man-chinos", "pants-skirts"),
+  demo("man-jeans", "pants-skirts"),
+  demo("man-sweater", "shirts-tops"),
+  demo("woman-trousers", "pants-skirts"),
+  demo("woman-jeans", "pants-skirts"),
+  demo("woman-shirt", "shirts-tops"),
+  demo("woman-dress", "dresses"),
+  demo("woman-blazer", "jackets-coats"),
 ];
 
 // What the try-on model can dress today, and how it names each kind.
@@ -202,6 +211,7 @@ export type StudioError =
   | "avatar_limit"
   | "consent"
   | "look_failed"
+  | "prototype_only"
   | "photo_blurry"
   | "photo_small";
 
@@ -311,6 +321,22 @@ export type LookEntry = {
 };
 // "Show me another look" per day; a new look because the weather changed is never counted.
 export const DAILY_LOOK_CHANGES: Record<string, number> = { free: 3, starter: 5, plus: 8, premium: 12 };
+// Shown names of the sample pieces (sets, the look card).
+export const PIECE_NAMES: Record<string, Text3> = {
+  "demo:man-trousers": { en: "Navy wool trousers", az: "Tünd göy yun şalvar", tr: "Lacivert yün pantolon" },
+  "demo:man-shirt": { en: "Light blue oxford shirt", az: "Açıq mavi oksford köynək", tr: "Açık mavi oxford gömlek" },
+  "demo:man-blazer": { en: "Camel blazer", az: "Dəvəyunu rəngli pencək", tr: "Camel blazer" },
+  "demo:man-chinos": { en: "Beige chinos", az: "Bej çinos şalvar", tr: "Bej chino pantolon" },
+  "demo:man-jeans": { en: "Dark jeans", az: "Tünd cins şalvar", tr: "Koyu kot pantolon" },
+  "demo:man-sweater": { en: "Charcoal merino sweater", az: "Tünd boz merinos sviter", tr: "Antrasit merinos kazak" },
+  "demo:woman-blouse": { en: "Ivory silk blouse", az: "Fil sümüyü rəngli ipək bluz", tr: "Fildişi ipek bluz" },
+  "demo:woman-skirt": { en: "Camel pleated midi skirt", az: "Dəvəyunu rəngli büzməli midi ətək", tr: "Camel pliseli midi etek" },
+  "demo:woman-trousers": { en: "Black wide-leg trousers", az: "Qara enli şalvar", tr: "Siyah bol paça pantolon" },
+  "demo:woman-jeans": { en: "Light blue jeans", az: "Açıq mavi cins şalvar", tr: "Açık mavi kot pantolon" },
+  "demo:woman-shirt": { en: "White poplin shirt", az: "Ağ poplin köynək", tr: "Beyaz poplin gömlek" },
+  "demo:woman-dress": { en: "Navy knit midi dress", az: "Tünd göy trikotaj midi don", tr: "Lacivert triko midi elbise" },
+  "demo:woman-blazer": { en: "Black blazer", az: "Qara pencək", tr: "Siyah blazer" },
+};
 // What the sample pieces are, for the stylist.
 export const SAMPLE_NOTES: Record<string, string> = {
   "demo:man-blazer": "camel wool single-breasted blazer, men",
@@ -321,4 +347,12 @@ export const SAMPLE_NOTES: Record<string, string> = {
   "demo:man-loafers": "brown leather loafers, men",
   "demo:woman-heels": "nude leather heels, women",
   "demo:woman-bag": "tan leather handbag, women",
+  "demo:man-chinos": "stone beige cotton chinos, slim straight leg, full length, men",
+  "demo:man-jeans": "dark indigo straight-leg jeans, full length, men",
+  "demo:man-sweater": "charcoal grey merino wool crew-neck sweater, long sleeves, men",
+  "demo:woman-trousers": "black wool high-waisted wide-leg trousers, full length, women",
+  "demo:woman-jeans": "light blue high-waisted straight-leg jeans, full length, women",
+  "demo:woman-shirt": "white cotton poplin button-up shirt, long sleeves, women",
+  "demo:woman-dress": "navy fine-knit long-sleeve midi dress, below the knee, women",
+  "demo:woman-blazer": "black tailored single-breasted wool blazer, women",
 };

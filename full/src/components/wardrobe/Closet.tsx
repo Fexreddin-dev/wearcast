@@ -2,8 +2,11 @@
 /* eslint-disable @next/next/no-img-element -- private signed images and transparent cutouts */
 
 import { useRef, useState, useSyncExternalStore } from "react";
-import { canTryOn, CATEGORIES, DEMO_ITEMS, FITS, MATERIALS, SIZES, type Category, type WardrobeItem } from "@/lib/wardrobe/catalog";
-import { callApi, type Text } from "./WardrobeStudio";
+import type { Dictionary } from "@/i18n/dictionaries";
+import type { Locale } from "@/i18n/config";
+import { type AvatarCard, PIECE_NAMES, canTryOn, CATEGORIES, DEMO_ITEMS, FITS, type Gender, MATERIALS, SIZES, type Category, type WardrobeItem } from "@/lib/wardrobe/catalog";
+import { APPROVED, PROTOTYPE } from "@/lib/wardrobe/curated";
+import { callApi, type SavedSet, type Text } from "./WardrobeStudio";
 
 type Filter = "all" | Category;
 
@@ -42,10 +45,85 @@ function Hanger() {
   );
 }
 
-export default function Closet({
-  t, own, limit, worn, onToggle, onDelete, onAdded, onError,
+// Prototype wardrobe: the saved sets on top (small cards, one tap puts a set on, for free), then the
+// pieces the ready-made looks are made of. Pieces are shown, not dressed one by one.
+function ProtoCloset({
+  locale, t, p, gender, sets, avatars, onWearSet, onRemoveSet,
 }: {
+  locale: Locale;
   t: Text;
+  p: Dictionary["proto"];
+  gender: Gender;
+  sets: SavedSet[];
+  avatars: AvatarCard[];
+  onWearSet: (set: SavedSet) => void;
+  onRemoveSet: (id: string) => void;
+}) {
+  const all = DEMO_ITEMS;
+  const nameOf = (i: WardrobeItem) => PIECE_NAMES[i.ref]?.[locale] ?? t.cat[i.category];
+  const avatarIds = avatars.filter((a) => a.gender === gender).map((a) => a.id);
+  const used = new Set(APPROVED().filter((c) => avatarIds.includes(c.avatar)).flatMap((c) => c.refs));
+  const pieces = all.filter((i) => used.has(i.ref));
+  return (
+    <div className="wc-closet">
+      <div className="wc-closet-inner">
+        <div className="wc-closet-head">
+          <h1 className="font-serif text-xl">{t.closet}</h1>
+        </div>
+        <div className="wc-scroll flex-1">
+          <h2 className="wc-shelf-title">{p.sets}{sets.length > 0 ? ` · ${sets.length}` : ""}</h2>
+          {sets.length === 0 && <p className="px-3 pb-3 text-[0.7rem] leading-relaxed text-text-2">{p.setsEmpty}</p>}
+          <div className="wc-sets">
+            {sets.map((set) => {
+              const items = set.refs.flatMap((r) => all.filter((i) => i.ref === r));
+              const who = avatars.find((a) => a.id === set.avatar);
+              const label = set.name || items.map(nameOf).join(" + ");
+              return (
+                <div key={set.id} className="wc-set-card">
+                  <button type="button" className="wc-set-main" onClick={() => onWearSet(set)} aria-label={`${p.wear}: ${label}`}>
+                    {who && <img className="wc-set-who" src={who.image} alt="" />}
+                    <span className="wc-set-thumbs">
+                      {items.map((i) => <img key={i.ref} src={i.image} alt="" />)}
+                    </span>
+                    <span className="wc-set-label" title={label}>{label}</span>
+                    <span className="wc-set-wear">{p.wear}</span>
+                  </button>
+                  <button type="button" className="wc-set-del" aria-label={p.removeSet} onClick={() => onRemoveSet(set.id)}>×</button>
+                </div>
+              );
+            })}
+          </div>
+          <h2 className="wc-shelf-title">{p.pieces}</h2>
+          <div className="wc-rail" />
+          <div className="wc-grid">
+            {pieces.map((item) => (
+              <div key={item.ref} className="wc-item-wrap">
+                <div className="wc-item w-full">
+                  <Hanger />
+                  <span className="wc-item-frame relative block">
+                    <img src={item.image} alt={nameOf(item)} title={nameOf(item)} loading="lazy" draggable={false} />
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Closet({
+  locale, t, p, gender, sets, avatars, onWearSet, onRemoveSet, own, limit, worn, onToggle, onDelete, onAdded, onError,
+}: {
+  locale: Locale;
+  t: Text;
+  p: Dictionary["proto"];
+  gender: Gender;
+  sets: SavedSet[];
+  avatars: AvatarCard[];
+  onWearSet: (set: SavedSet) => void;
+  onRemoveSet: (id: string) => void;
   own: WardrobeItem[];
   limit: number;
   worn: WardrobeItem[];
@@ -57,6 +135,7 @@ export default function Closet({
   const [filter, setFilter] = useState<Filter>("all");
   const [adding, setAdding] = useState(false);
   const hidden = useSyncExternalStore(subscribeHidden, readHidden, () => "").split(",").filter(Boolean);
+  if (PROTOTYPE) return <ProtoCloset locale={locale} t={t} p={p} gender={gender} sets={sets} avatars={avatars} onWearSet={onWearSet} onRemoveSet={onRemoveSet} />;
   const shown = [...own, ...DEMO_ITEMS.filter((d) => !hidden.includes(d.ref))].filter((i) => filter === "all" || i.category === filter);
 
   return (

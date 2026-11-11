@@ -1,10 +1,87 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- private signed images */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Locale } from "@/i18n/config";
-import type { LookEntry, LookSource, WardrobeItem } from "@/lib/wardrobe/catalog";
-import { callApi, json, type Text } from "./WardrobeStudio";
+import type { Dictionary } from "@/i18n/dictionaries";
+import { type LookEntry, type LookSource, PIECE_NAMES, type WardrobeItem } from "@/lib/wardrobe/catalog";
+import { looksFor, PROTOTYPE } from "@/lib/wardrobe/curated";
+import { callApi, json, type SavedSet, type Text } from "./WardrobeStudio";
+
+const sameLook = (a: string[], b: string[]) => a.length === b.length && a.every((r) => b.includes(r));
+
+// Prototype: the ready-made looks for this avatar. Today's look comes first; "Another look" turns to the
+// next one. Nothing here asks the server, so it is instant and free.
+function CuratedLooks({
+  locale, t, p, avatar, all, busy, worn, sets, onWear, onAdd,
+}: {
+  locale: Locale;
+  t: Text;
+  p: Dictionary["proto"];
+  avatar: string;
+  all: WardrobeItem[];
+  busy: boolean;
+  worn: string[];
+  sets: SavedSet[];
+  onWear: (refs: string[]) => void;
+  onAdd: (refs: string[]) => Promise<void>;
+}) {
+  const looks = useMemo(() => looksFor(avatar), [avatar]);
+  const [turn, setTurn] = useState<Record<string, number>>({});
+  const [adding, setAdding] = useState(false);
+  const i = (turn[avatar] ?? 0) % Math.max(1, looks.length);
+  const look = looks[i];
+  if (!look) return <p className="text-xs leading-relaxed text-text-2">{t.look.failed}</p>;
+  const pieces = look.refs.flatMap((r) => all.filter((a) => a.ref === r));
+  const isWorn = sameLook(worn, look.refs);
+  const isSaved = sets.some((s) => s.avatar === avatar && sameLook(s.refs, look.refs));
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="wc-set" aria-label={p.pieces}>
+        {pieces.map((piece) => (
+          <figure key={piece.ref} className="wc-set-piece">
+            <img src={piece.image} alt="" />
+            <figcaption>{PIECE_NAMES[piece.ref]?.[locale] ?? t.cat[piece.category]}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <p className="text-[0.66rem] tracking-wide text-text-2">{p.planned.replace("{low}", String(look.low)).replace("{high}", String(look.high))}</p>
+      <p className="font-serif text-[1.02rem] leading-snug">{look.note[locale]}</p>
+      <details className="wc-why">
+        <summary>{t.look.why}</summary>
+        <dl>
+          <dt>{t.look.whyWeather}</dt><dd>{look.why.weather[locale]}</dd>
+          <dt>{t.look.whyHarmony}</dt><dd>{look.why.harmony[locale]}</dd>
+          <dt>{t.look.whyLayers}</dt><dd>{look.why.layers[locale]}</dd>
+        </dl>
+      </details>
+      <button type="button" className="btn btn-primary w-full" disabled={busy || isWorn} onClick={() => onWear(look.refs)}>
+        {isWorn ? p.worn : p.wear2}
+      </button>
+      <div className="grid grid-cols-2 gap-2">
+        <button type="button" className="btn btn-ghost wc-mini" disabled={looks.length < 2} onClick={() => setTurn((all) => ({ ...all, [avatar]: i + 1 }))}>
+          {p.next}
+        </button>
+        <button
+          type="button"
+          className="btn btn-ghost wc-mini"
+          disabled={isSaved || adding}
+          onClick={async () => {
+            setAdding(true);
+            await onAdd(look.refs);
+            setAdding(false);
+          }}
+        >
+          {isSaved ? p.inWardrobe : p.addToWardrobe}
+        </button>
+      </div>
+      <p className="text-center text-[0.62rem] leading-relaxed text-text-2">
+        {p.lookOf.replace("{i}", String(i + 1)).replace("{n}", String(looks.length))} · {p.free}
+      </p>
+    </div>
+  );
+}
 
 type Part = { temp: number; wind: number; rain: number; sky: string };
 export type WeatherData = { city: string; morning: Part; afternoon: Part; evening: Part };
@@ -12,8 +89,12 @@ type Reply = { history: LookEntry[]; changesLeft: number | null };
 type Slot = Reply & { index: number };
 
 export default function DayPanel({
-  locale, t, initialCity, initialWeather, preview, avatar, all, busy, onGetLook, onSave, onToast, onError,
+  locale, t, p, initialCity, initialWeather, preview, avatar, all, busy, worn, sets, onGetLook, onSave, onAddSet, onToast, onError,
 }: {
+  p: Dictionary["proto"];
+  worn: string[];
+  sets: SavedSet[];
+  onAddSet: (refs: string[]) => Promise<void>;
   locale: Locale;
   t: Text;
   initialCity: string;
@@ -71,7 +152,7 @@ export default function DayPanel({
 
   // The look for the avatar on the podium; asked once per source and avatar while the page is open.
   useEffect(() => {
-    if (preview || asked.current.has(key)) return;
+    if (PROTOTYPE || preview || asked.current.has(key)) return;
     asked.current.add(key);
     const run = async () => {
       await Promise.resolve();
@@ -89,6 +170,7 @@ export default function DayPanel({
       setWeatherFailed(false);
       onToast(t.toast.city);
       // A new city may mean other weather: the look is checked again.
+      if (PROTOTYPE) return;
       asked.current.clear();
       setSlots({});
       void load(source, avatar, false);
@@ -133,7 +215,7 @@ export default function DayPanel({
       <section className="glass flex flex-col gap-3 p-4">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-[0.68rem] font-medium tracking-[0.18em]">{t.look.title}</h2>
-          {slot && slot.history.length > 1 && (
+          {!PROTOTYPE && slot && slot.history.length > 1 && (
             <div className="flex items-center gap-1 text-[0.68rem] text-text-2">
               <button type="button" className="wc-arrow" aria-label={t.look.older} disabled={slot.index >= slot.history.length - 1} onClick={() => step(1)}>‹</button>
               <span>{slot.index + 1}/{slot.history.length}</span>
@@ -141,6 +223,9 @@ export default function DayPanel({
             </div>
           )}
         </div>
+        {PROTOTYPE ? (
+          <CuratedLooks locale={locale} t={t} p={p} avatar={avatar} all={all} busy={busy} worn={worn} sets={sets} onWear={onGetLook} onAdd={onAddSet} />
+        ) : (<>
         <div className="wc-seg" role="tablist">
           {(["wardrobe", "trend"] as const).map((s) => (
             <button key={s} type="button" role="tab" aria-selected={source === s} onClick={() => setSource(s)}>
@@ -209,6 +294,7 @@ export default function DayPanel({
             </p>
           </div>
         )}
+        </>)}
       </section>
     </div>
   );

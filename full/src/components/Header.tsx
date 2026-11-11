@@ -7,12 +7,14 @@ import LocaleSwitcher from "./LocaleSwitcher";
 import NavTabs from "./NavTabs";
 import { signOut } from "@/app/actions/auth";
 import { isUnlimitedUser } from "@/lib/admin";
+import { PROTOTYPE } from "@/lib/wardrobe/curated";
 
 export default async function Header({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
   const user = data.user;
-  const credits = user ? (await supabase.rpc("my_credit_balance")).data : null;
+  // Prototype: every look is ready-made and free, so there are no credits to show.
+  const credits = user && !PROTOTYPE ? (await supabase.rpc("my_credit_balance")).data : null;
   const unlimited = isUnlimitedUser(user);
 
   return (
@@ -33,7 +35,7 @@ export default async function Header({ locale, dict }: { locale: Locale; dict: D
       )}
 
       <div className="flex items-center gap-2 sm:gap-3">
-        {user && (
+        {user && !PROTOTYPE && (
           <span className="hidden whitespace-nowrap text-xs tracking-wide text-text-2 sm:inline">
             {dict.wardrobe.credits}: <strong className="font-medium text-text">{unlimited ? "∞" : (credits ?? 0)}</strong>
           </span>

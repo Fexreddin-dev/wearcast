@@ -1,0 +1,242 @@
+{
+  "m1-1": {
+    "note": {
+      "en": "Dark jeans and a grey merino sweater: an easy, neat choice for a cool day.",
+      "az": "Tünd cins və boz merinos sviter: sərin gün üçün rahat və səliqəli seçim.",
+      "tr": "Koyu kot ve gri merinos kazak: serin bir gün için rahat ve derli toplu bir seçim."
+    },
+    "why": {
+      "weather": {
+        "en": "With temperatures ranging from 7°C to 12°C and typical autumn breezes, this cozy merino wool keeps you warm outside.",
+        "az": "Gün ərzində hava 7–12°C olacaq. Merinos yunundan sviter səni küləkdə də isti saxlayır.",
+        "tr": "Sıcaklığın 7°C ile 12°C arasında değiştiği ve sonbahar rüzgarının esebileceği bu gün için merinos yünü seni ideal şekilde korur."
+      },
+      "harmony": {
+        "en": "The rich dark indigo of the jeans pairs naturally with the refined charcoal grey of the sweater for a sophisticated look.",
+        "az": "Tünd göy cins şalvar boz sviterlə sakit və zövqlü uyğunlaşır.",
+        "tr": "Kot pantolonun koyu lacivert tonu, kazakla harika bir uyum yakalayarak zarif bir görünüm sunar."
+      },
+      "layers": {
+        "en": "Wear a simple cotton t-shirt underneath, and since it drops below 15°C, put a warm coat on top when heading outdoors.",
+        "az": "Sviterin altına nazik futbolka geyə bilərsən. Hava 15°C-dən soyuq olduğu üçün çölə çıxanda üstünə isti palto geyin.",
+        "tr": "İçine pamuklu bir tişört giyebilir, hava 15 derecenin altında olduğu için dışarı çıkarken üzerine sıcak bir kaban almalısın."
+      }
+    }
+  },
+  "m1-2": {
+    "note": {
+      "en": "Navy wool trousers and a grey sweater: warm and sharp for a working day.",
+      "az": "Tünd göy yun şalvar və boz sviter: iş günü üçün həm isti, həm də ciddi görünüş.",
+      "tr": "Lacivert yün pantolon ve gri kazak: iş günü için hem sıcak hem şık."
+    },
+    "why": {
+      "weather": {
+        "en": "With daytime temperatures hovering between 9°C and 13°C under typical cool autumn breezes, these breathable yet insulating wool pieces keep you perfectly comfortable.",
+        "az": "Hava 9–13°C arasında olacaq, külək sərin əsəcək. Yun şalvar və merinos sviter səni bütün gün isti saxlayır.",
+        "tr": "Gündüz sıcaklığı 9 ile 13 derece arasında değişirken ve serin sonbahar rüzgarı eserken, bu nefes alabilen ama sıcak tutan yün parçalar seni tamamen rahat ettirecek."
+      },
+      "harmony": {
+        "en": "The deep navy of the trousers pairs effortlessly with the sophisticated charcoal grey of the merino wool sweater, creating a sleek, monochromatic contrast.",
+        "az": "Tünd göy və boz rənglər bir-birini yumşaq tamamlayır, görünüş səliqəli və sakit olur.",
+        "tr": "Şalvarın koyu lacivert rengi merinos yünlü kazakın zarif antrasit rengi ile mükemmel uyum sağlayarak şık bir kontrast oluşturuyor."
+      },
+      "layers": {
+        "en": "You can wear a lightweight cotton t-shirt underneath for comfort, and since the weather is below 15°C, a warm coat goes on top outdoors, which you can easily remove if the sun warms up the afternoon.",
+        "az": "Çöldə üstünə isti palto geyin. İçəridə paltonu çıxarıb sviterdə qala bilərsən.",
+        "tr": "İçine rahatlık için ince bir pamuklu tişört giyebilirsin ve hava 15 derecenin altında olduğu için dışarıda üzerine sıcak bir palto almalısın; öğleden sonra hava ısınırsa bunu kolayca çıkarabilirsin."
+      }
+    }
+  },
+  "m1-3": {
+    "note": {
+      "en": "Beige chinos and a grey sweater: light and comfortable for a cool autumn day.",
+      "az": "Bej çinos və boz sviter: sərin payız günü üçün yüngül və rahat kombin.",
+      "tr": "Bej chino ve gri kazak: serin bir sonbahar günü için hafif ve rahat."
+    },
+    "why": {
+      "weather": {
+        "en": "Temperatures between 10°C and 15°C are perfect for breathable merino wool in crisp autumn air with light wind.",
+        "az": "Hava 10–15°C olacaq. Merinos sviter sərin havada isti saxlayır, amma tərlətmir.",
+        "tr": "10 ile 15 derece arasındaki sıcaklık hafif rüzgarlı sonbahar havasında nefes alabilen merinos yünü için idealdir."
+      },
+      "harmony": {
+        "en": "The rich charcoal grey sweater pairs impeccably with the warm stone beige chinos for a sophisticated contrast.",
+        "az": "Tünd boz sviter açıq bej şalvarla gözəl kontrast yaradır.",
+        "tr": "Zengin antrasit gri kazak, taş beji chinos ile kusursuz bir uyum yakalayarak sofistike bir kontrast oluşturur."
+      },
+      "layers": {
+        "en": "Wear a light cotton t-shirt underneath. Since it is below 15°C, wear a warm coat on top outdoors, which you can take off indoors.",
+        "az": "Səhər və axşam hava 15°C-dən soyuq olur, çöldə üstünə isti palto geyin. İçəridə paltonu çıxara bilərsən.",
+        "tr": "İçine pamuklu bir tişört giy. Hava 15 derecenin altında olduğu için dışarıda üzerine sıcak tutan bir palto almalısın, içeride çıkarabilirsin."
+      }
+    }
+  },
+  "m1-5": {
+    "note": {
+      "en": "Beige chinos and a light blue shirt: fresh and neat for a mild day.",
+      "az": "Bej çinos və açıq mavi köynək: mülayim gün üçün təravətli və səliqəli kombin.",
+      "tr": "Bej chino ve açık mavi gömlek: ılık bir gün için ferah ve derli toplu."
+    },
+    "why": {
+      "weather": {
+        "en": "With temperatures ranging from 13°C to 18°C under clear skies, breathable cotton fabrics will keep you comfortable.",
+        "az": "Hava 13–18°C olacaq. Pambıq köynək günortanın istisində rahatdır.",
+        "tr": "Sıcaklığın 13°C ile 18°C arasında değiştiği açık havada bu nefes alabilen pamuklu kumaşlar seni ideal şekilde koruyacak."
+      },
+      "harmony": {
+        "en": "The crisp light blue shirt pairs effortlessly with the warm stone beige chinos for a timeless, balanced look.",
+        "az": "Açıq mavi köynək bej şalvarla sakit və həmişə uğurlu uyğunluq yaradır.",
+        "tr": "Açık mavi gömlek sıcak taş beji rengi pantolonla harika uyum sağlayarak zamansız ve şık bir tarz yaratıyor."
+      },
+      "layers": {
+        "en": "Since the morning drops below 15°C, wear a warm coat on top outdoors and take it off if it warms up by afternoon.",
+        "az": "Səhər hava 15°C-dən soyuq olur, çıxanda üstünə yüngül palto geyin. Günorta hava isinəndə onu çıxara bilərsən.",
+        "tr": "Sabah hava 15°C'nin altına düştüğü için dışarıda üzerine sıcak bir palto giy, öğleden sonra ısındığında ise çıkarabilirsin."
+      }
+    }
+  },
+  "f1-1": {
+    "note": {
+      "en": "A navy knit midi dress: elegant and warm for a cool day.",
+      "az": "Tünd göy trikotaj midi don: sərin gün üçün həm zərif, həm də isti seçim.",
+      "tr": "Lacivert triko midi elbise: serin bir gün için hem zarif hem sıcak."
+    },
+    "why": {
+      "weather": {
+        "en": "With temperatures in Baku ranging between 7°C and 12°C, this fine-knit piece provides just the right warmth for a cool autumn day.",
+        "az": "Hava 7–12°C olacaq. Uzunqollu trikotaj don soyuqda isti saxlayır.",
+        "tr": "Bakü'de sıcaklığın 7 ile 12 derece arasında olacağı düşünülürse, bu ince örme parça serin bir sonbahar günü için ideal sıcaklığı sağlayacak."
+      },
+      "harmony": {
+        "en": "The deep navy shade exudes timeless elegance, while the fine-knit texture offers a sophisticated silhouette.",
+        "az": "Tünd göy rəng sakit və zərif görünür, sadə forması isə hər yerə yaraşır.",
+        "tr": "Derin lacivert tonu zamansız bir zarafet sunarken, ince örme dokusu hoş bir siluet oluşturuyor."
+      },
+      "layers": {
+        "en": "Since the coldest part of the day is below 15°C, a warm coat goes on top outdoors. You can wear thin thermal layers underneath for extra comfort.",
+        "az": "Çöldə üstünə isti palto geyin. Daha isti olsun deyə altına incə termal geyim də geyə bilərsən.",
+        "tr": "Günün en soğuk anı 15 derecenin altında olduğu için dışarıda üzerine sıcak bir palto giymelisin. Ekstra rahatlık için altına ince içlikler giyebilirsin."
+      }
+    }
+  },
+  "f1-2": {
+    "note": {
+      "en": "Black wide-leg trousers and a white shirt: a polished classic for a working day.",
+      "az": "Qara enli şalvar və ağ köynək: iş günü üçün klassik və səliqəli kombin.",
+      "tr": "Siyah bol paça pantolon ve beyaz gömlek: iş günü için şık bir klasik."
+    },
+    "why": {
+      "weather": {
+        "en": "With temperatures between 9°C and 13°C, the wool trousers provide essential warmth against the autumn chill. The breathable cotton shirt is ideal for staying comfortable as you move between locations.",
+        "az": "Hava 9–13°C olacaq. Yun şalvar isti saxlayır, pambıq köynək isə gün boyu rahatdır.",
+        "tr": "Hava sıcaklığının 9°C ile 13°C arasında olması nedeniyle yün pantolon seni serin havadan koruyacaktır. Nefes alan pamuklu gömlek ise gün boyu konforunu sağlar."
+      },
+      "harmony": {
+        "en": "The sharp contrast between the crisp white poplin and structured black wool creates a timeless aesthetic. The high-waisted wide-leg cut elongates your figure while maintaining a sophisticated vibe.",
+        "az": "Ağ və qara rənglərin aydın kontrastı heç vaxt dəbdən düşmür. Yüksək belli enli şalvar boyu uzun göstərir.",
+        "tr": "Beyaz poplin ve siyah yünün keskin kontrastı zamansız bir estetik yaratır. Yüksek bel enli pantolon kesimi, silüetini uzatırken sofistike bir hava katar."
+      },
+      "layers": {
+        "en": "Wear a warm coat on top outdoors to handle the cool Baku breeze. Indoors, you can simply remove the coat to reveal the clean lines of the shirt and trousers.",
+        "az": "Külək sərin olacaq, çöldə üstünə isti palto geyin. İçəridə paltonu çıxarıb köynəkdə qala bilərsən.",
+        "tr": "Dışarıda Bakü'nün serin rüzgarına karşı üzerine sıcak tutan bir palto giymelisin. Kapalı mekana geçtiğinde paltonu çıkararak gömlek ve pantolonun net hatlarını sergileyebilirsin."
+      }
+    }
+  },
+  "f1-3": {
+    "note": {
+      "en": "Light blue jeans and an ivory silk blouse: light and elegant for a calm autumn day.",
+      "az": "Açıq mavi cins və ipək bluz: sakit payız günü üçün yüngül və zərif kombin.",
+      "tr": "Açık mavi kot ve fildişi ipek bluz: sakin bir sonbahar günü için hafif ve zarif."
+    },
+    "why": {
+      "weather": {
+        "en": "The temperatures between 10°C and 15°C are ideal for silk and denim, but since it is autumn, be prepared for light breezes.",
+        "az": "Hava 10–15°C olacaq. Uzunqollu ipək bluz yüngüldür, ona görə çöldə isti üst geyim lazımdır.",
+        "tr": "10 ila 15 derece arasındaki sıcaklık ipek ve kot için idealdir, ancak sonbahar havası olduğu için hafif rüzgara karşı hazırlıklı olmalısın."
+      },
+      "harmony": {
+        "en": "The crisp light blue jeans and the luxurious ivory silk blouse create a fresh, sophisticated balance of textures and tones.",
+        "az": "Açıq mavi cins ilə fil sümüyü rəngli ipək bluz təmiz və təravətli görünür.",
+        "tr": "Açık mavi düz kesim kot ve lüks ekru ipek bluz, dokuların ve renklerin ferah ve sofistike uyumunu oluşturur."
+      },
+      "layers": {
+        "en": "Wear lightweight skin-toned undergarments beneath the silk blouse. As outdoor temperatures are below 15°C, a warm coat goes on top outdoors, which you can easily take off when indoors.",
+        "az": "Səhər və axşam hava 15°C-dən soyuq olur, çöldə üstünə isti palto geyin. İçəridə onu çıxara bilərsən.",
+        "tr": "İpek bluzun altına ten rengi ince bir iç çamaşırı giy. Günün en soğuk saatleri 15 derecenin altında olduğu için dışarıda üzerine sıcak tutan bir palto giymelisin, iç mekana girdiğinde ise bunu kolayca çıkarabilirsin."
+      }
+    }
+  },
+  "f1-4": {
+    "note": {
+      "en": "Light blue jeans and a white shirt: simple, fresh and right for anywhere.",
+      "az": "Açıq mavi cins və ağ köynək: hər yerə yaraşan sadə və təravətli kombin.",
+      "tr": "Açık mavi kot ve beyaz gömlek: her yere uyan sade ve ferah bir kombin."
+    },
+    "why": {
+      "weather": {
+        "en": "With temperatures in Baku ranging from 9°C to 19°C today, this breathable poplin shirt and sturdy denim keep you comfortable as it warms up.",
+        "az": "Hava səhər 9°C, günorta isə 19°C-yə qədər olacaq. Pambıq köynək isti saatlarda rahatdır.",
+        "tr": "Bugün Bakü'de sıcaklık 9 ile 19 derece arasında değişirken, bu nefes alabilen poplin gömlek ve dayanıklı denim seni gün boyu rahat tutacak."
+      },
+      "harmony": {
+        "en": "The crisp white cotton poplin and the light blue denim create a clean, fresh contrast that feels effortlessly stylish.",
+        "az": "Ağ köynək açıq mavi cinslə təmiz, gündəlik və zövqlü görünür.",
+        "tr": "Tertemiz beyaz pamuklu poplin ve açık mavi denim, zahmetsizce şık duran tertemiz ve taze bir uyum oluşturuyor."
+      },
+      "layers": {
+        "en": "Since the coldest part of the day drops below 15°C, wear a warm coat on top outdoors. You can take off your outer layer when it warms up in the afternoon.",
+        "az": "Səhər soyuq olur, çölə çıxanda üstünə isti palto geyin. Günorta hava isinəndə onu çıxara bilərsən.",
+        "tr": "Günün en soğuk anı 15 derecenin altında olduğu için dışarıda üzerine sıcak tutan bir palto giymelisin. Öğleden sonra hava ısındığında dış katmanını çıkarabilirsin."
+      }
+    }
+  },
+  "f1-5": {
+    "note": {
+      "en": "A camel pleated midi skirt and a silk blouse: graceful for a mild day.",
+      "az": "Dəvəyunu rəngli büzməli ətək və ipək bluz: mülayim gün üçün zərif kombin.",
+      "tr": "Camel pliseli midi etek ve ipek bluz: ılık bir gün için zarif."
+    },
+    "why": {
+      "weather": {
+        "en": "With temperatures ranging from 13°C to 18°C, it is a pleasantly mild autumn day in Baku, though a light breeze makes layered dressing a smart choice.",
+        "az": "Hava 13–18°C olacaq. Uzunqollu ipək bluz və midi ətək mülayim havada rahatdır.",
+        "tr": "Sıcaklığın 13 ile 18 derece arasında değişmesi Bakü'de ılık bir sonbahar günü sunuyor, ancak hafif rüzgar kat kat giyinmeyi gerektiriyor."
+      },
+      "harmony": {
+        "en": "The rich camel tone of the pleated skirt pairs beautifully with the soft ivory silk blouse, creating a warm and sophisticated contrast of textures.",
+        "az": "Dəvəyunu və fil sümüyü rəngləri isti, yumşaq və zərif uyğunluq yaradır.",
+        "tr": "Pileli eteğin sıcak camel rengi yumuşak fildişi ipek bluzla güzel bir uyum yakalıyor ve zarif bir görünüm oluşturuyor."
+      },
+      "layers": {
+        "en": "Mornings are below 15°C, so wear a light coat on top when you go out. Take it off when the afternoon warms up.",
+        "az": "Səhər hava 15°C-dən soyuq olur, çıxanda üstünə yüngül palto geyin. Günorta hava isinəndə onu çıxara bilərsən.",
+        "tr": "Sabahlar 15 derecenin altında olduğu için dışarı çıkarken üzerine hafif bir kaban giy. Öğleden sonra hava ısınınca çıkarabilirsin."
+      }
+    }
+  },
+  "m1-4": {
+    "note": {
+      "en": "Navy wool trousers and a light blue shirt: a classic for a warm afternoon.",
+      "az": "Tünd göy yun şalvar və açıq mavi köynək: isti günorta üçün klassik kombin.",
+      "tr": "Lacivert yün pantolon ve açık mavi gömlek: ılık bir öğleden sonra için klasik."
+    },
+    "why": {
+      "weather": {
+        "en": "The morning starts at 9°C and the afternoon reaches 19°C. A cotton shirt is comfortable in the warm hours.",
+        "az": "Hava səhər 9°C, günorta isə 19°C-yə qədər olacaq. Pambıq köynək isti saatlarda rahatdır.",
+        "tr": "Sabah 9°C, öğleden sonra ise 19°C olacak. Pamuklu gömlek sıcak saatlerde rahattır."
+      },
+      "harmony": {
+        "en": "Light blue and navy go together cleanly and neatly, a pairing that always looks smart.",
+        "az": "Açıq mavi və tünd göy rənglər bir-birini təmiz və səliqəli tamamlayır.",
+        "tr": "Açık mavi ve lacivert birbirini temiz ve düzenli bir şekilde tamamlar, her zaman şık durur."
+      },
+      "layers": {
+        "en": "Mornings are cold, so wear a warm coat on top when you go out. Take it off when the afternoon warms up.",
+        "az": "Səhər soyuq olur, çölə çıxanda üstünə isti palto geyin. Günorta hava isinəndə paltonu çıxara bilərsən.",
+        "tr": "Sabahlar soğuk olduğu için dışarı çıkarken üzerine sıcak bir kaban giy. Öğleden sonra hava ısınınca çıkarabilirsin."
+      }
+    }
+  }
+}

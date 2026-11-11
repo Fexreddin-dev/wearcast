@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PROTOTYPE } from "@/lib/wardrobe/curated";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { audienceOf, isAvatarKey } from "@/lib/wardrobe/catalog";
 import { loadAvatar } from "@/lib/wardrobe/avatars";
@@ -17,6 +18,8 @@ const body = z.object({
 export async function POST(request: Request) {
   try {
     const { user, caller } = await requireUser();
+    // Prototype: only the ready-made looks are used, so nothing here can cost money.
+    if (PROTOTYPE && !caller.unlimited) throw new StudioFailure("prototype_only", 409);
     const parsed = body.safeParse(await request.json());
     if (!parsed.success || !isAvatarKey(parsed.data.avatar)) throw new StudioFailure("invalid");
     const admin = createAdminClient();

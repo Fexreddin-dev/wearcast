@@ -20,6 +20,7 @@ const PREVIEW: StudioData = {
   worn: {},
   wornAvatar: null,
   preview: true,
+  sets: [],
   weather: {
     city: "Baku",
     morning: { temp: 11, wind: 5, rain: 10, sky: "Clouds" },
@@ -36,7 +37,7 @@ async function Studio({ locale, previewRequested, start }: { locale: Locale; pre
   // Everything is asked at once: each trip to the database takes about 0.4 s, so waiting for the
   // user first and the data afterwards doubled the time. Without a session the row-level rules
   // simply return nothing, and the visitor is sent to sign in below.
-  const [{ data: auth }, items, { data: sub }, { data: credits }, { data: profile }, avatars, { data: outfit }] = await Promise.all([
+  const [{ data: auth }, items, { data: sub }, { data: credits }, { data: profile }, avatars, { data: outfit }, { data: saved }] = await Promise.all([
     supabase.auth.getUser(),
     ownItems(supabase),
     supabase.from("subscriptions").select("plan, wardrobe_extra_slots").maybeSingle(),
@@ -46,11 +47,12 @@ async function Studio({ locale, previewRequested, start }: { locale: Locale; pre
     start.outfit && /^[0-9a-f-]{36}$/i.test(start.outfit)
       ? supabase.from("outfits").select("refs, avatar").eq("id", start.outfit).maybeSingle()
       : Promise.resolve({ data: null }),
+    supabase.from("outfits").select("id, refs, avatar, name").order("created_at", { ascending: false }).limit(60),
   ]);
 
   if (!auth.user) {
     if (previewRequested && process.env.NODE_ENV === "development") {
-      return <WardrobeStudio locale={locale} t={dict.wardrobe} data={PREVIEW} />;
+      return <WardrobeStudio locale={locale} t={dict.wardrobe} p={dict.proto} data={PREVIEW} />;
     }
     redirect(`/${locale}/login`);
   }
@@ -59,7 +61,9 @@ async function Studio({ locale, previewRequested, start }: { locale: Locale; pre
     <WardrobeStudio
       locale={locale}
       t={dict.wardrobe}
+      p={dict.proto}
       data={{
+        sets: (saved ?? []).map((o) => ({ id: o.id as string, refs: o.refs as string[], avatar: (o.avatar as string | null) ?? null, name: (o.name as string | null) ?? null })),
         owner: auth.user.id,
         items,
         avatars,
