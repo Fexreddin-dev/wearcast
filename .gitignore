@@ -3,3 +3,6 @@ full/assets-src/
 # Açarlar
 .env*
 !.env.local.example
+
+# Local Netlify folder
+.netlify

@@ -1,0 +1,6 @@
+# WearCast on Netlify. Environment variables (keys) are set in the Netlify dashboard / CLI, never in this file.
+[build]
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "22"
