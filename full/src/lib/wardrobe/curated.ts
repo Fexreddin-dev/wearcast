@@ -16,7 +16,6 @@ export type CuratedLook = {
   id: string; // "m1-1"
   avatar: (typeof PROTOTYPE_AVATARS)[number];
   n: number;
-  date: string; // the day (Baku forecast) this look was planned for
   low: number; // planned temperature range, °C
   high: number;
   refs: string[]; // every piece is dressed; inner layers first
@@ -26,19 +25,21 @@ export type CuratedLook = {
 };
 
 type Plan = Omit<CuratedLook, "id" | "image" | "note" | "why">;
-// Jackets are left out: a blazer over a shirt broke the shirt every time on m1 (10 and 11 Nov 2026).
-// Knitwear goes to the coldest days and shirts to the mildest (Baku forecast, 11 Nov 2026).
+// Looks span the year, from hot to cold, so the look of the day follows the real forecast.
+// Left out after checks (11 Nov 2026): a blazer over a shirt (broke the shirt), navy trousers (hem folded at the
+// shoes), a navy dress (long hair over a dark top left light streaks), jeans with an open shirt; round 2: shorts (legs and shoes redrawn), grey trousers (came out shiny like leather joggers), a summer dress on f1 (hem hung loose twice), a long and a short coat on f1 (both cut to a cropped jacket).
 const PLANS: Plan[] = [
-  { avatar: "m1", n: 1, date: "2026-11-11", low: 7, high: 12, refs: ["demo:man-jeans", "demo:man-sweater"] },
-  { avatar: "m1", n: 2, date: "2026-11-12", low: 9, high: 13, refs: ["demo:man-trousers", "demo:man-sweater"] },
-  { avatar: "m1", n: 3, date: "2026-11-13", low: 10, high: 15, refs: ["demo:man-chinos", "demo:man-sweater"] },
-  { avatar: "m1", n: 4, date: "2026-11-14", low: 9, high: 19, refs: ["demo:man-trousers", "demo:man-shirt"] },
-  { avatar: "m1", n: 5, date: "2026-11-15", low: 13, high: 18, refs: ["demo:man-chinos", "demo:man-shirt"] },
-  { avatar: "f1", n: 1, date: "2026-11-11", low: 7, high: 12, refs: ["demo:woman-dress"] },
-  { avatar: "f1", n: 2, date: "2026-11-12", low: 9, high: 13, refs: ["demo:woman-trousers", "demo:woman-shirt"] },
-  { avatar: "f1", n: 3, date: "2026-11-13", low: 10, high: 15, refs: ["demo:woman-jeans", "demo:woman-blouse"] },
-  { avatar: "f1", n: 4, date: "2026-11-14", low: 9, high: 19, refs: ["demo:woman-jeans", "demo:woman-shirt"] },
-  { avatar: "f1", n: 5, date: "2026-11-15", low: 13, high: 18, refs: ["demo:woman-skirt", "demo:woman-blouse"] },
+  { avatar: "m1", n: 7, low: 21, high: 32, refs: ["demo:man-chinos", "demo:man-tee"] },
+  { avatar: "m1", n: 5, low: 13, high: 18, refs: ["demo:man-chinos", "demo:man-shirt"] },
+  { avatar: "m1", n: 3, low: 10, high: 15, refs: ["demo:man-chinos", "demo:man-sweater"] },
+  { avatar: "m1", n: 1, low: 7, high: 12, refs: ["demo:man-jeans", "demo:man-sweater"] },
+  { avatar: "m1", n: 10, low: -5, high: 6, refs: ["demo:man-jeans", "demo:man-puffer"] },
+  { avatar: "f1", n: 7, low: 21, high: 32, refs: ["demo:woman-jeans", "demo:woman-tee"] },
+  { avatar: "f1", n: 5, low: 13, high: 18, refs: ["demo:woman-skirt", "demo:woman-blouse"] },
+  { avatar: "f1", n: 4, low: 9, high: 19, refs: ["demo:woman-jeans", "demo:woman-shirt"] },
+  { avatar: "f1", n: 3, low: 10, high: 15, refs: ["demo:woman-jeans", "demo:woman-blouse"] },
+  { avatar: "f1", n: 2, low: 9, high: 13, refs: ["demo:woman-trousers", "demo:woman-shirt"] },
+  { avatar: "f1", n: 8, low: 12, high: 17, refs: ["demo:woman-knitdress"] },
 ];
 
 const texts = TEXTS as Record<string, { note: Text3; why: CuratedLook["why"] }>;
@@ -47,16 +48,13 @@ const texts = TEXTS as Record<string, { note: Text3; why: CuratedLook["why"] }>;
 export const CURATED: CuratedLook[] = PLANS.map((p) => ({ ...p, id: `${p.avatar}-${p.n}`, image: `/assets/looks/${p.avatar}-${p.n}.webp`, ...(texts[`${p.avatar}-${p.n}`] ?? { note: null!, why: null! }) }));
 export const APPROVED = () => CURATED.filter((c) => c.note);
 
-// The look for this avatar: today's planned look first, then the others in order. After the planned
-// days the looks keep turning, one step per day.
-export function looksFor(avatar: string, today = new Date()) {
+// The looks for this avatar, the best match for today's real weather first (the coldest and the warmest part
+// of the day against each look's range). Before the weather is known, the looks keep their order.
+export function looksFor(avatar: string, weather?: { low: number; high: number } | null) {
   const list = APPROVED().filter((c) => c.avatar === avatar);
-  if (!list.length) return [];
-  const baku = new Date(today.getTime() + 4 * 3_600_000); // Baku is UTC+4 all year
-  const day = baku.toISOString().slice(0, 10);
-  let start = list.findIndex((c) => c.date === day);
-  if (start < 0) start = Math.floor(baku.getTime() / 86_400_000) % list.length;
-  return [...list.slice(start), ...list.slice(0, start)];
+  if (!weather) return list;
+  const miss = (c: CuratedLook) => Math.abs(c.low - weather.low) + Math.abs(c.high - weather.high);
+  return [...list].sort((a, b) => miss(a) - miss(b));
 }
 
 // The shipped picture for exactly these pieces on this avatar, if it is one of the approved looks.

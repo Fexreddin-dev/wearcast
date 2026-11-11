@@ -10,7 +10,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { runTryOn } from "@/lib/wardrobe/tryon";
 import { CURATED, CURATOR_ID } from "@/lib/wardrobe/curated";
 
-const LIMIT_USD = 19.74; // cost_log total before the prototype (15.74) + the $4.00 the owner allowed
+const LIMIT_USD = 20.60; // was 20.455; one more coat step from the extra $0.94 the owner allowed if all looks are clean // cost_log before round 2 (18.455) + the $2.00 the owner allowed on 11 Nov 2026 (balance $2.94)
 const OUT = process.env.PROTO_OUT ?? "proto-out";
 fs.mkdirSync(OUT, { recursive: true });
 const admin = createAdminClient();
@@ -27,7 +27,9 @@ for (const look of CURATED) {
   if (only.length && !only.includes(id)) continue;
   const before = await spent();
   // Worst case for one look: three steps, two attempts each, plus one jacket picture.
-  if (before + look.refs.length * 0.15 + 0.08 > LIMIT_USD) {
+  // STEPS: how many pieces are not dressed yet (the rest come from the cache), when it is known.
+  const steps = Number(process.env.STEPS ?? look.refs.length);
+  if (before + steps * 0.15 + (process.env.STEPS ? 0 : 0.08) > LIMIT_USD) {
     console.log(`STOP before ${id}: spent $${before.toFixed(3)}, limit $${LIMIT_USD}`);
     break;
   }

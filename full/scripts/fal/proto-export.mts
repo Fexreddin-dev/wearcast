@@ -1,39 +1,45 @@
-// Investor prototype (11 Nov 2026): copies the finished, checked curated looks from storage into
-// public/assets/looks/<id>.webp, so the site shows them as plain files (instant, no database). Free.
-// Run like proto-looks.mts.
+// Investor prototype (11 Nov 2026): makes the shipped look pictures (public/assets/looks/<id>.webp).
+// For each approved look: the full try-on picture (raw.jpg) is cut out again with the hair-aware "Portrait"
+// background removal (the first cut left light patches beside long hair), then finished by scripts/fal/finish.mjs
+// (edge clean-up, light sharpening, a little colour depth). A cut-out made earlier is reused from CUT_DIR.
+// Run like proto-looks.mts:  ... proto-export.mts [ids...]
 import fs from "node:fs";
 import path from "node:path";
-import sharp from "sharp";
-import { runTryOn } from "@/lib/wardrobe/tryon";
-import { CURATED, CURATOR_ID } from "@/lib/wardrobe/curated";
+import { fal } from "@fal-ai/client";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { findLook } from "@/lib/wardrobe/tryon";
+import { APPROVED, CURATED, CURATOR_ID } from "@/lib/wardrobe/curated";
+import { finishLook } from "./finish.mjs";
 
 const OUT = path.join(process.cwd(), "public", "assets", "looks");
+const CUT_DIR = process.env.CUT_DIR ?? path.join(process.cwd(), "assets-src", "looks-cut");
 fs.mkdirSync(OUT, { recursive: true });
-for (const look of CURATED) {
-  const res = await runTryOn({ id: CURATOR_ID, unlimited: true }, look.avatar, look.refs, true);
-  if (!res.image) {
-    console.log(`MISSING ${look.id}`);
-    continue;
+fs.mkdirSync(CUT_DIR, { recursive: true });
+fal.config({ credentials: process.env.FAL_KEY });
+const admin = createAdminClient();
+
+const only = process.argv.slice(2);
+// Only looks with approved texts are exported (unless named): the others are not shown anywhere.
+const todo = only.length ? CURATED.filter((c) => only.includes(c.id)) : APPROVED();
+for (const look of todo) {
+  const cutPath = path.join(CUT_DIR, `${look.id}.png`);
+  if (!fs.existsSync(cutPath)) {
+    const { generationId } = await findLook(CURATOR_ID, look.avatar, look.refs);
+    if (!generationId) {
+      console.log(`MISSING ${look.id}`);
+      continue;
+    }
+    const { data: gen } = await admin.from("generations").select("result_paths").eq("id", generationId).single();
+    const { data: file, error } = await admin.storage.from("generations").download((gen!.result_paths as string[])[1]);
+    if (error) throw error;
+    const url = await fal.storage.upload(new Blob([await file.arrayBuffer()], { type: "image/jpeg" }));
+    const res = await fal.subscribe("fal-ai/birefnet/v2", {
+      input: { image_url: url, model: "Portrait", operating_resolution: "2048x2048", refine_foreground: true, output_format: "png" },
+    });
+    await admin.from("cost_log").insert({ provider: "fal", model: "fal-ai/birefnet/v2", cost_usd: 0.01, user_id: CURATOR_ID });
+    fs.writeFileSync(cutPath, Buffer.from(await (await fetch((res.data as { image: { url: string } }).image.url)).arrayBuffer()));
   }
-  // A light sharpening (compared side by side, 11 Nov 2026) makes seams, buttons and pleats clearer
-  // without changing the picture. The originals stay in storage.
-  const raw = Buffer.from(await (await fetch(res.image)).arrayBuffer());
-  // Only the colours are sharpened. The soft cut-out edge is pulled in by about a pixel, which removes the
-  // light fringe the background removal left (visible on the dark theme, e.g. between the legs).
-  const { data: rgba, info } = await sharp(raw).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  const { width, height } = info;
-  const rgb = await sharp(rgba, { raw: { width, height, channels: 4 } }).removeAlpha().sharpen({ sigma: 0.9, m1: 0.8, m2: 2.5 }).raw().toBuffer();
-  const a0 = await sharp(rgba, { raw: { width, height, channels: 4 } }).extractChannel(3).blur(0.7).raw().toBuffer();
-  const out = Buffer.alloc(width * height * 4);
-  for (let i = 0; i < width * height; i++) {
-    out[i * 4] = rgb[i * 3];
-    out[i * 4 + 1] = rgb[i * 3 + 1];
-    out[i * 4 + 2] = rgb[i * 3 + 2];
-    out[i * 4 + 3] = Math.max(0, Math.min(255, Math.round((a0[i] - 0.375 * 255) * 1.6))); // pull the soft edge in about a pixel
-  }
-  const buf = await sharp(out, { raw: { width, height, channels: 4 } }).webp({ quality: 95, alphaQuality: 95 }).toBuffer();
-  const meta = await sharp(buf).metadata();
-  if (meta.channels !== 4) throw new Error(`${look.id}: transparency lost`);
+  const { buf } = (await finishLook(cutPath)) as { buf: Buffer };
   fs.writeFileSync(path.join(OUT, `${look.id}.webp`), buf);
   console.log(`saved ${look.id} ${Math.round(buf.length / 1024)} KB`);
 }

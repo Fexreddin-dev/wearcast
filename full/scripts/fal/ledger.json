@@ -1372,5 +1372,137 @@
     "cost_usd": 0.01,
     "note": "cutout wardrobe/woman-trousers.png",
     "at": "2026-11-10T21:10:24.870Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment man-tee",
+    "at": "2026-11-11T10:59:16.893Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment man-shorts",
+    "at": "2026-11-11T10:59:25.554Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment man-puffer",
+    "at": "2026-11-11T10:59:33.589Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment man-greys",
+    "at": "2026-11-11T10:59:40.873Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment woman-sundress",
+    "at": "2026-11-11T10:59:54.984Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment woman-tee",
+    "at": "2026-11-11T11:00:00.872Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment woman-coat",
+    "at": "2026-11-11T11:00:10.970Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment woman-knitdress",
+    "at": "2026-11-11T11:00:16.132Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment woman-knitdress",
+    "at": "2026-11-11T11:00:42.427Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment woman-knitdress",
+    "at": "2026-11-11T11:01:04.221Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/man-greys.png",
+    "at": "2026-11-11T11:01:31.593Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/man-puffer.png",
+    "at": "2026-11-11T11:01:38.235Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/man-shorts.png",
+    "at": "2026-11-11T11:01:43.840Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/man-tee.png",
+    "at": "2026-11-11T11:01:48.694Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/woman-coat.png",
+    "at": "2026-11-11T11:01:53.165Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/woman-knitdress.png",
+    "at": "2026-11-11T11:01:59.720Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/woman-sundress.png",
+    "at": "2026-11-11T11:02:05.296Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/woman-tee.png",
+    "at": "2026-11-11T11:02:09.947Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment woman-jacket",
+    "at": "2026-11-11T11:11:59.406Z"
+  },
+  {
+    "model": "fal-ai/flux-pro/v1.1",
+    "cost_usd": 0.04,
+    "note": "proto garment woman-jacket",
+    "at": "2026-11-11T11:12:19.072Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/woman-jacket.png",
+    "at": "2026-11-11T11:12:45.082Z"
+  },
+  {
+    "model": "fal-ai/birefnet/v2",
+    "cost_usd": 0.01,
+    "note": "cutout wardrobe/woman-jacket.png",
+    "at": "2026-11-11T11:13:26.491Z"
   }
 ]

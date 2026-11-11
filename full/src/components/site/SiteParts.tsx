@@ -9,15 +9,16 @@ import "./site.css";
 
 type Site = Dictionary["site"];
 
-// Three days of the forecast and what he and she would wear: the same finished looks as in the studio.
+// Three kinds of weather and what he and she would wear: knitwear, shirts, then summer t-shirts.
+// Every change of weather changes the whole look, not one piece.
 const DAYS = [
-  { key: "cold", man: "m1-1", woman: "f1-1" },
-  { key: "cool", man: "m1-3", woman: "f1-3" },
+  { key: "cool", man: "m1-1", woman: "f1-2" },
   { key: "mild", man: "m1-5", woman: "f1-5" },
+  { key: "hot", man: "m1-7", woman: "f1-7" },
 ] as const;
 
 export function WeatherDemo({ s }: { s: Site }) {
-  const [day, setDay] = useState<(typeof DAYS)[number]["key"]>("cold");
+  const [day, setDay] = useState<(typeof DAYS)[number]["key"]>("cool");
   const d = DAYS.find((x) => x.key === day)!;
   return (
     <section aria-labelledby="demo-title" className="glass reveal flex flex-col items-center gap-5 overflow-hidden px-4 pb-0 pt-8 sm:px-8">

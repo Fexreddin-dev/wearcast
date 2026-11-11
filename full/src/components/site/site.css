@@ -30,3 +30,13 @@
   }
 }
 @keyframes site-reveal { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+
+/* The demo models stand like people: a slow breath (the two are out of step), and the roadmap lights glow softly. */
+.site-demo-stage .site-demo-look { transform-origin: 50% 100%; animation: site-look-in 0.7s var(--ease) both, site-breathe 5.6s ease-in-out 0.7s infinite; }
+.site-demo-stage .site-demo-look + .site-demo-look { animation-delay: 0s, 1.9s; }
+@keyframes site-breathe { 0%, 100% { transform: scale(1, 1) rotate(0deg); } 30% { transform: scale(1.003, 1.009) rotate(0.12deg); } 65% { transform: scale(1.001, 1.004) rotate(-0.1deg); } }
+.site-soon-dot { animation: site-glow 3.2s ease-in-out infinite; }
+li:nth-child(2n) > .site-soon-dot { animation-delay: 1.1s; }
+li:nth-child(3n) > .site-soon-dot { animation-delay: 2.2s; }
+@keyframes site-glow { 0%, 100% { box-shadow: 0 0 0 4px rgba(176, 141, 87, 0.16), 0 0 6px rgba(201, 165, 107, 0.35); } 50% { box-shadow: 0 0 0 6px rgba(176, 141, 87, 0.1), 0 0 16px rgba(201, 165, 107, 0.75); } }
+@media (prefers-reduced-motion: reduce) { .site-demo-stage .site-demo-look, .site-soon-dot { animation: none; } }

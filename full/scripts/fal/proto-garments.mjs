@@ -30,6 +30,18 @@ export const PROTO = [
   { id: "woman-shirt", kind: GHOST, desc: "women's crisp white cotton poplin button-up shirt, long sleeves, classic collar, hip length, relaxed fit, fully buttoned, no mannequin neck or stand, empty hollow collar, nothing above the collar" },
   { id: "woman-dress", kind: GHOST, desc: "women's navy blue fine-knit long-sleeve midi dress reaching below the knee, round neckline, straight relaxed fit" },
   { id: "woman-blazer", kind: GHOST, desc: "women's black tailored single-breasted wool blazer, one button, open front showing an empty neckline, hip length" },
+  // Round 2 (11 Nov 2026): weather tiers from hot to cold. Tops for the woman are light, because long hair over a
+  // dark top left light streaks after try-on. Outerwear is closed, so it is dressed as a top (no inner layer).
+  { id: "man-tee", kind: GHOST, desc: "men's plain white heavyweight cotton crew-neck t-shirt, short sleeves, regular fit, hip length" },
+  { id: "man-shorts", kind: FLAT, desc: "one pair of men's stone beige cotton chino shorts alone, knee length, both legs visible, waistband at top" },
+  { id: "man-puffer", kind: GHOST, desc: "men's black quilted down puffer jacket, zipped all the way up to a stand collar, fully closed front, long sleeves, hip length, matte fabric" },
+  { id: "man-greys", kind: FLAT, desc: "one pair of men's mid grey wool tailored trousers alone, slim tapered leg ending at the ankle without any break or cuff, flat front, both legs visible, waistband at top" },
+  { id: "woman-sundress", kind: GHOST, desc: "women's soft sage green linen midi dress with short sleeves, round neckline, reaching below the knee, relaxed fit" },
+  { id: "woman-tee", kind: GHOST, desc: "women's plain white cotton crew-neck t-shirt, short sleeves, relaxed fit, hip length" },
+  { id: "woman-coat", kind: GHOST, desc: "women's camel wool coat, single-breasted and buttoned fully closed, notch lapels, long sleeves, mid-thigh length, straight fit" },
+  { id: "woman-knitdress", kind: FLAT, desc: "one women's oatmeal cream fine-knit long-sleeve midi dress alone, round neckline, straight relaxed fit, sleeves laid out at the sides, full length visible" },
+  // A knee-length coat was cut to waist length by the try-on twice (11 Nov 2026), so a hip-length one.
+  { id: "woman-jacket", kind: GHOST, desc: "a camel brown wool short coat for women, hip length, closed with four buttons down the front, round collar, long sleeves, straight cut" },
 ];
 
 const args = process.argv.slice(2);

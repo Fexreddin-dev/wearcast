@@ -3,7 +3,7 @@ import { createHash, randomInt, randomUUID } from "node:crypto";
 import sharp from "sharp";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { CATEGORIES, coverageRule, DAILY_TRYONS, DEMO_ITEMS, FASHN_CATEGORY, layerRank, type Category } from "./catalog";
+import { CATEGORIES, CLOSED_OUTERWEAR, coverageRule, DAILY_TRYONS, DEMO_ITEMS, FASHN_CATEGORY, layerRank, type Category } from "./catalog";
 import { type AvatarProfile, coverageFor, loadAvatar, publicFile } from "./avatars";
 import { keepHeadscarf } from "./hijab";
 import { CURATOR_ID, PROTOTYPE } from "./curated";
@@ -275,7 +275,7 @@ async function jacketPicture(admin: Admin, caller: Caller, avatar: AvatarProfile
 
 function garmentFor(admin: Admin, caller: Caller, avatar: AvatarProfile, layers: Layer[], index: number) {
   const layer = layers[index];
-  if (layer.category === "jackets-coats") return jacketPicture(admin, caller, avatar, layers, index);
+  if (layer.category === "jackets-coats" && !CLOSED_OUTERWEAR.has(layer.ref)) return jacketPicture(admin, caller, avatar, layers, index);
   return frontPicture(admin, layer);
 }
 
@@ -445,7 +445,7 @@ export async function runTryOn(caller: Caller, avatarKey: string, refs: string[]
             // keeping the old top left shirts open or twisted (Nov 2026 tests). So tops are replaced as for
             // everyone and the avatar's own headscarf is laid back on afterwards (hijab.ts).
             mode: "quality",
-            segmentation_free: layer.category === "jackets-coats",
+            segmentation_free: layer.category === "jackets-coats" && !CLOSED_OUTERWEAR.has(layer.ref),
             moderation_level: "conservative",
             num_samples: 1,
             output_format: "png",

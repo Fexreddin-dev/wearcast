@@ -35,7 +35,7 @@ for (const look of CURATED) {
   if (only.length && !only.includes(look.id)) continue;
   const pieces = look.refs.map((r) => SAMPLE_NOTES[r]).join("; ");
   const who = look.avatar.startsWith("m") ? "an adult man" : "an adult woman";
-  const weather = `Baku, ${look.date}: between ${look.low}°C and ${look.high}°C during the day.`;
+  const weather = `A day in Baku between ${look.low}°C and ${look.high}°C.`;
   let accepted = null;
   if (checkOnly) {
     const card = JSON.stringify(texts[look.id]);

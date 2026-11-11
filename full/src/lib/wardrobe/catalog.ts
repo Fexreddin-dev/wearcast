@@ -170,7 +170,20 @@ export const DEMO_ITEMS: WardrobeItem[] = [
   demo("woman-shirt", "shirts-tops"),
   demo("woman-dress", "dresses"),
   demo("woman-blazer", "jackets-coats"),
+  // Round 2 (11 Nov 2026): hot to cold.
+  demo("man-tee", "shirts-tops"),
+  demo("man-shorts", "pants-skirts"),
+  demo("man-puffer", "jackets-coats"),
+  demo("man-greys", "pants-skirts"),
+  demo("woman-sundress", "dresses"),
+  demo("woman-tee", "shirts-tops"),
+  demo("woman-coat", "jackets-coats"),
+  demo("woman-knitdress", "dresses"),
+  demo("woman-jacket", "jackets-coats"),
 ];
+// Outerwear that is worn fully closed: it is dressed like a top (it replaces what is above the waist), so no
+// inner layer has to show through an opening.
+export const CLOSED_OUTERWEAR = new Set(["demo:man-puffer", "demo:woman-coat", "demo:woman-jacket"]);
 
 // What the try-on model can dress today, and how it names each kind.
 export const FASHN_CATEGORY: Partial<Record<Category, "tops" | "bottoms" | "one-pieces">> = {
@@ -336,6 +349,15 @@ export const PIECE_NAMES: Record<string, Text3> = {
   "demo:woman-shirt": { en: "White poplin shirt", az: "Ağ poplin köynək", tr: "Beyaz poplin gömlek" },
   "demo:woman-dress": { en: "Navy knit midi dress", az: "Tünd göy trikotaj midi don", tr: "Lacivert triko midi elbise" },
   "demo:woman-blazer": { en: "Black blazer", az: "Qara pencək", tr: "Siyah blazer" },
+  "demo:man-tee": { en: "White cotton t-shirt", az: "Ağ pambıq futbolka", tr: "Beyaz pamuklu tişört" },
+  "demo:man-shorts": { en: "Beige chino shorts", az: "Bej çinos şort", tr: "Bej chino şort" },
+  "demo:man-puffer": { en: "Black puffer jacket", az: "Qara pufer gödəkçə", tr: "Siyah şişme mont" },
+  "demo:man-greys": { en: "Grey wool trousers", az: "Boz yun şalvar", tr: "Gri yün pantolon" },
+  "demo:woman-sundress": { en: "Sage linen midi dress", az: "Adaçayı yaşılı kətan midi don", tr: "Adaçayı yeşili keten midi elbise" },
+  "demo:woman-tee": { en: "White cotton t-shirt", az: "Ağ pambıq futbolka", tr: "Beyaz pamuklu tişört" },
+  "demo:woman-coat": { en: "Camel wool coat", az: "Dəvəyunu rəngli yun palto", tr: "Camel yün kaban" },
+  "demo:woman-knitdress": { en: "Cream knit dress", az: "Krem trikotaj don", tr: "Krem triko elbise" },
+  "demo:woman-jacket": { en: "Camel short coat", az: "Dəvəyunu rəngli qısa palto", tr: "Camel kısa kaban" },
 };
 // What the sample pieces are, for the stylist.
 export const SAMPLE_NOTES: Record<string, string> = {
@@ -355,4 +377,13 @@ export const SAMPLE_NOTES: Record<string, string> = {
   "demo:woman-shirt": "white cotton poplin button-up shirt, long sleeves, women",
   "demo:woman-dress": "navy fine-knit long-sleeve midi dress, below the knee, women",
   "demo:woman-blazer": "black tailored single-breasted wool blazer, women",
+  "demo:man-tee": "white cotton crew-neck t-shirt, short sleeves, men",
+  "demo:man-shorts": "stone beige cotton chino shorts, knee length, men",
+  "demo:man-puffer": "black quilted puffer jacket, zipped closed, men",
+  "demo:man-greys": "grey wool slim tapered trousers, ankle length, men",
+  "demo:woman-sundress": "sage green linen midi dress, short sleeves, women",
+  "demo:woman-tee": "white cotton crew-neck t-shirt, short sleeves, women",
+  "demo:woman-coat": "camel wool coat, buttoned closed, knee length, women",
+  "demo:woman-knitdress": "oatmeal cream knit midi dress, long sleeves, women",
+  "demo:woman-jacket": "camel wool short coat, hip length, buttoned closed, women",
 };

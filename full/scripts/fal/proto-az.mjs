@@ -5,6 +5,11 @@ import fs from "node:fs";
 
 const FILE = "src/lib/wardrobe/curated-texts.json";
 const AZ = {
+  "m1-7": {"note":"Bej çinos və ağ futbolka: isti gün üçün yüngül və rahat kombin.","weather":"Hava 21–32°C olacaq. Pambıq futbolka və nazik çinos isti havada sərin saxlayır.","harmony":"Ağ futbolka bej şalvarla təmiz, sakit və yay üçün uyğun görünür.","layers":"Bu, tək qatlı kombindir: isti havada başqa qat lazım deyil."},
+  "m1-10": {"note":"Tünd cins və qara pufer gödəkçə: soyuq gün üçün isti və sadə kombin.","weather":"Hava 6°C-dən soyuq olacaq, 0°C-yə qədər düşə bilər. Pufer gödəkçə küləkdə də bədəni isti saxlayır.","harmony":"Qara gödəkçə tünd göy cinslə sakit və şəhər üçün səliqəli görünür.","layers":"Gödəkçənin altına isti, uzunqol bir geyim geyin. İçəridə gödəkçəni çıxara bilərsən."},
+  "f1-7": {"note":"Açıq mavi cins və ağ futbolka: isti gün üçün sadə və təravətli kombin.","weather":"Hava 21–32°C olacaq. Pambıq futbolka isti havada rahatdır və nəfəs alır.","harmony":"Ağ futbolka açıq mavi cinslə ən sadə, amma həmişə gözəl görünən birləşmədir.","layers":"Bu, tək qatlı kombindir: isti havada başqa qat lazım deyil."},
+  "f1-8": {"note":"Krem trikotaj don: mülayim gün üçün yumşaq və zərif seçim.","weather":"Hava 12–17°C olacaq. Uzunqollu trikotaj don sərin səhərdə də, mülayim gündüzdə də rahatdır.","harmony":"Krem rəng sakit və işıqlı görünür, sadə forması isə hər yerə yaraşır.","layers":"Səhər çölə çıxanda üstünə yüngül palto geyin. Günorta isinəndə onu çıxara bilərsən."},
+  "f1-9": {"note":"Qara enli şalvar və dəvəyunu rəngli qısa palto: soyuq gün üçün klassik və isti kombin.","weather":"Hava 6°C-dən soyuq olacaq, 0°C-yə qədər düşə bilər. Yun palto və yun şalvar soyuqda isti saxlayır.","harmony":"Dəvəyunu rəngli palto qara şalvarla zərif, həmişə dəbdə olan kontrast yaradır.","layers":"Paltonun altına isti, uzunqol bir geyim geyin. İçəridə paltonu çıxara bilərsən."},
   "m1-1": {
     note: "Tünd cins və boz merinos sviter: sərin gün üçün rahat və səliqəli seçim.",
     weather: "Gün ərzində hava 7–12°C olacaq. Merinos yunundan sviter səni küləkdə də isti saxlayır.",
@@ -70,6 +75,11 @@ const AZ = {
 // The one-line headline in every language, written by hand (one Gemini headline came back in Turkish
 // under "en" and passed its check).
 const NOTES = {
+  "m1-7": ["Beige chinos and a white t-shirt: light and easy for a warm day.","Bej chino ve beyaz tişört: sıcak bir gün için hafif ve rahat."],
+  "m1-10": ["Dark jeans and a black puffer jacket: warm and simple for a cold day.","Koyu kot ve siyah şişme mont: soğuk bir gün için sıcak ve sade."],
+  "f1-7": ["Light blue jeans and a white t-shirt: simple and fresh for a warm day.","Açık mavi kot ve beyaz tişört: sıcak bir gün için sade ve ferah."],
+  "f1-8": ["A cream knit dress: soft and elegant for a mild day.","Krem triko elbise: ılık bir gün için yumuşak ve zarif."],
+  "f1-9": ["Black wide-leg trousers and a camel short coat: a warm classic for a cold day.","Siyah bol paça pantolon ve camel kısa kaban: soğuk bir gün için sıcak bir klasik."],
   "m1-1": [
     "Dark jeans and a grey merino sweater: an easy, neat choice for a cool day.",
     "Koyu kot ve gri merinos kazak: serin bir gün için rahat ve derli toplu bir seçim."

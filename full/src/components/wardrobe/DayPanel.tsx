@@ -13,8 +13,9 @@ const sameLook = (a: string[], b: string[]) => a.length === b.length && a.every(
 // Prototype: the ready-made looks for this avatar. Today's look comes first; "Another look" turns to the
 // next one. Nothing here asks the server, so it is instant and free.
 function CuratedLooks({
-  locale, t, p, avatar, all, busy, worn, sets, onWear, onAdd,
+  locale, t, p, avatar, all, busy, worn, sets, weather, onWear, onAdd,
 }: {
+  weather: WeatherData | null;
   locale: Locale;
   t: Text;
   p: Dictionary["proto"];
@@ -26,7 +27,11 @@ function CuratedLooks({
   onWear: (refs: string[]) => void;
   onAdd: (refs: string[]) => Promise<void>;
 }) {
-  const looks = useMemo(() => looksFor(avatar), [avatar]);
+  // Today's real forecast decides which look comes first; the others follow from the closest to the furthest.
+  const temps = weather ? [weather.morning.temp, weather.afternoon.temp, weather.evening.temp] : null;
+  const low = temps ? Math.min(...temps) : null;
+  const high = temps ? Math.max(...temps) : null;
+  const looks = useMemo(() => looksFor(avatar, low === null || high === null ? null : { low, high }), [avatar, low, high]);
   const [turn, setTurn] = useState<Record<string, number>>({});
   const [adding, setAdding] = useState(false);
   const i = (turn[avatar] ?? 0) % Math.max(1, looks.length);
@@ -224,7 +229,7 @@ export default function DayPanel({
           )}
         </div>
         {PROTOTYPE ? (
-          <CuratedLooks locale={locale} t={t} p={p} avatar={avatar} all={all} busy={busy} worn={worn} sets={sets} onWear={onGetLook} onAdd={onAddSet} />
+          <CuratedLooks locale={locale} t={t} p={p} weather={weather} avatar={avatar} all={all} busy={busy} worn={worn} sets={sets} onWear={onGetLook} onAdd={onAddSet} />
         ) : (<>
         <div className="wc-seg" role="tablist">
           {(["wardrobe", "trend"] as const).map((s) => (
